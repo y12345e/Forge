@@ -69,7 +69,7 @@ public class ChooseSourceAi extends SpellAbilityAi {
             if (sa.getParam("AILogic").equals("NeedsPrevention")) {
                 if (!game.getStack().isEmpty()) {
                     final SpellAbility topStack = game.getStack().peekAbility();
-                    if (sa.hasParam("Choices") && !topStack.getSourceCard().isValid(sa.getParam("Choices"), ai, source)) {
+                    if (sa.hasParam("Choices") && !topStack.getSourceCard().isValid(sa.getParam("Choices"), ai, source, sa.getIntrinsic())) {
                         return false;
                     }
                     final ApiType threatApi = topStack.getApi();

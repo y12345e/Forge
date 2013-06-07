@@ -11486,6 +11486,7 @@ res/cardsfolder/t/trained_orgg.txt svneol=native#text/plain
 res/cardsfolder/t/trained_pronghorn.txt svneol=native#text/plain
 res/cardsfolder/t/training_drone.txt svneol=native#text/plain
 res/cardsfolder/t/training_grounds.txt svneol=native#text/plain
+res/cardsfolder/t/trait_doctoring.txt -text
 res/cardsfolder/t/traitorous_blood.txt -text
 res/cardsfolder/t/traitorous_instinct.txt svneol=native#text/plain
 res/cardsfolder/t/traitors_clutch.txt svneol=native#text/plain
@@ -14071,6 +14072,7 @@ src/main/java/forge/card/ability/effects/AttachEffect.java -text
 src/main/java/forge/card/ability/effects/BecomesBlockedEffect.java -text
 src/main/java/forge/card/ability/effects/BondEffect.java -text
 src/main/java/forge/card/ability/effects/ChangeTargetsEffect.java -text
+src/main/java/forge/card/ability/effects/ChangeTextEffect.java -text
 src/main/java/forge/card/ability/effects/ChangeZoneAllEffect.java -text
 src/main/java/forge/card/ability/effects/ChangeZoneEffect.java -text
 src/main/java/forge/card/ability/effects/CharmEffect.java -text

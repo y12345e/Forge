@@ -179,7 +179,7 @@ public class ChooseSourceEffect extends SpellAbilityEffect {
             final Card source = si.getSourceCard();
             final SpellAbility abilityOnStack = si.getSpellAbility();
             
-            if (sa.hasParam("Choices") && !abilityOnStack.getSourceCard().isValid(sa.getParam("Choices"), ai, sa.getSourceCard())) {
+            if (sa.hasParam("Choices") && !abilityOnStack.getSourceCard().isValid(sa.getParam("Choices"), ai, sa.getSourceCard(), sa.getIntrinsic())) {
                 continue;
             }
             final ApiType threatApi = abilityOnStack.getApi();

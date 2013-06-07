@@ -342,7 +342,7 @@ public class CostExile extends CostPartWithList {
         for (SpellAbilityStackInstance si : game.getStack()) {
             final Card stC = si.getSourceCard();
             final SpellAbility stSA = si.getSpellAbility().getRootAbility();
-            if (stC.isValid(getType().split(";"), sa.getActivatingPlayer(), sa.getSourceCard()) && stSA.isSpell()) {
+            if (stC.isValid(getType().split(";"), sa.getActivatingPlayer(), sa.getSourceCard(),sa.getIntrinsic()) && stSA.isSpell()) {
                 saList.add(stSA);
                 if (stC.isCopiedSpell()) {
                     descList.add(stSA.getStackDescription() + " (Copied Spell)");

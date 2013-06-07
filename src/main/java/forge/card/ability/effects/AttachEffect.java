@@ -185,7 +185,7 @@ public class AttachEffect extends SpellAbilityEffect {
             final ArrayList<Player> players = new ArrayList<Player>();
 
             for (Player player : game.getPlayers()) {
-                if (player.isValid(tgt.getValidTgts(), aura.getActivatingPlayer(), source)) {
+                if (player.isValid(tgt.getValidTgts(), aura.getActivatingPlayer(), source, true)) {
                     players.add(player);
                 }
             }

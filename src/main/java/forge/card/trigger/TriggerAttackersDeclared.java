@@ -55,7 +55,7 @@ public class TriggerAttackersDeclared extends Trigger {
         }
         if (this.mapParams.containsKey("AttackingPlayer")) {
             if (!matchesValid(runParams2.get("AttackingPlayer"),
-                    this.mapParams.get("AttackingPlayer").split(","), this.getHostCard())) {
+                    this.mapParams.get("AttackingPlayer").split(","), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

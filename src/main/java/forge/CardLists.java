@@ -190,11 +190,11 @@ public class CardLists {
     }
 
     public static List<Card> getValidCards(Iterable<Card> cardList, String[] restrictions, Player sourceController, Card source) {
-        return CardLists.filter(cardList, CardPredicates.restriction(restrictions, sourceController, source));
+        return CardLists.filter(cardList, CardPredicates.restriction(restrictions, sourceController, source, false));
     }
 
     public static List<Card> getValidCards(Iterable<Card> cardList, String restriction, Player sourceController, Card source) {
-        return CardLists.filter(cardList, CardPredicates.restriction(restriction.split(","), sourceController, source));
+        return CardLists.filter(cardList, CardPredicates.restriction(restriction.split(","), sourceController, source, false));
     }
 
     public static List<Card> getTargetableCards(Iterable<Card> cardList, SpellAbility source) {

@@ -350,7 +350,7 @@ public class ComputerUtilCost {
                 final String snem = c.getSVar("AI_SpellsNeedExtraMana");
                 if (!StringUtils.isBlank(snem)) {
                     String[] parts = TextUtil.split(snem, ' ');
-                    boolean meetsRestriction = parts.length == 1 || player.isValid(parts[1], c.getController(), c);
+                    boolean meetsRestriction = parts.length == 1 || player.isValid(parts[1], c.getController(), c, sa.getIntrinsic());
                     if(!meetsRestriction)
                         continue;
 

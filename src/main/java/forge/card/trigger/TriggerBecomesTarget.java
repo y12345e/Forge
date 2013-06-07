@@ -66,13 +66,13 @@ public class TriggerBecomesTarget extends Trigger {
         }
         if (this.mapParams.containsKey("ValidSource")) {
             if (!matchesValid(((SpellAbility) runParams2.get("SourceSA")).getSourceCard(), this.mapParams
-                    .get("ValidSource").split(","), this.getHostCard())) {
+                    .get("ValidSource").split(","), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
         if (this.mapParams.containsKey("ValidTarget")) {
             if (!matchesValid(runParams2.get("Target"), this.mapParams.get("ValidTarget").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

@@ -920,7 +920,7 @@ public class AbilityUtils {
             players.add(sa.getActivatingPlayer().getOpponent());
         } else {
             for (Player p : game.getPlayers()) {
-                if (p.isValid(defined, sa.getActivatingPlayer(), sa.getSourceCard())) {
+                if (p.isValid(defined, sa.getActivatingPlayer(), sa.getSourceCard(), sa.getIntrinsic())) {
                     players.add(p);
                 }
             }

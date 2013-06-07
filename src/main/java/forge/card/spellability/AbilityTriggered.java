@@ -132,7 +132,7 @@ public class AbilityTriggered extends Ability implements Command {
      * @return a boolean.
      */
     public final boolean triggerFor(final Card c) {
-        return c != null && c.isValid(this.restrictions, c.getController(), c);
+        return c != null && c.isValid(this.restrictions, c.getController(), c, this.getIntrinsic());
     }
 
     /**

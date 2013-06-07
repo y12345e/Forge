@@ -603,9 +603,9 @@ public class ComputerUtilCombat {
                 return false; // The trigger should have triggered already
             }
             if (trigParams.containsKey("ValidCard")) {
-                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidCard").split(","), source)
+                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidCard").split(","), source ,trigger.isIntrinsic())
                         && !(combat.isAttacking(source) && TriggerReplacementBase.matchesValid(source,
-                                trigParams.get("ValidCard").split(","), source)
+                                trigParams.get("ValidCard").split(","), source, trigger.isIntrinsic())
                             && !trigParams.containsKey("Alone"))) {
                     return false;
                 }
@@ -616,7 +616,7 @@ public class ComputerUtilCombat {
         if ((defender == null) && mode == TriggerType.AttackerUnblocked) {
             willTrigger = true;
             if (trigParams.containsKey("ValidCard")) {
-                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidCard").split(","), source)) {
+                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidCard").split(","), source, trigger.isIntrinsic())) {
                     return false;
                 }
             }
@@ -629,40 +629,40 @@ public class ComputerUtilCombat {
         if (mode == TriggerType.Blocks) {
             willTrigger = true;
             if (trigParams.containsKey("ValidBlocked")) {
-                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidBlocked").split(","), source)) {
+                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidBlocked").split(","), source, trigger.isIntrinsic())) {
                     return false;
                 }
             }
             if (trigParams.containsKey("ValidCard")) {
-                if (!TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidCard").split(","), source)) {
+                if (!TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidCard").split(","), source, trigger.isIntrinsic())) {
                     return false;
                 }
             }
         } else if (mode == TriggerType.AttackerBlocked) {
             willTrigger = true;
             if (trigParams.containsKey("ValidBlocker")) {
-                if (!TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidBlocker").split(","), source)) {
+                if (!TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidBlocker").split(","), source, trigger.isIntrinsic())) {
                     return false;
                 }
             }
             if (trigParams.containsKey("ValidCard")) {
-                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidCard").split(","), source)) {
+                if (!TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidCard").split(","), source, trigger.isIntrinsic())) {
                     return false;
                 }
             }
         } else if (mode == TriggerType.DamageDone) {
             willTrigger = true;
             if (trigParams.containsKey("ValidSource")) {
-                if (TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidSource").split(","), source)
+                if (TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidSource").split(","), source, trigger.isIntrinsic())
                         && defender.getNetCombatDamage() > 0
                         && (!trigParams.containsKey("ValidTarget")
-                                || TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidTarget").split(","), source))) {
+                                || TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidTarget").split(","), source, trigger.isIntrinsic()))) {
                     return true;
                 }
-                if (TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidSource").split(","), source)
+                if (TriggerReplacementBase.matchesValid(attacker, trigParams.get("ValidSource").split(","), source, trigger.isIntrinsic())
                         && attacker.getNetCombatDamage() > 0
                         && (!trigParams.containsKey("ValidTarget")
-                                || TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidTarget").split(","), source))) {
+                                || TriggerReplacementBase.matchesValid(defender, trigParams.get("ValidTarget").split(","), source, trigger.isIntrinsic()))) {
                     return true;
                 }
             }
@@ -717,7 +717,7 @@ public class ComputerUtilCombat {
                     continue;
                 }
                 final String valid = params.get("Affected").replace("blocking", "Creature");
-                if (!defender.isValid(valid, card.getController(), card)) {
+                if (!defender.isValid(valid, card.getController(), card, true)) {
                     continue;
                 }
                 if (params.containsKey("AddPower")) {
@@ -983,7 +983,7 @@ public class ComputerUtilCombat {
                     continue;
                 }
                 final String valid = params.get("Affected").replace("attacking", "Creature");
-                if (!attacker.isValid(valid, card.getController(), card)) {
+                if (!attacker.isValid(valid, card.getController(), card, true)) {
                     continue;
                 }
                 if (params.containsKey("AddPower")) {
@@ -1027,9 +1027,9 @@ public class ComputerUtilCombat {
                 list.add(attacker);
             }
             if (abilityParams.containsKey("ValidCards")) {
-                if (attacker.isValid(abilityParams.get("ValidCards").split(","), source.getController(), source)
+                if (attacker.isValid(abilityParams.get("ValidCards").split(","), source.getController(), source, true)
                         || attacker.isValid(abilityParams.get("ValidCards").replace("attacking+", "").split(","),
-                                source.getController(), source)) {
+                                source.getController(), source, true)) {
                     list.add(attacker);
                 }
             }
@@ -1136,7 +1136,7 @@ public class ComputerUtilCombat {
                     continue;
                 }
                 final String valid = params.get("Affected").replace("attacking", "Creature");
-                if (!attacker.isValid(valid, card.getController(), card)) {
+                if (!attacker.isValid(valid, card.getController(), card, true)) {
                     continue;
                 }
                 if (params.containsKey("AddToughness")) {
@@ -1199,9 +1199,9 @@ public class ComputerUtilCombat {
                 list.add(attacker);
             }
             if (abilityParams.containsKey("ValidCards")) {
-                if (attacker.isValid(abilityParams.get("ValidCards").split(","), source.getController(), source)
+                if (attacker.isValid(abilityParams.get("ValidCards").split(","), source.getController(), source, true)
                         || attacker.isValid(abilityParams.get("ValidCards").replace("attacking+", "").split(","),
-                                source.getController(), source)) {
+                                source.getController(), source, true)) {
                     list.add(attacker);
                 }
             }
@@ -1868,11 +1868,11 @@ public class ComputerUtilCombat {
                     continue;
                 }
                 if (params.containsKey("ValidSource")
-                        && !source.isValid(params.get("ValidSource"), ca.getController(), ca)) {
+                        && !source.isValid(params.get("ValidSource"), ca.getController(), ca, true)) {
                     continue;
                 }
                 if (params.containsKey("ValidTarget")
-                        && !target.isValid(params.get("ValidTarget"), ca.getController(), ca)) {
+                        && !target.isValid(params.get("ValidTarget"), ca.getController(), ca, true)) {
                     continue;
                 }
                 if (params.containsKey("IsCombat")) {

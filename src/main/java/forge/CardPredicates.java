@@ -136,11 +136,11 @@ public final class CardPredicates {
         };
     }
 
-    public static final Predicate<Card> restriction(final String[] restrictions, final Player sourceController, final Card source) {
+    public static final Predicate<Card> restriction(final String[] restrictions, final Player sourceController, final Card source, final boolean intrinsic) {
         return new Predicate<Card>() {
             @Override
             public boolean apply(final Card c) {
-                return (c != null) && c.isValid(restrictions, sourceController, source);
+                return (c != null) && c.isValid(restrictions, sourceController, source, intrinsic);
             }
         };
     }

@@ -700,7 +700,7 @@ public class CardFactoryUtil {
             // Reconfirm the Validity of a TgtValid, or if the Creature is still
             // a Creature
             if (tgt.doesTarget()
-                    && !target.isValid(tgt.getValidTgts(), ability.getActivatingPlayer(), ability.getSourceCard())) {
+                    && !target.isValid(tgt.getValidTgts(), ability.getActivatingPlayer(), ability.getSourceCard(),ability.getIntrinsic())) {
                 return false;
             }
 

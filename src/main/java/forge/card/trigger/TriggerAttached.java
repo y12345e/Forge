@@ -54,13 +54,13 @@ public class TriggerAttached extends Trigger {
 
         if (this.mapParams.containsKey("ValidSource")) {
             if (!src.isValid(this.mapParams.get("ValidSource").split(","), this.getHostCard().getController(),
-                    this.getHostCard())) {
+                    this.getHostCard(),this.isIntrinsic())) {
                 return false;
             }
         }
 
         if (this.mapParams.containsKey("ValidTarget")) {
-            if (!matchesValid(tgt, this.mapParams.get("ValidTarget").split(","), this.getHostCard())) {
+            if (!matchesValid(tgt, this.mapParams.get("ValidTarget").split(","), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

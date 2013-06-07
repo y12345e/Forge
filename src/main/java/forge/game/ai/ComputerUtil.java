@@ -879,7 +879,7 @@ public class ComputerUtil {
             if (buffedcard.hasSVar("BuffedBy")) {
                 final String buffedby = buffedcard.getSVar("BuffedBy");
                 final String[] bffdby = buffedby.split(",");
-                if (card.isValid(bffdby, buffedcard.getController(), buffedcard)) {
+                if (card.isValid(bffdby, buffedcard.getController(), buffedcard, false)) {
                     return true;
                 }
             }
@@ -908,7 +908,7 @@ public class ComputerUtil {
             if (buffedcard.hasSVar("AntiBuffedBy")) {
                 final String buffedby = buffedcard.getSVar("AntiBuffedBy");
                 final String[] bffdby = buffedby.split(",");
-                if (card.isValid(bffdby, buffedcard.getController(), buffedcard)) {
+                if (card.isValid(bffdby, buffedcard.getController(), buffedcard,false)) {
                     return true;
                 }
             }
@@ -993,7 +993,7 @@ public class ComputerUtil {
                 // not castable for at least one other turn.
                 return true;
             } else if (landsInPlay.size() > 5 && discard.getCMC() <= 1
-                    && !discard.hasProperty("hasXCost", ai, null)) {
+                    && !discard.hasProperty("hasXCost", ai, null,false)) {
                 // Probably don't need small stuff now.
                 return true;
             }
@@ -1052,7 +1052,7 @@ public class ComputerUtil {
             if (buffedcard.hasSVar("BuffedBy")) {
                 final String buffedby = buffedcard.getSVar("BuffedBy");
                 final String[] bffdby = buffedby.split(",");
-                if (source.isValid(bffdby, buffedcard.getController(), buffedcard)) {
+                if (source.isValid(bffdby, buffedcard.getController(), buffedcard,false)) {
                     return true;
                 }
             }
@@ -1064,7 +1064,7 @@ public class ComputerUtil {
             if (buffedcard.hasSVar("AntiBuffedBy")) {
                 final String buffedby = buffedcard.getSVar("AntiBuffedBy");
                 final String[] bffdby = buffedby.split(",");
-                if (source.isValid(bffdby, buffedcard.getController(), buffedcard)) {
+                if (source.isValid(bffdby, buffedcard.getController(), buffedcard,false)) {
                     return true;
                 }
             }

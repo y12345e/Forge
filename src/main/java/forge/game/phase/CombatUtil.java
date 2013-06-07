@@ -282,7 +282,7 @@ public class CombatUtil {
         }
         List<Card> defendingLands = defendingPlayer.getCardsIn(ZoneType.Battlefield);
         for (Card c : defendingLands) {
-            if (c.isValid(valid.split(","), defendingPlayer, attacker)) {
+            if (c.isValid(valid.split(","), defendingPlayer, attacker,true)) {
                 return true;
             }
         }
@@ -657,7 +657,7 @@ public class CombatUtil {
             final String parse = attacker.getKeyword().get(keywordPosition).toString();
             final String[] k = parse.split(" ", 2);
             final String[] restrictions = k[1].split(",");
-            if (blocker.isValid(restrictions, attacker.getController(), attacker)) {
+            if (blocker.isValid(restrictions, attacker.getController(), attacker,attacker.getIntrinsicKeyword().contains(parse))) {
                 return false;
             }
         }
@@ -667,7 +667,7 @@ public class CombatUtil {
             final String parse = blocker.getKeyword().get(keywordPosition).toString();
             final String[] k = parse.split(" ", 2);
             final String[] restrictions = k[1].split(",");
-            if (attacker.isValid(restrictions, blocker.getController(), blocker)) {
+            if (attacker.isValid(restrictions, blocker.getController(), blocker, blocker.getIntrinsicKeyword().contains(parse))) {
                 return false;
             }
         }

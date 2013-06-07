@@ -51,14 +51,14 @@ public class TriggerCountered extends Trigger {
     public final boolean performTest(final java.util.Map<String, Object> runParams2) {
         if (this.mapParams.containsKey("ValidCard")) {
             if (!matchesValid(runParams2.get("Card"), this.mapParams.get("ValidCard").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
 
         if (this.mapParams.containsKey("ValidPlayer")) {
             if (!matchesValid(runParams2.get("Player"), this.mapParams.get("ValidPlayer").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
@@ -68,7 +68,7 @@ public class TriggerCountered extends Trigger {
                 return false;
             }
             if (!matchesValid(runParams2.get("Cause"), this.mapParams.get("ValidCause").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

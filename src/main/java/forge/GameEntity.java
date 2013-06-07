@@ -289,10 +289,10 @@ public abstract class GameEntity extends MyObservable {
      *            the source
      * @return true, if is valid
      */
-    public boolean isValid(final String[] restrictions, final Player sourceController, final Card source) {
+    public boolean isValid(final String[] restrictions, final Player sourceController, final Card source, final boolean intrinsic) {
 
         for (final String restriction : restrictions) {
-            if (this.isValid(restriction, sourceController, source)) {
+            if (this.isValid(restriction, sourceController, source, intrinsic)) {
                 return true;
             }
         }
@@ -311,7 +311,7 @@ public abstract class GameEntity extends MyObservable {
      *            the source
      * @return true, if is valid
      */
-    public boolean isValid(final String restriction, final Player sourceController, final Card source) {
+    public boolean isValid(final String restriction, final Player sourceController, final Card source, final boolean intrinsic) {
         return false;
     }
 
@@ -324,9 +324,11 @@ public abstract class GameEntity extends MyObservable {
      *            the source controller
      * @param source
      *            the source
+     * @param intrinsic
+     *            wether or not the place where this call originates from is intrinsic to the source.
      * @return true, if successful
      */
-    public boolean hasProperty(final String property, final Player sourceController, final Card source) {
+    public boolean hasProperty(final String property, final Player sourceController, final Card source, final boolean intrinsic) {
         return false;
     }
 

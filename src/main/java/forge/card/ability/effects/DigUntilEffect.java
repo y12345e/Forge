@@ -117,7 +117,7 @@ public class DigUntilEffect extends SpellAbilityEffect {
                 for (int i = 0; i < maxToDig; i++) {
                     final Card c = library.get(i);
                     revealed.add(c);
-                    if (c.isValid(type, sa.getActivatingPlayer(), host)) {
+                    if (c.isValid(type, sa.getActivatingPlayer(), host, sa.getIntrinsic())) {
                         found.add(c);
                         if (remember) {
                             host.addRemembered(c);

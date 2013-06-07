@@ -104,7 +104,7 @@ public class PlayEffect extends SpellAbilityEffect {
                 int ncopied = AbilityUtils.calculateAmount(source, num, sa);
                 while(ncopied > 0) {
                     final PaperCard cp = Aggregates.random(copysource);
-                    if (cp.getMatchingForgeCard().isValid(valid, source.getController(), source)) {
+                    if (cp.getMatchingForgeCard().isValid(valid, source.getController(), source, sa.getIntrinsic())) {
                         choice.add(cp.getMatchingForgeCard());
                         copysource.remove(cp);
                         ncopied -= 1;

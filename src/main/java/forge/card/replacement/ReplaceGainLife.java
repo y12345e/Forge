@@ -47,12 +47,12 @@ public class ReplaceGainLife extends ReplacementEffect {
             return false;
         }
         if (this.getMapParams().containsKey("ValidPlayer")) {
-            if (!matchesValid(runParams.get("Affected"), this.getMapParams().get("ValidPlayer").split(","), this.getHostCard())) {
+            if (!matchesValid(runParams.get("Affected"), this.getMapParams().get("ValidPlayer").split(","), this.getHostCard(), true)) {
                 return false;
             }
         }
         if (this.getMapParams().containsKey("ValidSource")) {
-            if (!matchesValid(runParams.get("Source"), this.getMapParams().get("ValidSource").split(","), this.getHostCard())) {
+            if (!matchesValid(runParams.get("Source"), this.getMapParams().get("ValidSource").split(","), this.getHostCard(), true)) {
                 return false;
             }
         }

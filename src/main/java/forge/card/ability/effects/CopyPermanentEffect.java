@@ -93,7 +93,7 @@ public class CopyPermanentEffect extends SpellAbilityEffect {
                 int ncopied = AbilityUtils.calculateAmount(hostCard, num, sa);
                 while(ncopied > 0) {
                     final PaperCard cp = Aggregates.random(copysource);
-                    if (cp.getMatchingForgeCard().isValid(valid, hostCard.getController(), hostCard)) {
+                    if (cp.getMatchingForgeCard().isValid(valid, hostCard.getController(), hostCard,sa.getIntrinsic())) {
                         choice.add(cp.getMatchingForgeCard());
                         copysource.remove(cp);
                         ncopied -= 1;

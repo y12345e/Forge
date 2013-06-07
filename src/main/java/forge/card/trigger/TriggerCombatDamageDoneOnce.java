@@ -59,7 +59,7 @@ public class TriggerCombatDamageDoneOnce extends Trigger {
         if (this.mapParams.containsKey("ValidSource")) {
             boolean valid = false;
             for (Card c : srcs) {
-                if (c.isValid(this.mapParams.get("ValidSource").split(","), this.getHostCard().getController(),this.getHostCard())) {
+                if (c.isValid(this.mapParams.get("ValidSource").split(","), this.getHostCard().getController(),this.getHostCard(), this.isIntrinsic())) {
                     valid = true;
                 }
             }
@@ -69,7 +69,7 @@ public class TriggerCombatDamageDoneOnce extends Trigger {
         }
 
         if (this.mapParams.containsKey("ValidTarget")) {
-            if (!matchesValid(tgt, this.mapParams.get("ValidTarget").split(","), this.getHostCard())) {
+            if (!matchesValid(tgt, this.mapParams.get("ValidTarget").split(","), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

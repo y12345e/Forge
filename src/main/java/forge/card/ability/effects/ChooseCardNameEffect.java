@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.server.ssl.SslCertificates;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -108,7 +109,7 @@ public class ChooseCardNameEffect extends SpellAbilityEffect {
                         Collections.sort(cards);
                             
                         PaperCard cp = GuiChoose.one(message, cards);
-                        if (cp.getMatchingForgeCard().isValid(valid, host.getController(), host)) {
+                        if (cp.getMatchingForgeCard().isValid(valid, host.getController(), host, true)) {
                             host.setNamedCard(cp.getName());
                             ok = true;
                         }

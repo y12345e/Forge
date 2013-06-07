@@ -30,7 +30,7 @@ public class CounterEffect extends SpellAbilityEffect {
                     continue;
                 }
                 if (sa.hasParam("AllValid")) {
-                    if (!spell.getSourceCard().isValid(sa.getParam("AllValid"), sa.getActivatingPlayer(), sa.getSourceCard())) {
+                    if (!spell.getSourceCard().isValid(sa.getParam("AllValid"), sa.getActivatingPlayer(), sa.getSourceCard(), sa.getIntrinsic())) {
                         continue;
                     }
                 }
@@ -75,7 +75,7 @@ public class CounterEffect extends SpellAbilityEffect {
                     continue;
                 }
                 if (sa.hasParam("AllValid")) {
-                    if (!spell.getSourceCard().isValid(sa.getParam("AllValid"), sa.getActivatingPlayer(), sa.getSourceCard())) {
+                    if (!spell.getSourceCard().isValid(sa.getParam("AllValid"), sa.getActivatingPlayer(), sa.getSourceCard(),sa.getIntrinsic())) {
                         continue;
                     }
                 }

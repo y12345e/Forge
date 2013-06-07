@@ -46,7 +46,7 @@ public class TriggerTransformed extends Trigger {
     public boolean performTest(Map<String, Object> runParams2) {
         if (this.mapParams.containsKey("ValidCard")) {
             if (!matchesValid(runParams2.get("Transformer"), this.mapParams.get("ValidCard").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

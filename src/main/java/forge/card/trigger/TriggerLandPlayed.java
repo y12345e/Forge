@@ -59,7 +59,7 @@ public class TriggerLandPlayed extends Trigger {
     public final boolean performTest(final java.util.Map<String, Object> runParams2) {
         if (this.mapParams.containsKey("ValidCard")) {
             if (!matchesValid(runParams2.get("Card"), this.mapParams.get("ValidCard").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

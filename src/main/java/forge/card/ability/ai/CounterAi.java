@@ -44,7 +44,7 @@ public class CounterAi extends SpellAbilityAi {
                 return false;
             }
             if (sa.hasParam("AITgts") && (topSA.getSourceCard() == null
-                    || !topSA.getSourceCard().isValid(sa.getParam("AITgts"), sa.getActivatingPlayer(), source))) {
+                    || !topSA.getSourceCard().isValid(sa.getParam("AITgts"), sa.getActivatingPlayer(), source, sa.getIntrinsic()))) {
                 return false;
             }
 

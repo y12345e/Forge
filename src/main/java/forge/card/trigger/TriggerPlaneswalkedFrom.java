@@ -37,7 +37,7 @@ public class TriggerPlaneswalkedFrom extends Trigger {
             for(Card moved : (Iterable<Card>)runParams2.get("Card"))
             {
                 if (moved.isValid(this.mapParams.get("ValidCard").split(","), this.getHostCard().getController(),
-                        this.getHostCard())) {
+                        this.getHostCard(), this.isIntrinsic())) {
                     return true;
                 }
             }

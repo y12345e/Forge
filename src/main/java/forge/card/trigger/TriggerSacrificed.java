@@ -52,13 +52,13 @@ public class TriggerSacrificed extends Trigger {
         final Card sac = (Card) runParams2.get("Card");
         if (this.mapParams.containsKey("ValidPlayer")) {
             if (!matchesValid(sac.getController(), this.mapParams.get("ValidPlayer").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
         if (this.mapParams.containsKey("ValidCard")) {
             if (!sac.isValid(this.mapParams.get("ValidCard").split(","), this.getHostCard().getController(),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

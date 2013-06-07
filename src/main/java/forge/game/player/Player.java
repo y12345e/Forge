@@ -1156,7 +1156,7 @@ public class Player extends GameEntity implements Comparable<Player> {
                 if (kw.startsWith("Protection:")) { // uses isValid
                     final String characteristic = kw.split(":")[1];
                     final String[] characteristics = characteristic.split(",");
-                    if (source.isValid(characteristics, this, null)) {
+                    if (source.isValid(characteristics, this, null, source.getIntrinsicKeyword().contains(kw))) {
                         return true;
                     }
                 }
@@ -2242,7 +2242,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @see forge.GameEntity#isValid(java.lang.String, forge.Player, forge.Card)
      */
     @Override
-    public final boolean isValid(final String restriction, final Player sourceController, final Card source) {
+    public final boolean isValid(final String restriction, final Player sourceController, final Card source, final boolean intrinsic) {
 
         final String[] incR = restriction.split("\\.");
 
@@ -2274,7 +2274,7 @@ public class Player extends GameEntity implements Comparable<Player> {
             final String[] exR = excR.split("\\+"); // Exclusive Restrictions
                                                     // are ...
             for (int j = 0; j < exR.length; j++) {
-                if (!this.hasProperty(exR[j], sourceController, source)) {
+                if (!this.hasProperty(exR[j], sourceController, source, intrinsic)) {
                     return false;
                 }
             }
@@ -2290,7 +2290,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * forge.Card)
      */
     @Override
-    public final boolean hasProperty(final String property, final Player sourceController, final Card source) {
+    public final boolean hasProperty(final String property, final Player sourceController, final Card source, final boolean intrinsic) {
         if (property.equals("You")) {
             if (!this.equals(sourceController)) {
                 return false;

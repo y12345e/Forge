@@ -172,7 +172,7 @@ public final class CardUtil {
                 continue;
             
             for(final Card c : game.getColoredCardsInPlay(MagicColor.toLongString(color))) {
-                if (!res.contains(c) && c.isValid(valid, source.getController(), source) && !c.equals(origin)) {
+                if (!res.contains(c) && c.isValid(valid, source.getController(), source,true) && !c.equals(origin)) {
                     res.add(c);
                 }
             }

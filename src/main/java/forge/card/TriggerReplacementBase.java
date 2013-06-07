@@ -110,10 +110,10 @@ public abstract class TriggerReplacementBase {
      *            a {@link forge.Card} object.
      * @return a boolean.
      */
-    public static boolean matchesValid(final Object o, final String[] valids, final Card srcCard) {
+    public static boolean matchesValid(final Object o, final String[] valids, final Card srcCard, final boolean intrinsic) {
         if (o instanceof GameEntity) {
             final GameEntity c = (GameEntity) o;
-            return c.isValid(valids, srcCard.getController(), srcCard);
+            return c.isValid(valids, srcCard.getController(), srcCard, intrinsic);
         }
 
         return false;

@@ -61,7 +61,7 @@ public class CostGainLife extends CostPart {
         List<Player> res = new ArrayList<Player>();
         for(Player p : payer.getGame().getPlayers())
         {
-            if(p.isValid(getType(), payer, source))
+            if(p.isValid(getType(), payer, source, true))
                 res.add(p);
         }
         return res;

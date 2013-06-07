@@ -95,7 +95,7 @@ public class Untap extends Phase {
                 final String[] k = parse.split(":");
                 final String[] restrictions = k[1].split(",");
                 final Card card = ca;
-                if (c.isValid(restrictions, card.getController(), card)) {
+                if (c.isValid(restrictions, card.getController(), card, card.getIntrinsicKeyword().contains(ca.getKeyword().get(keywordPosition)))) {
                     return false;
                 }
             }

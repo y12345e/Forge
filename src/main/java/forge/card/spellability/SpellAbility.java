@@ -63,6 +63,8 @@ public abstract class SpellAbility implements ISpellAbility {
     private Card sourceCard;
     private Card grantorCard = null; // card which grants the ability (equipment or owner of static ability that gave this one) 
 
+    private boolean isIntrinsic = false;
+    
     private List<Card> splicedCards = null;
 //    private List<Card> targetList;
     // targetList doesn't appear to be used anymore
@@ -1198,7 +1200,7 @@ public abstract class SpellAbility implements ISpellAbility {
             }
             return false;
         }
-        if (entity.isValid(this.getTarget().getValidTgts(), this.getActivatingPlayer(), this.getSourceCard())
+        if (entity.isValid(this.getTarget().getValidTgts(), this.getActivatingPlayer(), this.getSourceCard(),this.isIntrinsic)
                 && (!this.getTarget().isUniqueTargets() || !this.getUniqueTargets().contains(entity))
                 && entity.canBeTargetedBy(this)) {
             return true;
@@ -1689,7 +1691,7 @@ public abstract class SpellAbility implements ISpellAbility {
             }
         }
 
-        return topSA.getSourceCard().isValid(tgt.getValidTgts(), this.getActivatingPlayer(), this.getSourceCard());
+        return topSA.getSourceCard().isValid(tgt.getValidTgts(), this.getActivatingPlayer(), this.getSourceCard(), this.isIntrinsic);
     }
 
 
@@ -1698,12 +1700,12 @@ public abstract class SpellAbility implements ISpellAbility {
         final Player activatingPlayer = this.getActivatingPlayer();
         if (o instanceof Card) {
             final Card c = (Card) o;
-            return c.isValid(valids, activatingPlayer, srcCard);
+            return c.isValid(valids, activatingPlayer, srcCard, this.isIntrinsic);
         }
 
         if (o instanceof Player) {
             Player p = (Player) o;
-            if (p.isValid(valids, activatingPlayer, srcCard)) {
+            if (p.isValid(valids, activatingPlayer, srcCard, this.isIntrinsic)) {
                 return true;
             }
         }
@@ -1744,5 +1746,13 @@ public abstract class SpellAbility implements ISpellAbility {
 
     public void setTemporary(boolean temporary) {
         this.temporary = temporary; // TODO: Add 0 to parameter's name.
+    }
+    
+    public void setIntrinsic(boolean intrinsic) {
+        this.isIntrinsic = intrinsic;
+    }
+    
+    public boolean getIntrinsic() {
+        return this.isIntrinsic;
     }
 }

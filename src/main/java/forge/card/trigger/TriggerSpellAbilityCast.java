@@ -85,20 +85,20 @@ public class TriggerSpellAbilityCast extends Trigger {
 
         if (this.mapParams.containsKey("ValidControllingPlayer")) {
             if (!matchesValid(cast.getController(), this.mapParams.get("ValidControllingPlayer").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
 
         if (this.mapParams.containsKey("ValidActivatingPlayer")) {
             if (si == null || !matchesValid(si.getSpellAbility().getActivatingPlayer(), this.mapParams.get("ValidActivatingPlayer")
-                    .split(","), this.getHostCard())) {
+                    .split(","), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
 
         if (this.mapParams.containsKey("ValidCard")) {
-            if (!matchesValid(cast, this.mapParams.get("ValidCard").split(","), this.getHostCard())) {
+            if (!matchesValid(cast, this.mapParams.get("ValidCard").split(","), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
@@ -114,13 +114,13 @@ public class TriggerSpellAbilityCast extends Trigger {
                         return false;
                     } else {
                         if (!matchesValid(sa.getTargetPlayer(),
-                                this.mapParams.get("TargetsValid").split(","), this.getHostCard())) {
+                                this.mapParams.get("TargetsValid").split(","), this.getHostCard(), this.isIntrinsic())) {
                             return false;
                         }
                     }
                 } else {
                     if (!matchesValid(sa.getTargetCard(), this.mapParams.get("TargetsValid").split(","),
-                            this.getHostCard())) {
+                            this.getHostCard(), this.isIntrinsic())) {
                         return false;
                     }
                 }
@@ -129,14 +129,14 @@ public class TriggerSpellAbilityCast extends Trigger {
                     boolean validTgtFound = false;
                     for (final Card tgt : sa.getTarget().getTargetCards()) {
                         if (tgt.isValid(this.mapParams.get("TargetsValid").split(","), this.getHostCard()
-                                .getController(), this.getHostCard())) {
+                                .getController(), this.getHostCard(), this.isIntrinsic())) {
                             validTgtFound = true;
                             break;
                         }
                     }
 
                     for (final Player p : sa.getTarget().getTargetPlayers()) {
-                        if (matchesValid(p, this.mapParams.get("TargetsValid").split(","), this.getHostCard())) {
+                        if (matchesValid(p, this.mapParams.get("TargetsValid").split(","), this.getHostCard(), this.isIntrinsic())) {
                             validTgtFound = true;
                             break;
                         }

@@ -1,0 +1,8 @@
+Name:Trait Doctoring
+ManaCost:U
+Types:Instant
+A:SP$ ChangeText | Cost$ U | TypeKinds$ Color,Basic Land | ValidTgts$ Permanent | SubAbility$ Cipher | SpellDescription$ Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another until end of turn. Cipher.
+SVar:Cipher:DB$ Encode | Defined$ Self | ConditionCheckSVar$ IsEncoded | ConditionSVarCompare$ EQ0
+SVar:IsEncoded:Number$0
+Oracle:Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another until end of turn.\nCipher (Then you may exile this spell card encoded on a creature you control. Whenever that creature deals combat damage to a player, its controller may cast a copy of the encoded card without paying its mana cost.)
+SVar:Picture:http://www.wizards.com/global/images/magic/general/trait_doctoring.jpg

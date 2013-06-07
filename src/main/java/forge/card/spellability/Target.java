@@ -677,7 +677,7 @@ public class Target {
             return true;
         } else {
             for (final Card c : game.getCardsIn(this.tgtZone)) {
-                if (!c.isValid(this.validTgts, this.srcCard.getController(), this.srcCard)) {
+                if (!c.isValid(this.validTgts, this.srcCard.getController(), this.srcCard, sa.getIntrinsic())) {
                     continue;
                 }
                 if (isTargeted && !c.canBeTargetedBy(sa)) {
@@ -730,7 +730,7 @@ public class Target {
 
         if (this.tgtZone.contains(ZoneType.Stack)) {
             for (final Card c : game.getStackZone().getCards()) {
-                boolean isValidTarget = c.isValid(this.validTgts, this.srcCard.getController(), this.srcCard);
+                boolean isValidTarget = c.isValid(this.validTgts, this.srcCard.getController(), this.srcCard,sa.getIntrinsic());
                 boolean canTarget = (!isTargeted || c.canBeTargetedBy(sa));
                 boolean isAlreadyTargeted = this.getTargetCards().contains(c);
                 if (isValidTarget && canTarget && !isAlreadyTargeted) {
@@ -739,7 +739,7 @@ public class Target {
             }
         } else {
             for (final Card c : game.getCardsIn(this.tgtZone)) {
-                boolean isValidTarget = c.isValid(this.validTgts, this.srcCard.getController(), this.srcCard);
+                boolean isValidTarget = c.isValid(this.validTgts, this.srcCard.getController(), this.srcCard,sa.getIntrinsic());
                 boolean canTarget = (!isTargeted || c.canBeTargetedBy(sa));
                 boolean isAlreadyTargeted = this.getTargetCards().contains(c);
                 if (isValidTarget && canTarget && !isAlreadyTargeted) {

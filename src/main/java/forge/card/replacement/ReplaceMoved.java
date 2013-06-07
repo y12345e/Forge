@@ -31,7 +31,7 @@ public class ReplaceMoved extends ReplacementEffect {
             return false;
         }
         if (this.getMapParams().containsKey("ValidCard")) {
-            if (!matchesValid(runParams.get("Affected"), this.getMapParams().get("ValidCard").split(","), this.getHostCard())) {
+            if (!matchesValid(runParams.get("Affected"), this.getMapParams().get("ValidCard").split(","), this.getHostCard(), true)) {
                 return false;
             }
         }

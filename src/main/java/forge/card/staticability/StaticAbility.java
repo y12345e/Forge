@@ -527,7 +527,7 @@ public class StaticAbility {
                 return false;
             }
             final Card topCard = controller.getCardsIn(ZoneType.Library).get(0);
-            if (!topCard.isValid(this.params.get("TopCardOfLibraryIs").split(","), controller, this.hostCard)) {
+            if (!topCard.isValid(this.params.get("TopCardOfLibraryIs").split(","), controller, this.hostCard, true)) {
                 return false;
             }
         }

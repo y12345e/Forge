@@ -44,12 +44,12 @@ public class StaticAbilityMayLookAt {
         final Card hostCard = stAb.getHostCard();
 
         if (params.containsKey("Affected")
-                && !card.isValid(params.get("Affected").split(","), hostCard.getController(), hostCard)) {
+                && !card.isValid(params.get("Affected").split(","), hostCard.getController(), hostCard, true)) {
             return false;
         }
 
         if (params.containsKey("Player") && player != null
-                && !player.isValid(params.get("Player"), hostCard.getController(), hostCard)) {
+                && !player.isValid(params.get("Player"), hostCard.getController(), hostCard, true)) {
             return false;
         }
         

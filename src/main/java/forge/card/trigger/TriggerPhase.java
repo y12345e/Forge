@@ -51,7 +51,7 @@ public class TriggerPhase extends Trigger {
     public final boolean performTest(final java.util.Map<String, Object> runParams2) {
         if (this.mapParams.containsKey("ValidPlayer")) {
             if (!matchesValid(runParams2.get("Player"), this.mapParams.get("ValidPlayer").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

@@ -1969,8 +1969,18 @@ public class Card extends GameEntity implements Comparable<Card> {
             sb.append("\r\nCloned by: ").append(this.characteristicsMap.get(CardCharacteristicName.Cloner).getName()).append(" (")
                     .append(this.getUniqueNumber()).append(")");
         }
+        
+        String res = sb.toString();
 
-        return sb.toString();
+        for(String key : this.textReplacements.keySet()) {
+            res.replaceAll(key, this.textReplacements.get(key));
+        }
+        
+        for(String key : textReplacements.keySet()) {
+            res += "/r/n" + key + ": " + textReplacements.get(key);
+        }
+        
+        return res;
     }
 
     // get the text that does not belong to a cards abilities (and is not really
@@ -2206,8 +2216,18 @@ public class Card extends GameEntity implements Comparable<Card> {
             while (sb.toString().endsWith("\r\n")) {
                 sb.delete(sb.lastIndexOf("\r\n"), sb.lastIndexOf("\r\n") + 3);
             }
+            
+            String res = sb.toString();
 
-            return sb.toString().replaceAll("CARDNAME", this.getName());
+            for(String key : this.textReplacements.keySet()) {
+                res.replaceAll(key, this.textReplacements.get(key));
+            }
+            
+            for(String key : textReplacements.keySet()) {
+                res += "/r/n" + key + ": " + textReplacements.get(key);
+            }
+            
+            return res.replaceAll("CARDNAME", this.getName());
         }
 
         final StringBuilder sb = new StringBuilder();
@@ -3190,7 +3210,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             final String parse = this.getKeyword().get(keywordPosition).toString();
             final String[] k = parse.split(" ", 2);
             final String[] restrictions = k[1].split(",");
-            if (c.isValid(restrictions, this.getController(), this)) {
+            if (c.isValid(restrictions, this.getController(), this, true)) {
                 getGame().getGameLog().add(GameLogEntryType.STACK_RESOLVE, "Trying to equip " + c.getName() + " but it can't be equipped.");
                 return;
             }
@@ -5071,7 +5091,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a boolean.
      */
     @Override
-    public final boolean isValid(final String restriction, final Player sourceController, final Card source) {
+    public final boolean isValid(final String restriction, final Player sourceController, final Card source, final boolean intrinsic) {
 
         if (this.isImmutable()
                 && !source.getRemembered().contains(this)) { // special case exclusion
@@ -5102,7 +5122,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             final String excR = incR[1];
             final String[] exR = excR.split("\\+"); // Exclusive Restrictions are ...
             for (int j = 0; j < exR.length; j++) {
-                if (!this.hasProperty(exR[j], sourceController, source)) {
+                if (!this.hasProperty(exR[j], sourceController, source, intrinsic)) {
                     return testFailed;
                 }
             }
@@ -5122,10 +5142,12 @@ public class Card extends GameEntity implements Comparable<Card> {
      *            a {@link forge.game.player.Player} object.
      * @param source
      *            a {@link forge.Card} object.
+     * @param intrinsic
+     *            a boolean indicating wether the call originates from something intrinsic to the source
      * @return a boolean.
      */
     @Override
-    public boolean hasProperty(final String property, final Player sourceController, final Card source) {
+    public boolean hasProperty(final String property, final Player sourceController, final Card source,final boolean intrinsic) {
         // by name can also have color names, so needs to happen before colors.
         if (property.startsWith("named")) {
             if (!this.getName().equals(property.substring(5))) {
@@ -5156,7 +5178,8 @@ public class Card extends GameEntity implements Comparable<Card> {
         else if (property.contains("White") || property.contains("Blue") || property.contains("Black")
                 || property.contains("Red") || property.contains("Green") ) {
             boolean mustHave = !property.startsWith("non");
-            int desiredColor = MagicColor.fromName(mustHave ? property : property.substring(3)); 
+            String repProp = intrinsic ? source.getReplacedText(mustHave ? property : property.substring(3)) : mustHave ? property : property.substring(3);
+            int desiredColor = MagicColor.fromName(repProp); 
             boolean hasColor = CardUtil.getColors(this).hasAnyColor(desiredColor);
             if( mustHave != hasColor )
                 return false;
@@ -5302,7 +5325,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             }
         } else if (property.startsWith("OwnedBy")) {
             final String valid = property.substring(8);
-            if (!this.getOwner().isValid(valid, sourceController, source)) {
+            if (!this.getOwner().isValid(valid, sourceController, source, intrinsic)) {
                 return false;
             }
         } else if (property.startsWith("OwnerDoesntControl")) {
@@ -5355,9 +5378,9 @@ public class Card extends GameEntity implements Comparable<Card> {
                     }
                 }
             } else {
-                if (((this.enchanting == null) || !this.enchanting.isValid(restriction, sourceController, source))
+                if (((this.enchanting == null) || !this.enchanting.isValid(restriction, sourceController, source, intrinsic))
                         && (this.equipping.isEmpty() || !this.equipping.get(0).isValid(restriction, sourceController,
-                                source))) {
+                                source,intrinsic))) {
                     return false;
                 }
             }
@@ -5616,7 +5639,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     }
                 } else {
                     for (final Card card : sourceController.getCardsIn(ZoneType.Battlefield)) {
-                        if (card.isValid(restriction, sourceController, source) && this.sharesColorWith(card)) {
+                        if (card.isValid(restriction, sourceController, source,true) && this.sharesColorWith(card)) {
                             return true;
                         }
                     }
@@ -5643,7 +5666,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             } else {
                 final String restriction = property.split("notSharesColorWith ")[1];
                 for (final Card card : sourceController.getCardsIn(ZoneType.Battlefield)) {
-                    if (card.isValid(restriction, sourceController, source) && this.sharesColorWith(card)) {
+                    if (card.isValid(restriction, sourceController, source,intrinsic) && this.sharesColorWith(card)) {
                         return false;
                     }
                 }
@@ -5700,7 +5723,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                 } else {
                     boolean shares = false;
                     for (final Card card : sourceController.getCardsIn(ZoneType.Battlefield)) {
-                        if (card.isValid(restriction, sourceController, source) && this.sharesCreatureTypeWith(card)) {
+                        if (card.isValid(restriction, sourceController, source,intrinsic) && this.sharesCreatureTypeWith(card)) {
                             shares = true;
                         }
                     }
@@ -6441,7 +6464,8 @@ public class Card extends GameEntity implements Comparable<Card> {
                 return false;
             }
         } else {
-            if (!this.isType(property)) {
+            String repProp = intrinsic ? source.getReplacedText(property) : property;
+            if (!this.isType(repProp)) {
                 return false;
             }
         }
@@ -7023,11 +7047,11 @@ public class Card extends GameEntity implements Comparable<Card> {
                     continue;
                 }
                 if (params.containsKey("ValidSource")
-                        && !source.isValid(params.get("ValidSource"), ca.getController(), ca)) {
+                        && !source.isValid(params.get("ValidSource"), ca.getController(), ca, true)) {
                     continue;
                 }
                 if (params.containsKey("ValidTarget")
-                        && !this.isValid(params.get("ValidTarget"), ca.getController(), ca)) {
+                        && !this.isValid(params.get("ValidTarget"), ca.getController(), ca,true)) {
                     continue;
                 }
                 if (params.containsKey("IsCombat")) {
@@ -7126,7 +7150,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             if (kw.startsWith("PreventAllDamageBy")) {
                 String valid = this.getKeyword().get(this.getKeywordPosition("PreventAllDamageBy"));
                 valid = valid.split(" ", 2)[1];
-                if (source.isValid(valid, this.getController(), this)) {
+                if (source.isValid(valid, this.getController(), this, true)) {
                     return 0;
                 }
             }
@@ -7784,9 +7808,10 @@ public class Card extends GameEntity implements Comparable<Card> {
                 }
 
                 if (kw.startsWith("Protection:")) { // uses isValid
+                    final boolean isExtrinsic = this.getExtrinsicKeyword().contains(kw);
                     final String characteristic = kw.split(":")[1];
                     final String[] characteristics = characteristic.split(",");
-                    if (source.isValid(characteristics, this.getController(), this)
+                    if (source.isValid(characteristics, this.getController(), this, !isExtrinsic)
                       && !source.getName().contains("Flickering Ward") && !source.getName().contains("Pentarch Ward")
                       && !source.getName().contains("Cho-Manno's Blessing") && !source.getName().contains("Floating Shield")
                       && !source.getName().contains("Ward of Lights")) {
@@ -7931,7 +7956,7 @@ public class Card extends GameEntity implements Comparable<Card> {
         if (this.hasProtectionFrom(aura)
             || (this.hasKeyword("CARDNAME can't be enchanted.") && !aura.getName().equals("Anti-Magic Aura")
                     && !(aura.getName().equals("Consecrate Land") && aura.isInZone(ZoneType.Battlefield)))
-            || ((tgt != null) && !this.isValid(tgt.getValidTgts(), aura.getController(), aura))) {
+            || ((tgt != null) && !this.isValid(tgt.getValidTgts(), aura.getController(), aura,true))) {
             return false;
         }
         return true;
@@ -7950,13 +7975,13 @@ public class Card extends GameEntity implements Comparable<Card> {
             final String parse = equip.getKeyword().get(keywordPosition).toString();
             final String[] k = parse.split(" ", 2);
             final String[] restrictions = k[1].split(",");
-            if (this.isValid(restrictions, equip.getController(), equip)) {
+            if (this.isValid(restrictions, equip.getController(), equip,true)) {
                 return false;
             }
         }
         if (this.hasProtectionFrom(equip)
             || this.hasKeyword("CARDNAME can't be equipped.")
-            || !this.isValid("Creature", equip.getController(), equip)) {
+            || !this.isValid("Creature", equip.getController(), equip,true)) {
             return false;
         }
         return true;
@@ -8317,6 +8342,31 @@ public class Card extends GameEntity implements Comparable<Card> {
         }
     
         return abilities;
+    }
+    
+    private Map<String,String> textReplacements = new TreeMap<String,String>();
+    
+    public void resetTextReplacement() {
+        textReplacements.clear();
+    }
+    
+    public void addTextReplacement(String from, String to) {
+        for(String key : textReplacements.keySet()) {
+            if(textReplacements.get(key).equals(from)) {
+                textReplacements.put(key, to);
+                return;
+            }
+        }
+        
+        textReplacements.put(from, to);        
+    }
+    
+    public String getReplacedText(String from) {
+        if(!textReplacements.containsKey(from)) {
+            return from;
+        }
+        
+        return textReplacements.get(from);
     }
 
 } // end Card class

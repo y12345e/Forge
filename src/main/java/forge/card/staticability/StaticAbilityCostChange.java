@@ -55,12 +55,12 @@ public class StaticAbilityCostChange {
 
 
         if (params.containsKey("ValidCard")
-                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard)) {
+                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard, true)) {
             return;
         }
 
         if (params.containsKey("Activator") && ((activator == null)
-                || !activator.isValid(params.get("Activator"), hostCard.getController(), hostCard))) {
+                || !activator.isValid(params.get("Activator"), hostCard.getController(), hostCard, true))) {
             return;
         }
 
@@ -99,7 +99,7 @@ public class StaticAbilityCostChange {
             for (Object target : tgt.getTargets()) {
                 if (target instanceof Card) {
                     Card targetCard = (Card) target;
-                    if (targetCard.isValid(params.get("ValidTarget").split(","), hostCard.getController(), hostCard)) {
+                    if (targetCard.isValid(params.get("ValidTarget").split(","), hostCard.getController(), hostCard, true)) {
                         targetValid = true;
                     }
                 }
@@ -117,7 +117,7 @@ public class StaticAbilityCostChange {
             for (Object target : tgt.getTargets()) {
                 if (target instanceof SpellAbility) {
                     Card targetCard = ((SpellAbility) target).getSourceCard();
-                    if (targetCard.isValid(params.get("ValidSpellTarget").split(","), hostCard.getController(), hostCard)) {
+                    if (targetCard.isValid(params.get("ValidSpellTarget").split(","), hostCard.getController(), hostCard, true)) {
                         targetValid = true;
                     }
                 }
@@ -184,11 +184,11 @@ public class StaticAbilityCostChange {
 
 
         if (params.containsKey("ValidCard")
-                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard)) {
+                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard, true)) {
             return;
         }
         if (params.containsKey("Activator") && ((activator == null)
-                || !activator.isValid(params.get("Activator"), hostCard.getController(), hostCard))) {
+                || !activator.isValid(params.get("Activator"), hostCard.getController(), hostCard, true))) {
             return;
         }
         if (params.containsKey("Type")) {
@@ -231,7 +231,7 @@ public class StaticAbilityCostChange {
             for (Object target : tgt.getTargets()) {
                 if (target instanceof Card) {
                     Card targetCard = (Card) target;
-                    if (targetCard.isValid(params.get("ValidTarget").split(","), hostCard.getController(), hostCard)) {
+                    if (targetCard.isValid(params.get("ValidTarget").split(","), hostCard.getController(), hostCard, true)) {
                         targetValid = true;
                     }
                 }

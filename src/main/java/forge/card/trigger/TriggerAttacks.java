@@ -55,7 +55,7 @@ public class TriggerAttacks extends Trigger {
     public final boolean performTest(final Map<String, Object> runParams2) {
         if (this.mapParams.containsKey("ValidCard")) {
             if (!matchesValid(runParams2.get("Attacker"), this.mapParams.get("ValidCard").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
@@ -63,7 +63,7 @@ public class TriggerAttacks extends Trigger {
         if (this.mapParams.containsKey("Attacked")) {
             GameEntity attacked = (GameEntity) runParams2.get("Attacked");
             if (!attacked.isValid(this.mapParams.get("Attacked").split(",")
-                    , this.getHostCard().getController(), this.getHostCard())) {
+                    , this.getHostCard().getController(), this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

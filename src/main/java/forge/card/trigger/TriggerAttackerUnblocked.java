@@ -53,13 +53,13 @@ public class TriggerAttackerUnblocked extends Trigger {
     public final boolean performTest(final Map<String, Object> runParams2) {
         if (this.mapParams.containsKey("ValidCard")) {
             if (!matchesValid(runParams2.get("Attacker"), this.mapParams.get("ValidCard").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }
         if (this.mapParams.containsKey("ValidDefender")) {
             if (!matchesValid(runParams2.get("Defender"), this.mapParams.get("ValidDefender").split(","),
-                    this.getHostCard())) {
+                    this.getHostCard(), this.isIntrinsic())) {
                 return false;
             }
         }

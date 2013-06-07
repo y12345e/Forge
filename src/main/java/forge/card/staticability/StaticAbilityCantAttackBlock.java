@@ -43,12 +43,12 @@ public class StaticAbilityCantAttackBlock {
         final Card hostCard = stAb.getHostCard();
 
         if (params.containsKey("ValidCard")
-                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard)) {
+                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard, true)) {
             return false;
         }
 
         if (params.containsKey("Target")
-                && !target.isValid(params.get("Target").split(","), hostCard.getController(), hostCard)) {
+                && !target.isValid(params.get("Target").split(","), hostCard.getController(), hostCard, true)) {
             return false;
         }
 
@@ -69,12 +69,12 @@ public class StaticAbilityCantAttackBlock {
         final Card hostCard = stAb.getHostCard();
 
         if (params.containsKey("ValidCard")
-                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard)) {
+                && !card.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard, true)) {
             return null;
         }
 
         if (params.containsKey("Target")
-                && !target.isValid(params.get("Target").split(","), hostCard.getController(), hostCard)) {
+                && !target.isValid(params.get("Target").split(","), hostCard.getController(), hostCard, true)) {
             return null;
         }
         String costString = params.get("Cost");
@@ -105,12 +105,12 @@ public class StaticAbilityCantAttackBlock {
         final Card hostCard = stAb.getHostCard();
 
         if (params.containsKey("ValidCard")
-                && !blocker.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard)) {
+                && !blocker.isValid(params.get("ValidCard").split(","), hostCard.getController(), hostCard, true)) {
             return null;
         }
         
         if (params.containsKey("Attacker") && attacker != null
-                && !attacker.isValid(params.get("Attacker").split(","), hostCard.getController(), hostCard)) {
+                && !attacker.isValid(params.get("Attacker").split(","), hostCard.getController(), hostCard, true)) {
             return null;
         }
         String costString = params.get("Cost");
