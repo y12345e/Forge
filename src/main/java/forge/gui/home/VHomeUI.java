@@ -90,15 +90,27 @@ public enum VHomeUI implements IVTopLevelUI {
         .iconAlignX(SwingConstants.CENTER)
         .iconInBackground(true).iconScaleFactor(1.0).build();
 
-    private final FLabel lblExit = new FLabel.ButtonBuilder().text("Exit Forge").fontSize(14).build();
-    private final FLabel lblEditor = new FLabel.ButtonBuilder().text("Deck Editor").fontSize(14).build();
+    private final FLabel lblDeckEditor = new FLabel.ButtonBuilder().text("Deck Editor").fontSize(14).build();
+    private final FLabel lblCardSetEditor = new FLabel.ButtonBuilder().text("Card/Set Editor").fontSize(14).build();
     private final FLabel lblStartServer = new FLabel.ButtonBuilder().text("Start Server").fontSize(14).build();
-    private final FLabel lblStopServer = new FLabel.ButtonBuilder().text("Stop").fontSize(14).build();
+    private final FLabel lblStopServer = new FLabel.ButtonBuilder().text("Stop Server").fontSize(14).build();
+    private final FLabel lblExit = new FLabel.ButtonBuilder().text("Exit Forge").fontSize(14).build();
 
     private VHomeUI() {
-        pnlMenu.add(lblLogo, "w 150px!, h 150px!, gap 0 0 5px 10px, ax center");
+        // Add main menu containing logo and menu buttons
+        JPanel pnlMainMenu = new JPanel(new MigLayout("w 200px!, ax center, insets 0, gap 0, wrap"));
+        pnlMainMenu.setOpaque(false);
+        pnlMainMenu.add(lblLogo, "w 170px!, h 170px!, gap 0 4px 0 4px");
 
-        layoutMainMenuButtons();
+        pnlMainMenu.add(lblDeckEditor, "w 170px!, h 30px!, gap 0 0 0 8px");
+        pnlMainMenu.add(lblCardSetEditor, "w 170px!, h 30px!, gap 0 0 0 8px");        
+        if (NewConstants.SERVER_PORT_NUMBER >= 80) {
+            pnlMainMenu.add(lblStartServer, "w 170px!, h 30px!, gap 0 0 0 8px");
+            pnlMainMenu.add(lblStopServer, "w 170px!, h 30px!, gap 0 0 0 8px");
+            lblStopServer.setEnabled(false);
+        }
+        pnlMainMenu.add(lblExit, "w 170px!, h 30px!, gap 0 0 0 8px");
+        pnlMenu.add(pnlMainMenu);
         
         // Add new menu items here (order doesn't matter).
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
@@ -146,7 +158,7 @@ public enum VHomeUI implements IVTopLevelUI {
         // For each group: add its title, then its panel, then "click" if necessary.
         for (final EMenuGroup e : allGroupPanels.keySet()) {
             allGroupLabels.put(e, new LblGroup(e));
-            pnlMenu.add(allGroupLabels.get(e), "w 100%!, h 30px!, gap 0 0 10px 3px");
+            pnlMenu.add(allGroupLabels.get(e), "w 100%!, h 30px!, gap 0 0 3px 3px");
             pnlMenu.add(allGroupPanels.get(e), "w 100%!, gap 0 0 0 0");
 
             // Expand groups expanded from previous session
@@ -156,21 +168,6 @@ public enum VHomeUI implements IVTopLevelUI {
         }
         pnlDisplay.setBackground(FSkin.alphaColor(l00, 100));
     }
-    
-    private void layoutMainMenuButtons() {
-        JPanel pnlButtons = new JPanel(new MigLayout("insets 0, gap 0, wrap 3"));
-        pnlButtons.setOpaque(false);
-
-        pnlButtons.add(lblExit, "w 110px!, h 30px!, gap 0 10px 0 0");
-        pnlButtons.add(lblEditor, "w 110px!, h 30px!, sx 2");
-        
-        if ( NewConstants.SERVER_PORT_NUMBER >= 80 ) {
-            pnlButtons.add(lblStartServer, "w 170px!, h 25px!, gap 0 10px 10px 0, sx 2 ");
-            pnlButtons.add(lblStopServer, "w 50px!, h 25px!, gap 0 0 10px 0");
-            lblStopServer.setEnabled(false);
-        }        
-        pnlMenu.add(pnlButtons, "w 230px!, gap 10px 0 10px 10px");
-    }
 
     /** @return {@link forge.gui.toolbox.ExperimentalLabel} */
     public FLabel getLblExit() {
@@ -178,8 +175,13 @@ public enum VHomeUI implements IVTopLevelUI {
     }
 
     /** @return {@link forge.gui.toolbox.ExperimentalLabel} */
-    public FLabel getLblEditor() {
-        return this.lblEditor;
+    public FLabel getLblDeckEditor() {
+        return this.lblDeckEditor;
+    }
+    
+    /** @return {@link forge.gui.toolbox.ExperimentalLabel} */
+    public FLabel getLblCardSetEditor() {
+        return this.lblCardSetEditor;
     }
 
     public final FLabel getLblStartServer() {
@@ -225,8 +227,8 @@ public enum VHomeUI implements IVTopLevelUI {
         pnl.setBorder(null);
         pnl.setLayout(new MigLayout("insets 0, gap 0"));
 
-        pnl.add(pnlMenu, "w 250px!, h 100%!");
-        pnl.add(pnlDisplay, "w 100% - 250px!, h 100%!");
+        pnl.add(pnlMenu, "w 205px!, h 100%!");
+        pnl.add(pnlDisplay, "w 100% - 205px!, h 100%!");
     }
 
     /** */

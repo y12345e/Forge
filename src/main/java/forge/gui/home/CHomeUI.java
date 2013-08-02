@@ -64,7 +64,7 @@ public enum CHomeUI implements ICDoc {
     @Override
     public void initialize() {
         selectPrevious();
-        VHomeUI.SINGLETON_INSTANCE.getLblEditor().setCommand(new Command() {
+        VHomeUI.SINGLETON_INSTANCE.getLblDeckEditor().setCommand(new Command() {
             @Override
             public void run() {
                 Singletons.getControl().changeStateAutoFixLayout(FControl.Screens.DECK_EDITOR_CONSTRUCTED, "deck editor");

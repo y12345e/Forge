@@ -54,7 +54,7 @@ public enum CSubmenuGauntletLoad implements ICDoc {
                 if (btnStart.isEnabled()) {
                     view.getBtnStart().requestFocusInWindow();
                 } else {
-                    VHomeUI.SINGLETON_INSTANCE.getLblEditor().requestFocusInWindow();
+                    VHomeUI.SINGLETON_INSTANCE.getLblDeckEditor().requestFocusInWindow();
                 }
             }
         });

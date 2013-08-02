@@ -26,6 +26,7 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
@@ -43,6 +44,8 @@ import forge.game.player.LobbyPlayer;
 import forge.game.player.Player;
 import forge.gui.GuiDialog;
 import forge.gui.SOverlayUtils;
+import forge.gui.cardseteditor.CCardSetEditorUI;
+import forge.gui.cardseteditor.VCardSetEditorUI;
 import forge.gui.deckeditor.CDeckEditorUI;
 import forge.gui.deckeditor.VDeckEditorUI;
 import forge.gui.framework.EDocID;
@@ -86,7 +89,7 @@ public enum FControl {
     private JLayeredPane display;
     private Screens state = Screens.UNKNOWN;
 
-    private WindowListener waDefault, waConcede, waLeaveBazaar, waLeaveEditor;
+    private WindowListener waDefault, waConcede, waLeaveBazaar, waLeaveDeckEditor, waLeaveCardSetEditor;
 
     public static enum Screens {
         UNKNOWN,
@@ -97,7 +100,8 @@ public enum FControl {
         DECK_EDITOR_LIMITED,
         DECK_EDITOR_QUEST,
         QUEST_CARD_SHOP,
-        DRAFTING_PROCESS
+        DRAFTING_PROCESS,
+        CARD_SET_EDITOR
     }
 
     private final SoundSystem soundSystem = new SoundSystem();
@@ -149,16 +153,27 @@ public enum FControl {
             }
         };
 
-         this.waLeaveEditor = new WindowAdapter() {
-             @Override
-             public void windowClosing(final WindowEvent ev) {
-                 Singletons.getView().getFrame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        this.waLeaveDeckEditor = new WindowAdapter() {
+            @Override
+            public void windowClosing(final WindowEvent ev) {
+                Singletons.getView().getFrame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-                 if (CDeckEditorUI.SINGLETON_INSTANCE.getCurrentEditorController().exit()) {
-                     changeState(Screens.HOME_SCREEN);
-                 }
-             }
-         };
+                if (CDeckEditorUI.SINGLETON_INSTANCE.getCurrentEditorController().exit()) {
+                    changeState(Screens.HOME_SCREEN);
+                }
+            }
+        };
+        
+        this.waLeaveCardSetEditor = new WindowAdapter() {
+            @Override
+            public void windowClosing(final WindowEvent ev) {
+                Singletons.getView().getFrame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+                if (CCardSetEditorUI.SINGLETON_INSTANCE.getCurrentEditorController().exit()) {
+                    changeState(Screens.HOME_SCREEN);
+                }
+            }
+        };
     }
 
     /** After view and model have been initialized, control can start. 
@@ -215,7 +230,8 @@ public enum FControl {
         Singletons.getView().getFrame().removeWindowListener(waDefault);
         Singletons.getView().getFrame().removeWindowListener(waConcede);
         Singletons.getView().getFrame().removeWindowListener(waLeaveBazaar);
-        Singletons.getView().getFrame().removeWindowListener(waLeaveEditor);
+        Singletons.getView().getFrame().removeWindowListener(waLeaveDeckEditor);
+        Singletons.getView().getFrame().removeWindowListener(waLeaveCardSetEditor);
 
         // Fire up new state
         switch (screen) {
@@ -245,7 +261,15 @@ public enum FControl {
                 VDeckEditorUI.SINGLETON_INSTANCE.populate();
                 FView.SINGLETON_INSTANCE.getPnlInsets().setVisible(true);
                 FView.SINGLETON_INSTANCE.getPnlInsets().setForegroundImage(new ImageIcon());
-                Singletons.getView().getFrame().addWindowListener(waLeaveEditor);
+                Singletons.getView().getFrame().addWindowListener(waLeaveDeckEditor);
+                break;
+            
+            case CARD_SET_EDITOR:
+                SOverlayUtils.hideTargetingOverlay();
+                VCardSetEditorUI.SINGLETON_INSTANCE.populate();
+                FView.SINGLETON_INSTANCE.getPnlInsets().setVisible(true);
+                FView.SINGLETON_INSTANCE.getPnlInsets().setForegroundImage(new ImageIcon());
+                Singletons.getView().getFrame().addWindowListener(waLeaveCardSetEditor);
                 break;
 
             case QUEST_BAZAAR:
