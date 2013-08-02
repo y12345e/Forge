@@ -26,8 +26,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import forge.Command;
 import forge.card.CardRulesPredicates;
 import forge.gui.WrapLayout;
-import forge.gui.deckeditor.SEditorUtil;
-import forge.gui.deckeditor.controllers.CCardCatalog;
+import forge.gui.cardseteditor.SEditorUtil;
+import forge.gui.cardseteditor.controllers.CCardCatalog;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
 import forge.gui.framework.EDocID;
@@ -40,7 +40,7 @@ import forge.gui.toolbox.ToolTipListener;
 import forge.util.TextUtil;
 
 /** 
- * Assembles Swing components of card catalog in deck editor.
+ * Assembles Swing components of card catalog in card/set editor.
  *
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  * 
@@ -71,13 +71,13 @@ public enum VCardCatalog implements IVDoc<CCardCatalog>, ITableContainer {
     private final FLabel btnAdd = new FLabel.Builder()
             .fontSize(14)
             .text("Add card")
-            .tooltip("Add selected card to current deck (or double click the row or hit the spacebar)")
+            .tooltip("Add selected card to current cardset (or double click the row or hit the spacebar)")
             .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_PLUS))
             .iconScaleAuto(false).hoverable().build();
     private final FLabel btnAdd4 = new FLabel.Builder()
             .fontSize(14)
             .text("Add 4 of card")
-            .tooltip("Add up to 4 of selected card to current deck")
+            .tooltip("Add up to 4 of selected card to current cardset")
             .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_PLUS))
             .iconScaleAuto(false).hoverable().build();
 

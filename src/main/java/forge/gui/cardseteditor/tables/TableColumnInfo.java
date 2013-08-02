@@ -23,7 +23,7 @@ import javax.swing.table.TableColumn;
 
 import com.google.common.base.Function;
 
-import forge.gui.deckeditor.tables.SColumnUtil.SortState;
+import forge.gui.cardseteditor.tables.SColumnUtil.SortState;
 
 /**
  * A column object in a EditorTableModel in the card editor.
@@ -84,12 +84,12 @@ public class TableColumnInfo<T> extends TableColumn {
         this.sortPriority = position0;
     }
 
-    /** @return {@link forge.gui.deckeditor.tables.EditorTableModel.SortState} */
+    /** @return {@link forge.gui.cardseteditor.tables.EditorTableModel.SortState} */
     public SortState getSortState() {
         return this.sortstate;
     }
 
-     /** @param state0 &emsp; {@link forge.gui.deckeditor.tables.TableColumnInfo.SortState} */
+     /** @param state0 &emsp; {@link forge.gui.cardseteditor.tables.TableColumnInfo.SortState} */
     public void setSortState(final SortState state0) {
         this.sortstate = state0;
     }

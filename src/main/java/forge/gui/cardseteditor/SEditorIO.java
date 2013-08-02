@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JOptionPane;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -18,10 +19,13 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import forge.gui.deckeditor.tables.SColumnUtil;
-import forge.gui.deckeditor.tables.SColumnUtil.ColumnName;
-import forge.gui.deckeditor.tables.SColumnUtil.SortState;
-import forge.gui.deckeditor.tables.TableColumnInfo;
+import forge.cardset.CardSetBase;
+import forge.gui.cardseteditor.CCardSetEditorUI;
+import forge.gui.cardseteditor.tables.CardSetController;
+import forge.gui.cardseteditor.tables.SColumnUtil;
+import forge.gui.cardseteditor.tables.SColumnUtil.ColumnName;
+import forge.gui.cardseteditor.tables.SColumnUtil.SortState;
+import forge.gui.cardseteditor.tables.TableColumnInfo;
 import forge.item.InventoryItem;
 import forge.properties.NewConstants;
 
@@ -43,7 +47,7 @@ public class SEditorIO {
 
     /** Preferences (must match with PREFS file). */
     public enum EditorPreference {
-        stats_deck,
+        stats_cardset,
         display_unique_only,
         elastic_columns
     }
@@ -61,7 +65,7 @@ public class SEditorIO {
     /**
      * Retrieve a preference from the editor preference map.
      * 
-     * @param name0 &emsp; {@link forge.gui.deckeditor.SEditorUtil.EditorPreference}
+     * @param name0 &emsp; {@link forge.gui.cardseteditor.SEditorUtil.EditorPreference}
      * @return TableColumnInfo<InventoryItem>
      */
     public static boolean getPref(final EditorPreference name0) {
@@ -71,7 +75,7 @@ public class SEditorIO {
     /**
      * Set a preference in the editor preference map.
      * 
-     * @param name0 &emsp; {@link forge.gui.deckeditor.SEditorUtil.EditorPreference}
+     * @param name0 &emsp; {@link forge.gui.cardseteditor.SEditorUtil.EditorPreference}
      * @param val0 &emsp; boolean
      */
     public static void setPref(final EditorPreference name0, final boolean val0) {
@@ -81,7 +85,7 @@ public class SEditorIO {
     /**
      * Retrieve a custom column.
      * 
-     * @param name0 &emsp; {@link forge.gui.deckeditor.SEditorUtil.CatalogColumnName}
+     * @param name0 &emsp; {@link forge.gui.cardseteditor.SEditorUtil.CatalogColumnName}
      * @return TableColumnInfo<InventoryItem>
      */
     public static TableColumnInfo<InventoryItem> getColumn(final ColumnName name0) {
@@ -107,6 +111,29 @@ public class SEditorIO {
     public static boolean saveCard() {
         return false;
     }
+    
+    /**
+     * Prompts to save changes if necessary.
+     * 
+     * @return boolean, true if success
+     */
+    @SuppressWarnings("unchecked")
+    public static boolean confirmSaveChanges() {
+        if (!((CardSetController<CardSetBase>) CCardSetEditorUI
+                .SINGLETON_INSTANCE.getCurrentEditorController().getCardSetController()).isSaved()) {
+            final int choice = JOptionPane.showConfirmDialog(null,
+                    "Save changes to current cardset?",
+                    "Save Changes?",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (choice == JOptionPane.CANCEL_OPTION) { return false; }
+
+            if (choice == JOptionPane.YES_OPTION && !saveSet()) { return false; }
+        }
+
+        return true;
+    }
 
     /** Publicly-accessible save method, to neatly handle exception handling. */
     public static void savePreferences() {
@@ -125,7 +152,7 @@ public class SEditorIO {
      * TODO: Write javadoc for this method.
      * 
      * @param <TItem> extends InventoryItem
-     * @param <TModel> extends DeckBase
+     * @param <TModel> extends CardSetBase
      */
     private static void save() throws Exception {
         final XMLOutputFactory out = XMLOutputFactory.newInstance();

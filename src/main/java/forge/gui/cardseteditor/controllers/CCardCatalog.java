@@ -31,7 +31,7 @@ import forge.Command;
 import forge.Singletons;
 import forge.card.CardEdition;
 import forge.card.EditionCollection;
-import forge.deck.DeckBase;
+import forge.cardset.CardSetBase;
 import forge.game.GameFormat;
 import forge.gui.GuiUtils;
 import forge.gui.cardseteditor.CCardSetEditorUI;
@@ -49,7 +49,7 @@ import forge.quest.QuestWorld;
 import forge.quest.data.GameFormatQuest;
 
 /** 
- * Controls the "card catalog" panel in the deck editor UI.
+ * Controls the "card catalog" panel in the cardset editor UI.
  * 
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  *
@@ -370,7 +370,7 @@ public enum CCardCatalog implements ICDoc {
         
         Predicate<PaperCard> cardFilter = Predicates.and(cardPredicates);
         
-        // show packs and decks in the card shop according to the toggle setting
+        // show packs and cardsets in the card shop according to the toggle setting
         // this is special-cased apart from the buildColorAndTypeFilter() above
         if (VCardCatalog.SINGLETON_INSTANCE.getStatLabel(SEditorUtil.StatTypes.PACK).getSelected()) {
             List<Predicate<? super PaperCard>> itemPredicates = new ArrayList<Predicate<? super PaperCard>>();
@@ -384,7 +384,7 @@ public enum CCardCatalog implements ICDoc {
         // TODO: is there really no way to make this type safe?
         ACEditorBase<?, ?> editor = CCardSetEditorUI.SINGLETON_INSTANCE.getCurrentEditorController();
         if (null != editor) {
-            ((ACEditorBase<PaperCard, DeckBase>)editor).getTableCatalog().setFilter(cardFilter);
+            ((ACEditorBase<PaperCard, CardSetBase>)editor).getTableCatalog().setFilter(cardFilter);
         }
     }
     

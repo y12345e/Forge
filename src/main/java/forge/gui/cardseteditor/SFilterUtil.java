@@ -11,8 +11,8 @@ import com.google.common.base.Predicates;
 
 import forge.card.CardRules;
 import forge.card.CardRulesPredicates;
-import forge.gui.deckeditor.views.VCardCatalog;
-import forge.gui.deckeditor.views.VCardCatalog.RangeTypes;
+import forge.gui.cardseteditor.views.VCardCatalog;
+import forge.gui.cardseteditor.views.VCardCatalog.RangeTypes;
 import forge.gui.toolbox.FLabel;
 import forge.gui.toolbox.FSpinner;
 import forge.item.PaperCard;

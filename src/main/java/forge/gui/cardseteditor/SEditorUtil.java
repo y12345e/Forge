@@ -11,7 +11,6 @@ import forge.card.CardRules;
 import forge.card.CardRulesPredicates;
 import forge.gui.cardseteditor.views.ITableContainer;
 import forge.gui.cardseteditor.views.VCardCatalog;
-import forge.gui.cardseteditor.views.VCurrentSet;
 import forge.gui.cardseteditor.views.VCurrentCard;
 import forge.gui.toolbox.FLabel;
 import forge.gui.toolbox.FSkin;
@@ -64,7 +63,7 @@ public final class SEditorUtil  {
 
         public String toLabelString() {
             if (this == PACK) {
-                return "Card packs and prebuilt decks";
+                return "Card packs and prebuilt cardsets";
             }
             return TextUtil.enumToLabel(this) + " cards";
         }
@@ -110,35 +109,35 @@ public final class SEditorUtil  {
 
     /**
      * Resets components that may have been changed
-     * by various configurations of the deck editor.
+     * by various configurations of the cardset editor.
      */
     @SuppressWarnings("serial")
     public static void resetUI() {
         VCardCatalog.SINGLETON_INSTANCE.getBtnAdd4().setVisible(true);
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnRemove4().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnRemove4().setVisible(true);
 
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnSave().setVisible(true);
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnSaveAs().setVisible(true);
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnNew().setVisible(true);
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnOpen().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnSave().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnSaveAs().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnNew().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnOpen().setVisible(true);
 
-        VCurrentDeck.SINGLETON_INSTANCE.getTxfTitle().setEnabled(true);
+        VCurrentCard.SINGLETON_INSTANCE.getTxfTitle().setEnabled(true);
         
         VCardCatalog.SINGLETON_INSTANCE.getPnlHeader().setVisible(false);
         VCardCatalog.SINGLETON_INSTANCE.getLblTitle().setText("");
 
-        VCurrentDeck.SINGLETON_INSTANCE.getPnlHeader().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getPnlHeader().setVisible(true);
 
         VCardCatalog.SINGLETON_INSTANCE.getTabLabel().setText("Card Catalog");
 
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnPrintProxies().setVisible(true);
-        VCurrentDeck.SINGLETON_INSTANCE.getBtnDoSideboard().setVisible(false);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnPrintProxies().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getBtnDoSideboard().setVisible(false);
 
-        VCurrentDeck.SINGLETON_INSTANCE.getTxfTitle().setVisible(true);
-        VCurrentDeck.SINGLETON_INSTANCE.getLblTitle().setText("Title:");
+        VCurrentCard.SINGLETON_INSTANCE.getTxfTitle().setVisible(true);
+        VCurrentCard.SINGLETON_INSTANCE.getLblTitle().setText("Title:");
 
-        ((FLabel) VCurrentDeck.SINGLETON_INSTANCE.getBtnSave())
+        ((FLabel) VCurrentCard.SINGLETON_INSTANCE.getBtnSave())
             .setCommand(new Command() {
-                @Override public void run() { SEditorIO.saveDeck(); } });
+                @Override public void run() { SEditorIO.saveCard(); } });
     }
 }

@@ -26,12 +26,12 @@ import forge.item.InventoryItem;
 import forge.properties.NewConstants;
 
 /** 
- * Controls the "current set" panel in the set editor UI.
+ * Controls the "current card" panel in the card editor UI.
  * 
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  *
  */
-public enum CCurrentSet implements ICDoc {
+public enum CCurrentCard implements ICDoc {
     /** */
     SINGLETON_INSTANCE;
 
@@ -41,7 +41,7 @@ public enum CCurrentSet implements ICDoc {
     
     //========== Overridden methods
     
-    private CCurrentSet() {
+    private CCurrentCard() {
         FileFilter[] defaultFilters = fileChooser.getChoosableFileFilters();
         for(FileFilter defFilter : defaultFilters)
         {
@@ -67,7 +67,7 @@ public enum CCurrentSet implements ICDoc {
     public void initialize() {
         ((FLabel) VCurrentCard.SINGLETON_INSTANCE.getBtnSave())
             .setCommand(new Command() { @Override
-                public void run() { SEditorIO.saveSet(); } });
+                public void run() { SEditorIO.saveCard(); } });
 
         ((FLabel) VCurrentCard.SINGLETON_INSTANCE.getBtnSaveAs())
             .setCommand(new Command() { @Override
@@ -118,7 +118,7 @@ public enum CCurrentSet implements ICDoc {
     }
     
     /**
-     * Opens dialog for importing a set from a different MTG software.
+     * Opens dialog for importing a card from a different MTG software.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private <TItem extends InventoryItem, TModel extends CardSetBase> void importCardSet() {
@@ -156,7 +156,7 @@ public enum CCurrentSet implements ICDoc {
             });
         } catch (final Exception ex) {
             BugReporter.reportException(ex);
-            throw new RuntimeException("Error creating new set. " + ex);
+            throw new RuntimeException("Error creating new card. " + ex);
         }
     }
 
@@ -175,7 +175,7 @@ public enum CCurrentSet implements ICDoc {
 
             } catch (final Exception ex) {
                 BugReporter.reportException(ex);
-                throw new RuntimeException("Error importing set." + ex);
+                throw new RuntimeException("Error importing card." + ex);
             }
         }
     }
@@ -203,12 +203,12 @@ public enum CCurrentSet implements ICDoc {
         }
 
         try {
-            CardSetSerializer.writeSet(
+            CardSetSerializer.writeCard(
                 ((CardSetController<CardSet>) CCardSetEditorUI.SINGLETON_INSTANCE
                 .getCurrentEditorController().getCardSetController()).getModel(), filename);
         } catch (final Exception ex) {
             BugReporter.reportException(ex);
-            throw new RuntimeException("Error exporting set." + ex);
+            throw new RuntimeException("Error exporting card." + ex);
         }
     }
 
@@ -221,12 +221,12 @@ public enum CCurrentSet implements ICDoc {
         }
 
         try {
-            CardSetSerializer.writeSetHtml(
+            CardSetSerializer.writeCardHtml(
                 ((CardSetController<CardSet>) CCardSetEditorUI.SINGLETON_INSTANCE
                 .getCurrentEditorController().getCardSetController()).getModel(), filename);
         } catch (final Exception ex) {
             BugReporter.reportException(ex);
-            throw new RuntimeException("Error exporting set." + ex);
+            throw new RuntimeException("Error exporting card." + ex);
         }
     }
 

@@ -45,8 +45,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
-import forge.gui.deckeditor.SEditorUtil;
-import forge.gui.deckeditor.views.ITableContainer;
+import forge.gui.cardseteditor.SEditorUtil;
+import forge.gui.cardseteditor.views.ITableContainer;
 import forge.gui.toolbox.FSkin;
 import forge.item.InventoryItem;
 import forge.item.ItemPool;
@@ -230,7 +230,7 @@ public final class EditorTableView<T extends InventoryItem> {
     /**
      * Applies a EditorTableModel and a model listener to this instance's JTable.
      * 
-     * @param view0 &emsp; the {@link javax.gui.deckeditor.views.ITableCOntainer}
+     * @param view0 &emsp; the {@link javax.gui.cardseteditor.views.ITableCOntainer}
      * @param cols0 &emsp; List<TableColumnInfo<InventoryItem>> of additional columns for this
      */
     public void setup(final ITableContainer view0, final List<TableColumnInfo<InventoryItem>> cols0) {
@@ -300,46 +300,46 @@ public final class EditorTableView<T extends InventoryItem> {
 
     /**
      * 
-     * setDeck.
+     * setCardSet.
      * 
      * @param cards
      *            an Iterable<InventoryITem>
      */
-    public void setDeck(final Iterable<InventoryItem> cards) {
-        this.setDeckImpl(ItemPool.createFrom(cards, this.genericType), false);
+    public void setCardSet(final Iterable<InventoryItem> cards) {
+        this.setCardSetImpl(ItemPool.createFrom(cards, this.genericType), false);
     }
 
     /**
-     * setDeck.
+     * setCardSet.
      * 
      * @param poolView
      *            an ItemPoolView
      */
-    public void setDeck(final ItemPoolView<T> poolView, boolean infinite) {
-        this.setDeckImpl(ItemPool.createFrom(poolView, this.genericType), infinite);
+    public void setCardSet(final ItemPoolView<T> poolView, boolean infinite) {
+        this.setCardSetImpl(ItemPool.createFrom(poolView, this.genericType), infinite);
 
     }
-    public void setDeck(final ItemPoolView<T> poolView) {
-        this.setDeck(poolView, false);
+    public void setCardSet(final ItemPoolView<T> poolView) {
+        this.setCardSet(poolView, false);
     }
     /**
-     * Sets the deck.
+     * Sets the cardset.
      * 
      * @param pool
-     *            the new deck
+     *            the new cardset
      */
-    public void setDeck(final ItemPool<T> pool) {
-        this.setDeckImpl(pool, false);
+    public void setCardSet(final ItemPool<T> pool) {
+        this.setCardSetImpl(pool, false);
     }
 
     /**
      * 
-     * setDeckImpl.
+     * setCardSetImpl.
      * 
      * @param thePool
      *            an ItemPool
      */
-    protected void setDeckImpl(final ItemPool<T> thePool, boolean infinite) {
+    protected void setCardSetImpl(final ItemPool<T> thePool, boolean infinite) {
         this.model.clear();
         this.pool = thePool;
         this.model.addCards(this.pool);

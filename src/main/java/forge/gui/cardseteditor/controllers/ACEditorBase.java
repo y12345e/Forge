@@ -19,9 +19,9 @@ package forge.gui.cardseteditor.controllers;
 
 import javax.swing.SwingUtilities;
 
-import forge.deck.DeckBase;
-import forge.gui.deckeditor.tables.DeckController;
-import forge.gui.deckeditor.tables.EditorTableView;
+import forge.cardset.CardSetBase;
+import forge.gui.cardseteditor.tables.CardSetController;
+import forge.gui.cardseteditor.tables.EditorTableView;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.ICDoc;
 import forge.gui.framework.IVDoc;
@@ -32,7 +32,7 @@ import forge.view.FView;
 /**
  * Maintains a generically typed architecture for various editing
  * environments.  A basic editor instance requires a card catalog, the
- * current deck being edited, and optional filters on the catalog.
+ * current cardset being edited, and optional filters on the catalog.
  * <br><br>
  * These requirements are collected in this class and manipulated
  * in subclasses for different environments. There are two generic
@@ -42,9 +42,9 @@ import forge.view.FView;
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  *
  * @param <TItem> extends {@link forge.item.InventoryItem}
- * @param <TModel> extends {@link forge.deck.DeckBase}
+ * @param <TModel> extends {@link forge.cardset.CardSetBase}
  */
-public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends DeckBase> {
+public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends CardSetBase> {
     public interface ContextMenuBuilder {
         /**
          * Adds move-related items to the context menu
@@ -52,7 +52,7 @@ public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends D
          * @param verb Examples: "Sell", "Add"
          * @param nounSingular Examples: "item", "card"
          * @param nounPlural Examples: "items", "cards"
-         * @param destination Examples: null, "to deck", "to sideboard"
+         * @param destination Examples: null, "to cardset", "to sideboard"
          */
         public void addMoveItems (String verb, String nounSingular, String nounPlural, String destination);
         public void addMoveAlternateItems (String verb, String nounSingular, String nounPlural, String destination);
@@ -60,15 +60,15 @@ public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends D
     }
     
     private EditorTableView<TItem> tblCatalog;
-    private EditorTableView<TItem> tblDeck;
+    private EditorTableView<TItem> tblCardSet;
     
     /** 
-     * Operation to add one of selected card to current deck.
+     * Operation to add one of selected card to current cardset.
      */
     public abstract void addCard(InventoryItem item, boolean toAlternate, int qty);
 
     /**
-     * Operation to remove one of selected card from current deck.
+     * Operation to remove one of selected card from current cardset.
      */
     public abstract void removeCard(InventoryItem item, boolean toAlternate, int qty);
 
@@ -76,16 +76,16 @@ public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends D
     public abstract void buildRemoveContextMenu(ContextMenuBuilder cmb);
     
     /**
-     * Resets the cards in the catalog table and current deck table.
+     * Resets the cards in the catalog table and current cardset table.
      */
     public abstract void resetTables();
 
     /**
-     * Gets controller responsible for the current deck being edited.
+     * Gets controller responsible for the current cardset being edited.
      *
-     * @return {@link forge.gui.deckeditor.tables.DeckController}
+     * @return {@link forge.gui.cardseteditor.tables.CardSetController}
      */
-    public abstract DeckController<TModel> getDeckController();
+    public abstract CardSetController<TModel> getCardSetController();
 
     /**
      * Called when an editor wants to exit. Should confirm save options,
@@ -101,27 +101,27 @@ public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends D
     public abstract void init();
 
     /**
-     * Gets the EditorTableView holding the cards in the current deck.
+     * Gets the EditorTableView holding the cards in the current cardset.
      * 
-     * @return {@link forge.gui.deckeditor.tables.EditorTableView}
+     * @return {@link forge.gui.cardseteditor.tables.EditorTableView}
      */
-    public EditorTableView<TItem> getTableDeck() {
-        return this.tblDeck;
+    public EditorTableView<TItem> getTableCardSet() {
+        return this.tblCardSet;
     }
 
     /**
-     * Sets the EditorTableView holding the cards in the current deck.
+     * Sets the EditorTableView holding the cards in the current cardset.
      * 
-     * @param table0 &emsp; {@link forge.gui.deckeditor.tables.EditorTableView}
+     * @param table0 &emsp; {@link forge.gui.cardseteditor.tables.EditorTableView}
      */
-    public void setTableDeck(final EditorTableView<TItem> table0) {
-        this.tblDeck = table0;
+    public void setTableCardSet(final EditorTableView<TItem> table0) {
+        this.tblCardSet = table0;
     }
 
     /**
      * Gets the EditorTableView holding the cards in the current catalog.
      * 
-     * @return {@link forge.gui.deckeditor.tables.EditorTableView}
+     * @return {@link forge.gui.cardseteditor.tables.EditorTableView}
      */
     public EditorTableView<TItem> getTableCatalog() {
         return this.tblCatalog;
@@ -130,7 +130,7 @@ public abstract class ACEditorBase<TItem extends InventoryItem, TModel extends D
     /**
      * Sets the EditorTableView holding the cards in the current catalog.
      * 
-     * @param table0 &emsp; {@link forge.gui.deckeditor.tables.EditorTableView}
+     * @param table0 &emsp; {@link forge.gui.cardseteditor.tables.EditorTableView}
      */
     public void setTableCatalog(final EditorTableView<TItem> table0) {
         this.tblCatalog = table0;

@@ -23,11 +23,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Supplier;
 
-import forge.deck.DeckBase;
-import forge.gui.deckeditor.controllers.ACEditorBase;
-import forge.gui.deckeditor.controllers.CProbabilities;
-import forge.gui.deckeditor.controllers.CStatistics;
-import forge.gui.deckeditor.views.VCurrentDeck;
+import forge.cardset.CardSetBase;
+import forge.gui.cardseteditor.controllers.ACEditorBase;
+import forge.gui.cardseteditor.controllers.CProbabilities;
+import forge.gui.cardseteditor.controllers.CStatistics;
+import forge.gui.cardseteditor.views.VCurrentCard;
 import forge.util.storage.IStorage;
 
 /**
@@ -35,7 +35,7 @@ import forge.util.storage.IStorage;
  *
  * @param <T> the generic type
  */
-public class CardSetController<T extends DeckBase> {
+public class CardSetController<T extends CardSetBase> {
 
     private T model;
     private String modelName;
@@ -46,7 +46,7 @@ public class CardSetController<T extends DeckBase> {
     private final Supplier<T> newModelCreator;
 
     /**
-     * Instantiates a new deck controller.
+     * Instantiates a new cardset controller.
      *
      * @param folder0 the folder0
      * @param view0 the view0
@@ -93,7 +93,7 @@ public class CardSetController<T extends DeckBase> {
         this.modelName = document.getName();
         this.view.resetTables();
 
-        VCurrentDeck.SINGLETON_INSTANCE.getTxfTitle().setText(model.getName());
+        VCurrentCard.SINGLETON_INSTANCE.getTxfTitle().setText(model.getName());
         CStatistics.SINGLETON_INSTANCE.update();
         CProbabilities.SINGLETON_INSTANCE.update();
 
@@ -133,7 +133,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#notifyModelChanged()
+     * @see forge.gui.cardseteditor.ICardSetController#notifyModelChanged()
      */
     /**
      * Notify model changed.
@@ -144,13 +144,13 @@ public class CardSetController<T extends DeckBase> {
 
     private void _setSaved(boolean val) {
         saved = val;
-        VCurrentDeck.SINGLETON_INSTANCE.getTabLabel().setText((saved ? "" : "*") + "Current Deck");
+        VCurrentCard.SINGLETON_INSTANCE.getTabLabel().setText((saved ? "" : "*") + "Current CardSet");
     }
     
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#getSavedModelNames()
+     * @see forge.gui.cardseteditor.ICardSetController#getSavedModelNames()
      */
     /**
      * Gets the saved names.
@@ -164,7 +164,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#load(java.lang.String)
+     * @see forge.gui.cardseteditor.ICardSetController#load(java.lang.String)
      */
     /**
      * Load.
@@ -183,7 +183,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#save()
+     * @see forge.gui.cardseteditor.ICardSetController#save()
      */
     /**
      * Save.
@@ -204,7 +204,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#rename(java.lang.String)
+     * @see forge.gui.cardseteditor.ICardSetController#rename(java.lang.String)
      */
     /**
      * Save as.
@@ -220,7 +220,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#isSaved()
+     * @see forge.gui.cardseteditor.ICardSetController#isSaved()
      */
 
     /**
@@ -235,7 +235,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#delete()
+     * @see forge.gui.cardseteditor.ICardSetController#delete()
      */
 
     /**
@@ -252,38 +252,38 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#isGoodName(java.lang.String)
+     * @see forge.gui.cardseteditor.ICardSetController#isGoodName(java.lang.String)
      */
 
     /**
      * File exists.
      *
-     * @param deckName the deck name
+     * @param cardsetName the cardset name
      * @return true, if successful
      */
-    public boolean fileExists(final String deckName) {
-        return !this.folder.isUnique(deckName);
+    public boolean fileExists(final String cardsetName) {
+        return !this.folder.isUnique(cardsetName);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#importDeck(forge.deck.Deck)
+     * @see forge.gui.cardseteditor.ICardSetController#importCardSet(forge.cardset.CardSet)
      */
 
     /**
-     * Import deck.
+     * Import cardset.
      *
-     * @param newDeck the new deck
+     * @param newCardSet the new cardset
      */
-    public void importDeck(final T newDeck) {
-        this.setModel(newDeck);
+    public void importCardSet(final T newCardSet) {
+        this.setModel(newCardSet);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#isModelInStore()
+     * @see forge.gui.cardseteditor.ICardSetController#isModelInStore()
      */
 
     /**
@@ -298,7 +298,7 @@ public class CardSetController<T extends DeckBase> {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.gui.deckeditor.IDeckController#newModel()
+     * @see forge.gui.cardseteditor.ICardSetController#newModel()
      */
 
     /**

@@ -1,7 +1,7 @@
 /*
  * Forge: Play Magic: the Gathering.
  * Copyright (C) 2011
-import forge.gui.deckeditor.views.VDeckEditorUI;
+import forge.gui.cardseteditor.views.VcardseteditorUI;
 Forge Team
  *
  * This program is free software: you can redistribute it and/or modify
@@ -42,10 +42,10 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import forge.gui.deckeditor.CDeckEditorUI;
-import forge.gui.deckeditor.SEditorIO;
-import forge.gui.deckeditor.tables.SColumnUtil.ColumnName;
-import forge.gui.deckeditor.tables.SColumnUtil.SortState;
+import forge.gui.cardseteditor.CCardSetEditorUI;
+import forge.gui.cardseteditor.SEditorIO;
+import forge.gui.cardseteditor.tables.SColumnUtil.ColumnName;
+import forge.gui.cardseteditor.tables.SColumnUtil.SortState;
 import forge.item.InventoryItem;
 import forge.item.ItemPool;
 import forge.item.ItemPoolView;
@@ -94,12 +94,12 @@ public final class EditorTableModel<T extends InventoryItem> extends AbstractTab
             }
         }
 
-        final boolean isDeckTable = ((TableColumnInfo<InventoryItem>) table.getColumnModel()
+        final boolean isCardSetTable = ((TableColumnInfo<InventoryItem>) table.getColumnModel()
                 .getColumn(0)).getEnumValue().substring(0, 4).equals("DECK")
                     ? true : false;
 
         if (sortcols[1] == null) {
-            if (isDeckTable) {
+            if (isCardSetTable) {
                 cascadeManager.add((TableColumnInfo<T>) SColumnUtil.getColumn(ColumnName.DECK_NAME));
             }
             else {
@@ -190,7 +190,7 @@ public final class EditorTableModel<T extends InventoryItem> extends AbstractTab
         final int row = table.getSelectedRow();
         if (row != -1) {
             Entry<T, Integer> card = this.rowToCard(row);
-            CDeckEditorUI.SINGLETON_INSTANCE.setCard(null != card ? card.getKey() : null);
+            CCardSetEditorUI.SINGLETON_INSTANCE.setCard(null != card ? card.getKey() : null);
         }
     }
 

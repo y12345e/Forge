@@ -45,16 +45,16 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.primitives.Ints;
 
-import forge.deck.DeckBase;
+import forge.cardset.CardSetBase;
 import forge.gui.GuiUtils;
-import forge.gui.deckeditor.SEditorIO.EditorPreference;
-import forge.gui.deckeditor.controllers.ACEditorBase;
-import forge.gui.deckeditor.controllers.CCardCatalog;
-import forge.gui.deckeditor.controllers.CProbabilities;
-import forge.gui.deckeditor.controllers.CStatistics;
-import forge.gui.deckeditor.tables.EditorTableModel;
-import forge.gui.deckeditor.tables.EditorTableView;
-import forge.gui.deckeditor.views.VCardCatalog;
+import forge.gui.cardseteditor.SEditorIO.EditorPreference;
+import forge.gui.cardseteditor.controllers.ACEditorBase;
+import forge.gui.cardseteditor.controllers.CCardCatalog;
+import forge.gui.cardseteditor.controllers.CProbabilities;
+import forge.gui.cardseteditor.controllers.CStatistics;
+import forge.gui.cardseteditor.tables.EditorTableModel;
+import forge.gui.cardseteditor.tables.EditorTableView;
+import forge.gui.cardseteditor.views.VCardCatalog;
 import forge.gui.match.controllers.CDetail;
 import forge.gui.match.controllers.CPicture;
 import forge.gui.toolbox.FLabel;
@@ -62,7 +62,7 @@ import forge.gui.toolbox.FSkin;
 import forge.item.InventoryItem;
 
 /**
- * Constructs instance of deck editor UI controller, used as a single point of
+ * Constructs instance of cardset editor UI controller, used as a single point of
  * top-level control for child UIs. Tasks targeting the view of individual
  * components are found in a separate controller for that component and
  * should not be included here.
@@ -73,7 +73,7 @@ public enum CCardSetEditorUI {
     /** */
     SINGLETON_INSTANCE;
 
-    private ACEditorBase<? extends InventoryItem, ? extends DeckBase> childController;
+    private ACEditorBase<? extends InventoryItem, ? extends CardSetBase> childController;
     private boolean isFindingAsYouType = false;
 
     private CCardSetEditorUI() {
@@ -92,25 +92,25 @@ public enum CCardSetEditorUI {
     /**
      * @return ACEditorBase<?, ?>
      */
-    public ACEditorBase<? extends InventoryItem, ? extends DeckBase> getCurrentEditorController() {
+    public ACEditorBase<? extends InventoryItem, ? extends CardSetBase> getCurrentEditorController() {
         return childController;
     }
 
     /**
      * Set controller for current configuration of editor.
      * 
-     * @param editor0 &emsp; {@link forge.gui.deckeditor.controllers.ACEditorBase}<?, ?>
+     * @param editor0 &emsp; {@link forge.gui.cardseteditor.controllers.ACEditorBase}<?, ?>
      */
-    public void setCurrentEditorController(ACEditorBase<? extends InventoryItem, ? extends DeckBase> editor0) {
+    public void setCurrentEditorController(ACEditorBase<? extends InventoryItem, ? extends CardSetBase> editor0) {
         this.childController = editor0;
         updateController();
         if (childController != null) {
             boolean wantElastic = SEditorIO.getPref(EditorPreference.elastic_columns);
             boolean wantUnique = SEditorIO.getPref(EditorPreference.display_unique_only);
             childController.getTableCatalog().setWantElasticColumns(wantElastic);
-            childController.getTableDeck().setWantElasticColumns(wantElastic);
+            childController.getTableCardSet().setWantElasticColumns(wantElastic);
             childController.getTableCatalog().setWantUnique(wantUnique);
-            childController.getTableDeck().setWantUnique(wantUnique);
+            childController.getTableCardSet().setWantUnique(wantUnique);
             CCardCatalog.SINGLETON_INSTANCE.applyCurrentFilter();
         }
     }
@@ -147,7 +147,7 @@ public enum CCardSetEditorUI {
 
     @SuppressWarnings("unchecked")
     public void removeSelectedCards(final boolean toAlternate, int number) {
-        moveSelectedCards((EditorTableView<InventoryItem>)childController.getTableDeck(),
+        moveSelectedCards((EditorTableView<InventoryItem>)childController.getTableCardSet(),
                 new _MoveAction() {
             @Override
             public void move(InventoryItem item, int qty) {
@@ -158,7 +158,7 @@ public enum CCardSetEditorUI {
 
     @SuppressWarnings("unchecked")
     public void removeAllCards(final boolean toAlternate) {
-        EditorTableView<InventoryItem> v = (EditorTableView<InventoryItem>)childController.getTableDeck();
+        EditorTableView<InventoryItem> v = (EditorTableView<InventoryItem>)childController.getTableCardSet();
         v.getTable().selectAll();
         moveSelectedCards(v, new _MoveAction() {
             @Override
@@ -289,11 +289,11 @@ public enum CCardSetEditorUI {
      */
     private void updateController() {
         EditorTableView<? extends InventoryItem> catView  = childController.getTableCatalog();
-        EditorTableView<? extends InventoryItem> deckView = childController.getTableDeck();
+        EditorTableView<? extends InventoryItem> cardsetView = childController.getTableCardSet();
         final JTable catTable  = catView.getTable();
-        final JTable deckTable = deckView.getTable();
+        final JTable cardsetTable = cardsetView.getTable();
         final _FindAsYouType catFind  = new _FindAsYouType(catView);
-        final _FindAsYouType deckFind = new _FindAsYouType(deckView);
+        final _FindAsYouType cardsetFind = new _FindAsYouType(cardsetView);
 
         catTable.addKeyListener(new KeyAdapter() {
             @Override
@@ -301,7 +301,7 @@ public enum CCardSetEditorUI {
                 if (!isFindingAsYouType && KeyEvent.VK_SPACE == e.getKeyCode()) {
                     addSelectedCards(e.isControlDown() || e.isMetaDown(), e.isShiftDown() ? 4: 1);
                 } else if (KeyEvent.VK_LEFT == e.getKeyCode() || KeyEvent.VK_RIGHT == e.getKeyCode()) {
-                    deckTable.requestFocusInWindow();
+                    cardsetTable.requestFocusInWindow();
                 } else if (KeyEvent.VK_F == e.getKeyCode()) {
                     // let ctrl/cmd-F set focus to the text filter box
                     if (e.isControlDown() || e.isMetaDown()) {
@@ -311,7 +311,7 @@ public enum CCardSetEditorUI {
             }
         });
 
-        deckTable.addKeyListener(new KeyAdapter() {
+        cardsetTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (!isFindingAsYouType && KeyEvent.VK_SPACE == e.getKeyCode()) {
@@ -340,19 +340,19 @@ public enum CCardSetEditorUI {
             public void mouseClicked(MouseEvent e) {
                 if (MouseEvent.BUTTON1 == e.getButton() && 2 == e.getClickCount()) { addSelectedCards(false, 1); }
                 else if (MouseEvent.BUTTON3 == e.getButton()) {
-                    _ContextMenuBuilder cmb = new _ContextMenuBuilder(e, catTable, deckTable, onAdd);
+                    _ContextMenuBuilder cmb = new _ContextMenuBuilder(e, catTable, cardsetTable, onAdd);
                     childController.buildAddContextMenu(cmb);
                     cmb.show();
                 }
             }
         });
 
-        deckTable.addMouseListener(new MouseAdapter() {
+        cardsetTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (MouseEvent.BUTTON1 == e.getButton() && 2 == e.getClickCount()) { removeSelectedCards(false, 1); }
                 else if (MouseEvent.BUTTON3 == e.getButton()) {
-                    _ContextMenuBuilder cmb = new _ContextMenuBuilder(e, deckTable, catTable, onRemove);
+                    _ContextMenuBuilder cmb = new _ContextMenuBuilder(e, cardsetTable, catTable, onRemove);
                     childController.buildRemoveContextMenu(cmb);
                     cmb.show();
                 }
@@ -365,16 +365,16 @@ public enum CCardSetEditorUI {
                 catFind.cancel();
             }
         });
-        deckTable.addFocusListener(new FocusAdapter() {
+        cardsetTable.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent arg0) {
-                deckFind.cancel();
+                cardsetFind.cancel();
             }
         });
         
         // highlight items as the user types a portion of their names
         catTable.addKeyListener(catFind);
-        deckTable.addKeyListener(deckFind);
+        cardsetTable.addKeyListener(cardsetFind);
         
         childController.init();
     }

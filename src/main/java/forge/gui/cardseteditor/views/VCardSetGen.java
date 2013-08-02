@@ -3,7 +3,7 @@ package forge.gui.cardseteditor.views;
 import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
-import forge.gui.deckeditor.controllers.CDeckgen;
+import forge.gui.cardseteditor.controllers.CCardSetGen;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
 import forge.gui.framework.EDocID;
@@ -11,41 +11,41 @@ import forge.gui.framework.IVDoc;
 import forge.gui.toolbox.FLabel;
 
 /** 
- * Assembles Swing components of deck editor analysis tab.
+ * Assembles Swing components of cardset editor analysis tab.
  *
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  */
-public enum VSetgen implements IVDoc<CDeckgen> {
+public enum VCardSetGen implements IVDoc<CCardSetGen> {
     /** */
     SINGLETON_INSTANCE;
 
     // Fields used with interface IVDoc
     private DragCell parentCell;
-    private final DragTab tab = new DragTab("Deck Generation");
+    private final DragTab tab = new DragTab("CardSet Generation");
 
-    // Deckgen buttons
+    // CardSetgen buttons
     private final JLabel btnRandCardpool = new FLabel.Builder()
-        .tooltip("Generate random constructed cardpool in current deck area")
+        .tooltip("Generate random constructed cardpool in current cardset area")
         .text("Random Cardpool").fontSize(14)
         .opaque(true).hoverable(true).build();
 
-    private final JLabel btnRandDeck2 = new FLabel.Builder()
-        .tooltip("Generate 2 color constructed deck in current deck area")
+    private final JLabel btnRandCardSet2 = new FLabel.Builder()
+        .tooltip("Generate 2 color constructed cardset in current cardset area")
         .text("Constructed (2 color)").fontSize(14)
         .opaque(true).hoverable(true).build();
 
-    private final JLabel btnRandDeck3 = new FLabel.Builder()
-        .tooltip("Generate 3 color constructed deck in current deck area")
+    private final JLabel btnRandCardSet3 = new FLabel.Builder()
+        .tooltip("Generate 3 color constructed cardset in current cardset area")
         .text("Constructed (3 color)").fontSize(14)
         .opaque(true).hoverable(true).build();
 
-    private final JLabel btnRandDeck5 = new FLabel.Builder()
-        .tooltip("Generate 5 color constructed deck in current deck area")
+    private final JLabel btnRandCardSet5 = new FLabel.Builder()
+        .tooltip("Generate 5 color constructed cardset in current cardset area")
         .text("Constructed (5 color)").fontSize(14)
         .opaque(true).hoverable(true).build();
 
     //========== Constructor
-    private VSetgen() {
+    private VCardSetGen() {
     }
 
     //========== Overridden methods
@@ -70,8 +70,8 @@ public enum VSetgen implements IVDoc<CDeckgen> {
      * @see forge.gui.framework.IVDoc#getLayoutControl()
      */
     @Override
-    public CDeckgen getLayoutControl() {
-        return CDeckgen.SINGLETON_INSTANCE;
+    public CCardSetGen getLayoutControl() {
+        return CCardSetGen.SINGLETON_INSTANCE;
     }
 
     /* (non-Javadoc)
@@ -99,9 +99,9 @@ public enum VSetgen implements IVDoc<CDeckgen> {
 
         final String constraints = "w 80%!, h 30px!, gap 0 0 10px 0";
         parentCell.getBody().add(btnRandCardpool, constraints);
-        parentCell.getBody().add(btnRandDeck2, constraints);
-        parentCell.getBody().add(btnRandDeck3, constraints);
-        parentCell.getBody().add(btnRandDeck5, constraints);
+        parentCell.getBody().add(btnRandCardSet2, constraints);
+        parentCell.getBody().add(btnRandCardSet3, constraints);
+        parentCell.getBody().add(btnRandCardSet5, constraints);
     }
 
     //========== Retrieval methods
@@ -111,17 +111,17 @@ public enum VSetgen implements IVDoc<CDeckgen> {
     }
 
     /** @return {@link javax.swing.JLabel} */
-    public JLabel getBtnRandDeck2() {
-        return btnRandDeck2;
+    public JLabel getBtnRandCardSet2() {
+        return btnRandCardSet2;
     }
 
     /** @return {@link javax.swing.JLabel} */
-    public JLabel getBtnRandDeck3() {
-        return btnRandDeck3;
+    public JLabel getBtnRandCardSet3() {
+        return btnRandCardSet3;
     }
 
     /** @return {@link javax.swing.JLabel} */
-    public JLabel getBtnRandDeck5() {
-        return btnRandDeck5;
+    public JLabel getBtnRandCardSet5() {
+        return btnRandCardSet5;
     }
 }

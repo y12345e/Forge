@@ -2,14 +2,14 @@ package forge.gui.cardseteditor;
 
 import javax.swing.SwingUtilities;
 
-import forge.gui.deckeditor.views.VCardCatalog;
+import forge.gui.cardseteditor.views.VCardCatalog;
 import forge.gui.framework.IVTopLevelUI;
 import forge.gui.framework.SLayoutIO;
 
 /** 
 /** 
  * Top level view class; instantiates and assembles
- * tabs used in deck editor UI drag layout.<br>
+ * tabs used in cardset editor UI drag layout.<br>
  *
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  * 

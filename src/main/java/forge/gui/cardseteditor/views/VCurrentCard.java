@@ -15,8 +15,8 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import forge.gui.WrapLayout;
-import forge.gui.deckeditor.SEditorUtil;
-import forge.gui.deckeditor.controllers.CCurrentDeck;
+import forge.gui.cardseteditor.SEditorUtil;
+import forge.gui.cardseteditor.controllers.CCurrentCard;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
 import forge.gui.framework.EDocID;
@@ -28,17 +28,17 @@ import forge.gui.toolbox.ToolTipListener;
 
 
 /** 
- * Assembles Swing components of current deck being edited in deck editor.
+ * Assembles Swing components of current cardset being edited in cardset editor.
  *
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  */
-public enum VCurrentCard implements IVDoc<CCurrentDeck>, ITableContainer {
+public enum VCurrentCard implements IVDoc<CCurrentCard>, ITableContainer {
     /** */
     SINGLETON_INSTANCE;
 
     // Fields used with interface IVDoc
     private DragCell parentCell;
-    private final DragTab tab = new DragTab("Current Deck");
+    private final DragTab tab = new DragTab("Current CardSet");
 
     // Other fields
 
@@ -68,7 +68,7 @@ public enum VCurrentCard implements IVDoc<CCurrentDeck>, ITableContainer {
 
     private final JLabel btnNew = new FLabel.Builder()
             .fontSize(14)
-            .tooltip("New Deck")
+            .tooltip("New CardSet")
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_NEW))
@@ -88,31 +88,31 @@ public enum VCurrentCard implements IVDoc<CCurrentDeck>, ITableContainer {
     private final FLabel btnRemove = new FLabel.Builder()
             .fontSize(14)
             .text("Remove card")
-            .tooltip("Remove selected card from current deck (or double click the row or hit the spacebar)")
+            .tooltip("Remove selected card from current cardset (or double click the row or hit the spacebar)")
             .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_MINUS))
             .iconScaleAuto(false).hoverable().build();
 
     private final FLabel btnRemove4 = new FLabel.Builder()
             .fontSize(14)
             .text("Remove 4 of card")
-            .tooltip("Remove up to 4 of selected card to current deck")
+            .tooltip("Remove up to 4 of selected card to current cardset")
             .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_MINUS))
             .iconScaleAuto(false).hoverable().build();
 
     private final JLabel btnCycleSection = new FLabel.Builder()
             .fontSize(14)
             .text("Change Section")
-            .tooltip("Toggle between editing the deck and the sideboard/planar/scheme/vanguard parts of this deck")
+            .tooltip("Toggle between editing the cardset and the sideboard/planar/scheme/vanguard parts of this cardset")
             .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_EDIT))
             .iconScaleAuto(false).hoverable().build();
 
     private final FLabel btnImport = new FLabel.Builder()
             .fontSize(14)
-            .text("Import").tooltip("Attempt to import a deck from a non-Forge format")
+            .text("Import").tooltip("Attempt to import a cardset from a non-Forge format")
             .opaque(true).hoverable(true).build();
 
     
-    private final JTextField txfTitle = new FTextField.Builder().text("[New Deck]").build();
+    private final JTextField txfTitle = new FTextField.Builder().text("[New CardSet]").build();
 
     private final JPanel pnlRemove = new JPanel();
     private final JPanel pnlHeader = new JPanel();
@@ -197,8 +197,8 @@ public enum VCurrentCard implements IVDoc<CCurrentDeck>, ITableContainer {
      * @see forge.gui.framework.IVDoc#getLayoutControl()
      */
     @Override
-    public CCurrentDeck getLayoutControl() {
-        return CCurrentDeck.SINGLETON_INSTANCE;
+    public CCurrentCard getLayoutControl() {
+        return CCurrentCard.SINGLETON_INSTANCE;
     }
 
     /* (non-Javadoc)
@@ -236,7 +236,7 @@ public enum VCurrentCard implements IVDoc<CCurrentDeck>, ITableContainer {
 
     //========== Overridden from ITableContainer
     /* (non-Javadoc)
-     * @see forge.gui.deckeditor.views.ITableContainer#setTableView()
+     * @see forge.gui.cardseteditor.views.ITableContainer#setTableView()
      */
     @Override
     public void setTableView(final JTable tbl0) {
