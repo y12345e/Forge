@@ -3,6 +3,12 @@
  */
 package forge.gui.framework;
 
+import forge.gui.cardseteditor.views.VCardSetCatalog;
+import forge.gui.cardseteditor.views.VCardSetGen;
+import forge.gui.cardseteditor.views.VCardSetProbabilities;
+import forge.gui.cardseteditor.views.VCardSetStatistics;
+import forge.gui.cardseteditor.views.VCurrentCard;
+import forge.gui.cardseteditor.views.VCurrentSet;
 import forge.gui.deckeditor.views.VAllDecks;
 import forge.gui.deckeditor.views.VCardCatalog;
 import forge.gui.deckeditor.views.VCurrentDeck;
@@ -49,6 +55,13 @@ public enum EDocID { /** */
     CARD_PICTURE (VPicture.SINGLETON_INSTANCE), /** */
     CARD_DETAIL (VDetail.SINGLETON_INSTANCE), /** */
     CARD_ANTES (VAntes.SINGLETON_INSTANCE), /** */
+    
+    CARD_SET_EDITOR_CATALOG (VCardSetCatalog.SINGLETON_INSTANCE), /** */
+    CARD_SET_EDITOR_SETGEN (VCardSetGen.SINGLETON_INSTANCE), /** */
+    CARD_SET_EDITOR_CURRENTCARD (VCurrentCard.SINGLETON_INSTANCE), /** */
+    CARD_SET_EDITOR_CURRENTSET (VCurrentSet.SINGLETON_INSTANCE), /** */
+    CARD_SET_EDITOR_PROBABILITIES (VCardSetProbabilities.SINGLETON_INSTANCE), /** */
+    CARD_SET_EDITOR_STATISTICS (VCardSetStatistics.SINGLETON_INSTANCE), /** */
 
     EDITOR_PREFERENCES (VEditorPreferences.SINGLETON_INSTANCE), /** */
     EDITOR_ALLDECKS (VAllDecks.SINGLETON_INSTANCE), /** */

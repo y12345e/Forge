@@ -31,7 +31,7 @@ public abstract class CardSetBase implements Serializable, Comparable<CardSetBas
     private String comment = null;
 
     /**
-     * Instantiates a new deck base.
+     * Instantiates a new cardset base.
      *
      * @param name0 the name0
      */
@@ -98,7 +98,7 @@ public abstract class CardSetBase implements Serializable, Comparable<CardSetBas
      * New instance.
      *
      * @param name0 the name0
-     * @return the deck base
+     * @return the cardset base
      */
     protected abstract CardSetBase newInstance(String name0);
 
@@ -115,7 +115,7 @@ public abstract class CardSetBase implements Serializable, Comparable<CardSetBas
      * Copy to.
      *
      * @param name0 the name0
-     * @return the deck base
+     * @return the cardset base
      */
     public CardSetBase copyTo(final String name0) {
         final CardSetBase obj = this.newInstance(name0);

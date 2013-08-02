@@ -9,7 +9,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 import forge.gui.cardseteditor.SEditorUtil;
-import forge.gui.cardseteditor.controllers.CStatistics;
+import forge.gui.cardseteditor.controllers.CCardSetStatistics;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
 import forge.gui.framework.EDocID;
@@ -22,7 +22,7 @@ import forge.gui.toolbox.FSkin;
  *
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  */
-public enum VStatistics implements IVDoc<CStatistics> {
+public enum VCardSetStatistics implements IVDoc<CCardSetStatistics> {
     /** */
     SINGLETON_INSTANCE;
 
@@ -80,7 +80,7 @@ public enum VStatistics implements IVDoc<CStatistics> {
     private final JScrollPane scroller = new JScrollPane(pnlStats);
 
     //========== Constructor
-    private VStatistics() {
+    private VCardSetStatistics() {
         scroller.setOpaque(false);
         scroller.getViewport().setOpaque(false);
         scroller.setBorder(null);
@@ -167,8 +167,8 @@ public enum VStatistics implements IVDoc<CStatistics> {
      * @see forge.gui.framework.IVDoc#getLayoutControl()
      */
     @Override
-    public CStatistics getLayoutControl() {
-        return CStatistics.SINGLETON_INSTANCE;
+    public CCardSetStatistics getLayoutControl() {
+        return CCardSetStatistics.SINGLETON_INSTANCE;
     }
 
     /* (non-Javadoc)

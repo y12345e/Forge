@@ -21,7 +21,7 @@ public enum VCardSetGen implements IVDoc<CCardSetGen> {
 
     // Fields used with interface IVDoc
     private DragCell parentCell;
-    private final DragTab tab = new DragTab("CardSet Generation");
+    private final DragTab tab = new DragTab("Set Generation");
 
     // CardSetgen buttons
     private final JLabel btnRandCardpool = new FLabel.Builder()

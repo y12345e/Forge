@@ -32,27 +32,13 @@ import forge.card.mana.ManaCost;
 
 /**
  * <p>
- * GenerateDeckUtil class.
+ * GenerateCardSetUtil class.
  * </p>
  * 
  * @author Forge
- * @version $Id: GenerateDeckUtil.java 10011 2011-08-28 12:20:52Z Sloth $
+ * @version $Id: GenerateCardSetUtil.java 10011 2011-08-28 12:20:52Z Sloth $
  */
 public class GenerateCardSetUtil {
-
-    public static final Predicate<CardRules> AI_CAN_PLAY = new Predicate<CardRules>() {
-        @Override
-        public boolean apply(CardRules c) {
-            return !c.getAiHints().getRemAIDecks() && !c.getAiHints().getRemRandomDecks();
-        }
-    };
-
-    public static final Predicate<CardRules> HUMAN_CAN_PLAY = new Predicate<CardRules>() {
-        @Override
-        public boolean apply(CardRules c) {
-            return !c.getAiHints().getRemRandomDecks();
-        }
-    };
 
     public static final Predicate<CardRules> COLORLESS_CARDS = new Predicate<CardRules>() {
         @Override

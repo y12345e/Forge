@@ -27,20 +27,20 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Function;
 
-import forge.deck.io.DeckFileHeader;
-import forge.deck.io.DeckSerializer;
+import forge.cardset.io.CardSetFileHeader;
+import forge.cardset.io.CardSetSerializer;
 import forge.util.FileSection;
 import forge.util.FileUtil;
 
 
 /**
  * <p>
- * Deck class.
+ * CardSet class.
  * </p>
  * 
  * The set of MTG legal cards that become player's library when the game starts.
- * Any other data is not part of a deck and should be stored elsewhere. Current
- * fields allowed for deck metadata are Name, Title, Description and Deck Type.
+ * Any other data is not part of a cardset and should be stored elsewhere. Current
+ * fields allowed for cardset metadata are Name, Title, Description and CardSet Type.
  */
 @SuppressWarnings("serial")
 public class CardSet extends CardSetBase {
@@ -49,7 +49,7 @@ public class CardSet extends CardSetBase {
     // gameType is from Constant.GameType, like GameType.Regular
     /**
      * <p>
-     * Decks have their named finalled.
+     * CardSets have their named finalled.
      * </p>
      */
     public CardSet() {
@@ -57,7 +57,7 @@ public class CardSet extends CardSetBase {
     }
 
     /**
-     * Instantiates a new deck.
+     * Instantiates a new cardset.
      *
      * @param name0 the name0
      */
@@ -78,7 +78,7 @@ public class CardSet extends CardSetBase {
     }
 
     /* (non-Javadoc)
-     * @see forge.deck.DeckBase#cloneFieldsTo(forge.deck.DeckBase)
+     * @see forge.cardset.CardSetBase#cloneFieldsTo(forge.cardset.CardSetBase)
      */
     @Override
     protected void cloneFieldsTo(final CardSetBase clone) {
@@ -89,7 +89,7 @@ public class CardSet extends CardSetBase {
     /*
      * (non-Javadoc)
      * 
-     * @see forge.deck.DeckBase#newInstance(java.lang.String)
+     * @see forge.cardset.CardSetBase#newInstance(java.lang.String)
      */
     @Override
     protected CardSetBase newInstance(final String name0) {
@@ -99,18 +99,18 @@ public class CardSet extends CardSetBase {
     /**
      * From file.
      *
-     * @param deckFile the deck file
-     * @return the deck
+     * @param cardsetFile the cardset file
+     * @return the cardset
      */
-    public static CardSet fromFile(final File deckFile) {
-        return CardSet.fromSections(FileSection.parseSections(FileUtil.readFile(deckFile)));
+    public static CardSet fromFile(final File cardsetFile) {
+        return CardSet.fromSections(FileSection.parseSections(FileUtil.readFile(cardsetFile)));
     }
 
     /**
      * From sections.
      *
      * @param sections the sections
-     * @return the deck
+     * @return the cardset
      */
     public static CardSet fromSections(final Map<String, List<String>> sections) {
         return CardSet.fromSections(sections, false);
@@ -121,14 +121,14 @@ public class CardSet extends CardSetBase {
      *
      * @param sections the sections
      * @param canThrowExtendedErrors the can throw extended errors
-     * @return the deck
+     * @return the cardset
      */
     public static CardSet fromSections(final Map<String, List<String>> sections, final boolean canThrowExtendedErrors) {
         if ((sections == null) || sections.isEmpty()) {
             return null;
         }
 
-        final DeckFileHeader header = DeckSerializer.readDeckMetadata(sections, canThrowExtendedErrors);
+        final CardSetFileHeader header = CardSetSerializer.readCardSetMetadata(sections, canThrowExtendedErrors);
         if (header == null) {
             return null;
         }
@@ -141,7 +141,7 @@ public class CardSet extends CardSetBase {
 
     /**
      * <p>
-     * writeDeck.
+     * writeCardSet.
      * </p>
      *
      * @return the list
@@ -151,13 +151,13 @@ public class CardSet extends CardSetBase {
         final List<String> out = new ArrayList<String>();
         out.add(String.format("[metadata]"));
 
-        out.add(String.format("%s=%s", DeckFileHeader.NAME, this.getName().replaceAll("\n", "")));
+        out.add(String.format("%s=%s", CardSetFileHeader.NAME, this.getName().replaceAll("\n", "")));
         // these are optional
         if (this.getComment() != null) {
-            out.add(String.format("%s=%s", DeckFileHeader.COMMENT, this.getComment().replaceAll("\n", "")));
+            out.add(String.format("%s=%s", CardSetFileHeader.COMMENT, this.getComment().replaceAll("\n", "")));
         }
         if (!this.getTags().isEmpty()) {
-            out.add(String.format("%s=%s", DeckFileHeader.TAGS, StringUtils.join(getTags(), DeckFileHeader.TAGS_SEPARATOR)));
+            out.add(String.format("%s=%s", CardSetFileHeader.TAGS, StringUtils.join(getTags(), CardSetFileHeader.TAGS_SEPARATOR)));
         }
         return out;
     }

@@ -11,8 +11,8 @@ import com.google.common.base.Predicates;
 
 import forge.card.CardRules;
 import forge.card.CardRulesPredicates;
-import forge.gui.cardseteditor.views.VCardCatalog;
-import forge.gui.cardseteditor.views.VCardCatalog.RangeTypes;
+import forge.gui.cardseteditor.views.VCardSetCatalog;
+import forge.gui.cardseteditor.views.VCardSetCatalog.RangeTypes;
 import forge.gui.toolbox.FLabel;
 import forge.gui.toolbox.FSpinner;
 import forge.item.PaperCard;
@@ -124,13 +124,13 @@ public class SFilterUtil {
      * builds a filter for an interval on a card field
      */
     public static Predicate<PaperCard> buildIntervalFilter(
-            Map<RangeTypes, Pair<FSpinner, FSpinner>> spinners, VCardCatalog.RangeTypes field) {
+            Map<RangeTypes, Pair<FSpinner, FSpinner>> spinners, VCardSetCatalog.RangeTypes field) {
         Pair<FSpinner, FSpinner> sPair = spinners.get(field);
         Predicate<CardRules> fieldFilter = getCardRulesFieldPredicate(
                 Integer.valueOf(sPair.getLeft().getValue().toString()),
                 Integer.valueOf(sPair.getRight().getValue().toString()), field.cardField);
 
-        if (null != fieldFilter && VCardCatalog.RangeTypes.CMC != field)
+        if (null != fieldFilter && VCardSetCatalog.RangeTypes.CMC != field)
         {
             fieldFilter = Predicates.and(fieldFilter, CardRulesPredicates.Presets.IS_CREATURE);
         }

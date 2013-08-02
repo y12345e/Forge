@@ -38,7 +38,7 @@ public enum VCurrentCard implements IVDoc<CCurrentCard>, ITableContainer {
 
     // Fields used with interface IVDoc
     private DragCell parentCell;
-    private final DragTab tab = new DragTab("Current CardSet");
+    private final DragTab tab = new DragTab("Current Card");
 
     // Other fields
 

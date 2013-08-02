@@ -22,7 +22,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import forge.deck.DeckFormat;
 import forge.game.player.PlayerType;
 import forge.util.FileSection;
 
@@ -36,7 +35,7 @@ public class CardSetFileHeader {
     public static final String NAME = "Name";
 
     /** The Constant DECK_TYPE. */
-    public static final String DECK_TYPE = "Deck Type";
+    public static final String DECK_TYPE = "CardSet Type";
     public static final String TAGS = "Tags";
     
     public static final String TAGS_SEPARATOR = ",";
@@ -47,7 +46,6 @@ public class CardSetFileHeader {
     private static final String CSTM_POOL = "Custom Pool";
     private static final String PLAYER_TYPE = "PlayerType";
 
-    private final DeckFormat deckType;
     private final PlayerType playerType;
     private final boolean customPool;
 
@@ -65,7 +63,6 @@ public class CardSetFileHeader {
     public CardSetFileHeader(final FileSection kvPairs) {
         this.name = kvPairs.get(CardSetFileHeader.NAME);
         this.comment = kvPairs.get(CardSetFileHeader.COMMENT);
-        this.deckType = DeckFormat.smartValueOf(kvPairs.get(CardSetFileHeader.DECK_TYPE), DeckFormat.Constructed);
         this.customPool = kvPairs.getBoolean(CardSetFileHeader.CSTM_POOL);
         boolean isForAi = "computer".equalsIgnoreCase(kvPairs.get(CardSetFileHeader.PLAYER)) || "ai".equalsIgnoreCase(kvPairs.get(CardSetFileHeader.PLAYER_TYPE));
         this.playerType = isForAi ? PlayerType.COMPUTER : PlayerType.HUMAN;
@@ -115,15 +112,6 @@ public class CardSetFileHeader {
      */
     public final String getComment() {
         return this.comment;
-    }
-
-    /**
-     * Gets the deck type.
-     * 
-     * @return the deck type
-     */
-    public final DeckFormat getDeckType() {
-        return this.deckType;
     }
 
     public final Set<String> getTags() {

@@ -2,7 +2,7 @@ package forge.gui.cardseteditor;
 
 import javax.swing.SwingUtilities;
 
-import forge.gui.cardseteditor.views.VCardCatalog;
+import forge.gui.cardseteditor.views.VCardSetCatalog;
 import forge.gui.framework.IVTopLevelUI;
 import forge.gui.framework.SLayoutIO;
 
@@ -36,7 +36,7 @@ public enum VCardSetEditorUI implements IVTopLevelUI {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                VCardCatalog.SINGLETON_INSTANCE.focusTable();
+                VCardSetCatalog.SINGLETON_INSTANCE.focusTable();
             }
         });
     }

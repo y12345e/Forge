@@ -32,20 +32,20 @@ import forge.item.PaperCard;
 import forge.item.ItemPool;
 
 /**
- * Deck section.
+ * CardSet section.
  * 
  */
 public class CardPool extends ItemPool<PaperCard> {
 
     /**
-     * Instantiates a new deck section.
+     * Instantiates a new cardset section.
      */
     public CardPool() {
         super(PaperCard.class);
     }
 
     /**
-     * Instantiates a new deck section.
+     * Instantiates a new cardset section.
      *
      * @param cards the cards
      */
@@ -135,7 +135,7 @@ public class CardPool extends ItemPool<PaperCard> {
     }
 
     /**
-     * returns n-th card from this DeckSection. LINEAR time. No fixed order between changes
+     * returns n-th card from this CardSetSection. LINEAR time. No fixed order between changes
      * @param i
      * @return
      */

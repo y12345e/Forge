@@ -15,7 +15,7 @@ import net.miginfocom.swing.MigLayout;
 import forge.cardset.CardSetBase;
 import forge.gui.cardseteditor.CCardSetEditorUI;
 import forge.gui.cardseteditor.controllers.ACEditorBase;
-import forge.gui.cardseteditor.controllers.CProbabilities;
+import forge.gui.cardseteditor.controllers.CCardSetProbabilities;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
 import forge.gui.framework.EDocID;
@@ -30,13 +30,13 @@ import forge.item.InventoryItem;
  *
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  */
-public enum VProbabilities implements IVDoc<CProbabilities> {
+public enum VCardSetProbabilities implements IVDoc<CCardSetProbabilities> {
     /** */
     SINGLETON_INSTANCE;
 
     // Fields used with interface IVDoc
     private DragCell parentCell;
-    private final DragTab tab = new DragTab("Draw Order");
+    private final DragTab tab = new DragTab("Probabilities");
 
     // Title labels
     private final JLabel lblReshuffle = new FLabel.Builder()
@@ -56,7 +56,7 @@ public enum VProbabilities implements IVDoc<CProbabilities> {
     private final JPanel pnlLibrary = new JPanel(new MigLayout("insets 0, gap 0, wrap"));
 
     //========== Constructor
-    private VProbabilities() {
+    private VCardSetProbabilities() {
         pnlContent.setOpaque(false);
         pnlHand.setOpaque(false);
         pnlLibrary.setOpaque(false);
@@ -102,8 +102,8 @@ public enum VProbabilities implements IVDoc<CProbabilities> {
      * @see forge.gui.framework.IVDoc#getLayoutControl()
      */
     @Override
-    public CProbabilities getLayoutControl() {
-        return CProbabilities.SINGLETON_INSTANCE;
+    public CCardSetProbabilities getLayoutControl() {
+        return CCardSetProbabilities.SINGLETON_INSTANCE;
     }
 
     /* (non-Javadoc)

@@ -27,7 +27,7 @@ import forge.Command;
 import forge.card.CardRulesPredicates;
 import forge.gui.WrapLayout;
 import forge.gui.cardseteditor.SEditorUtil;
-import forge.gui.cardseteditor.controllers.CCardCatalog;
+import forge.gui.cardseteditor.controllers.CCardSetCatalog;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
 import forge.gui.framework.EDocID;
@@ -45,7 +45,7 @@ import forge.util.TextUtil;
  * <br><br><i>(V at beginning of class name denotes a view class.)</i>
  * 
  */
-public enum VCardCatalog implements IVDoc<CCardCatalog>, ITableContainer {
+public enum VCardSetCatalog implements IVDoc<CCardSetCatalog>, ITableContainer {
     /** */
     SINGLETON_INSTANCE;
     
@@ -121,7 +121,7 @@ public enum VCardCatalog implements IVDoc<CCardCatalog>, ITableContainer {
     
     //========== Constructor
     /** */
-    private VCardCatalog() {
+    private VCardSetCatalog() {
         scroller.setOpaque(false);
         scroller.getViewport().setOpaque(false);
         scroller.setBorder(null);
@@ -203,8 +203,8 @@ public enum VCardCatalog implements IVDoc<CCardCatalog>, ITableContainer {
     }
 
     @Override
-    public CCardCatalog getLayoutControl() {
-        return CCardCatalog.SINGLETON_INSTANCE;
+    public CCardSetCatalog getLayoutControl() {
+        return CCardSetCatalog.SINGLETON_INSTANCE;
     }
 
     @Override

@@ -33,7 +33,7 @@ import javax.swing.filechooser.FileFilter;
 
 import forge.ImageCache;
 import forge.cardset.CardSet;
-import forge.deck.Deck;
+import forge.cardset.CardSet;
 import forge.item.PaperCard;
 import forge.properties.NewConstants;
 import forge.util.FileSection;
@@ -46,19 +46,19 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
- * This class knows how to make a file out of a deck object and vice versa.
+ * This class knows how to make a file out of a cardset object and vice versa.
  */
-public class CardSetSerializer extends StorageReaderFolder<Deck> implements IItemSerializer<Deck> {
-    private final boolean moveWronglyNamedDecks;
+public class CardSetSerializer extends StorageReaderFolder<CardSet> implements IItemSerializer<CardSet> {
+    private final boolean moveWronglyNamedCardSets;
     public static final String FILE_EXTENSION = ".dck";
 
-    public CardSetSerializer(final File deckDir0) {
-        this(deckDir0, false);
+    public CardSetSerializer(final File cardsetDir0) {
+        this(cardsetDir0, false);
     }
 
-    public CardSetSerializer(final File deckDir0, boolean moveWrongDecks) {
-        super(deckDir0, Deck.FN_NAME_SELECTOR);
-        moveWronglyNamedDecks = moveWrongDecks;
+    public CardSetSerializer(final File cardsetDir0, boolean moveWrongCardSets) {
+        super(cardsetDir0, CardSet.FN_NAME_SELECTOR);
+        moveWronglyNamedCardSets = moveWrongCardSets;
     }
 
     /** Constant <code>DCKFileFilter</code>. */
@@ -77,7 +77,7 @@ public class CardSetSerializer extends StorageReaderFolder<Deck> implements IIte
 
         @Override
         public String getDescription() {
-            return "Simple Deck File .dck";
+            return "Simple CardSet File .dck";
         }
     };
 
@@ -96,17 +96,17 @@ public class CardSetSerializer extends StorageReaderFolder<Deck> implements IIte
 
     /**
      * <p>
-     * writeDeck.
+     * writeCardSet.
      * </p>
      * 
      * @param d
-     *            a {@link forge.deck.Deck} object.
+     *            a {@link forge.cardset.CardSet} object.
      * @param out
      *            a {@link java.io.BufferedWriter} object.
      * @throws java.io.IOException
      *             if any.
      */
-    private static void writeDeckHtml(final Deck d, final BufferedWriter out) throws IOException {
+    private static void writeCardSetHtml(final CardSet d, final BufferedWriter out) throws IOException {
         Template temp = null;
         final int cardBorder = 0;
         final int height = 319;
@@ -131,7 +131,7 @@ public class CardSetSerializer extends StorageReaderFolder<Deck> implements IIte
             temp = cfg.getTemplate("proxy-template.ftl");
 
             /* Create a data-model */
-            final Map<String, Object> root = new HashMap<String, Object>();
+            /*final Map<String, Object> root = new HashMap<String, Object>();
             root.put("title", d.getName());
             final List<String> list = new ArrayList<String>();
             for (final Entry<PaperCard, Integer> card : d.getMain()) {
@@ -155,26 +155,26 @@ public class CardSetSerializer extends StorageReaderFolder<Deck> implements IIte
             root.put("height", height);
             root.put("width", width);
             root.put("cardlistWidth", width - 11);
-            root.put("cardList", map);
+            root.put("cardList", map);*/
 
             /* Merge data-model with template */
-            temp.process(root, out);
+            /*temp.process(root, out);*/
             out.flush();
         } catch (final IOException e) {
             System.out.println(e.toString());
-        } catch (final TemplateException e) {
+        }/* catch (final TemplateException e) {
             System.out.println(e.toString());
-        }
+        }*/
     }
 
-    public static void writeDeck(final Deck d, final File f) {
+    public static void writeCardSet(final CardSet d, final File f) {
         FileUtil.writeFile(f, d.save());
     }
 
-    public static void writeDeckHtml(final Deck d, final File f) {
+    public static void writeCardSetHtml(final CardSet d, final File f) {
         try {
             final BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-            CardSetSerializer.writeDeckHtml(d, writer);
+            CardSetSerializer.writeCardSetHtml(d, writer);
             writer.close();
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -182,31 +182,31 @@ public class CardSetSerializer extends StorageReaderFolder<Deck> implements IIte
     }
 
     @Override
-    public void save(final Deck unit) {
+    public void save(final CardSet unit) {
         FileUtil.writeFile(this.makeFileFor(unit), unit.save());
     }
 
     @Override
-    public void erase(final Deck unit) {
+    public void erase(final CardSet unit) {
         this.makeFileFor(unit).delete();
     }
 
-    public File makeFileFor(final Deck deck) {
-        return new File(this.getDirectory(), deck.getBestFileName() + FILE_EXTENSION);
+    public File makeFileFor(final CardSet cardset) {
+        return new File(this.getDirectory(), cardset.getBestFileName() + FILE_EXTENSION);
     }
 
     @Override
-    protected Deck read(final File file) {
+    protected CardSet read(final File file) {
         final Map<String, List<String>> sections = FileSection.parseSections(FileUtil.readFile(file));
-        Deck result = Deck.fromSections(sections, true);
+        CardSet result = CardSet.fromSections(sections, true);
 
-        if (moveWronglyNamedDecks) {
+        if (moveWronglyNamedCardSets) {
             adjustFileLocation(file, result);
         }
         return result;
     }
 
-    private void adjustFileLocation(final File file, final Deck result) {
+    private void adjustFileLocation(final File file, final CardSet result) {
         if (result == null) {
             file.delete();
         } else {
@@ -222,7 +222,7 @@ public class CardSetSerializer extends StorageReaderFolder<Deck> implements IIte
         return CardSetSerializer.DCK_FILE_FILTER;
     }
 
-    public static CardSetFileHeader readDeckMetadata(final Map<String, List<String>> map, final boolean canThrow) {
+    public static CardSetFileHeader readCardSetMetadata(final Map<String, List<String>> map, final boolean canThrow) {
         if (map == null) {
             return null;
         }

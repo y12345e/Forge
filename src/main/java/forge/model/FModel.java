@@ -316,7 +316,7 @@ public class FModel {
     /**
      * Returns all player's decks for constructed, sealed and whatever.
      * 
-     * @return {@link forge.decks.CardCollections}
+     * @return {@link forge.CardSetCollections.CardCollections}
      */
     public final CardCollections getDecks() {
         return this.decks;

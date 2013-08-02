@@ -69,7 +69,7 @@ public class SEditorIO {
      * @return TableColumnInfo<InventoryItem>
      */
     public static boolean getPref(final EditorPreference name0) {
-        return PREFS.get(name0);
+        return false; //PREFS.get(name0);
     }
 
     /**
@@ -79,7 +79,7 @@ public class SEditorIO {
      * @param val0 &emsp; boolean
      */
     public static void setPref(final EditorPreference name0, final boolean val0) {
-        PREFS.put(name0, val0);
+        //PREFS.put(name0, val0);
     }
 
     /**

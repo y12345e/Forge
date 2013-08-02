@@ -49,12 +49,12 @@ import forge.cardset.CardSetBase;
 import forge.gui.GuiUtils;
 import forge.gui.cardseteditor.SEditorIO.EditorPreference;
 import forge.gui.cardseteditor.controllers.ACEditorBase;
-import forge.gui.cardseteditor.controllers.CCardCatalog;
-import forge.gui.cardseteditor.controllers.CProbabilities;
-import forge.gui.cardseteditor.controllers.CStatistics;
+import forge.gui.cardseteditor.controllers.CCardSetCatalog;
+import forge.gui.cardseteditor.controllers.CCardSetProbabilities;
+import forge.gui.cardseteditor.controllers.CCardSetStatistics;
 import forge.gui.cardseteditor.tables.EditorTableModel;
 import forge.gui.cardseteditor.tables.EditorTableView;
-import forge.gui.cardseteditor.views.VCardCatalog;
+import forge.gui.cardseteditor.views.VCardSetCatalog;
 import forge.gui.match.controllers.CDetail;
 import forge.gui.match.controllers.CPicture;
 import forge.gui.toolbox.FLabel;
@@ -111,7 +111,7 @@ public enum CCardSetEditorUI {
             childController.getTableCardSet().setWantElasticColumns(wantElastic);
             childController.getTableCatalog().setWantUnique(wantUnique);
             childController.getTableCardSet().setWantUnique(wantUnique);
-            CCardCatalog.SINGLETON_INSTANCE.applyCurrentFilter();
+            CCardSetCatalog.SINGLETON_INSTANCE.applyCurrentFilter();
         }
     }
     
@@ -130,8 +130,8 @@ public enum CCardSetEditorUI {
             moveAction.move(item, toMove);
         }
 
-        CStatistics.SINGLETON_INSTANCE.update();
-        CProbabilities.SINGLETON_INSTANCE.update();
+        CCardSetStatistics.SINGLETON_INSTANCE.update();
+        CCardSetProbabilities.SINGLETON_INSTANCE.update();
     }
 
     @SuppressWarnings("unchecked")
@@ -218,7 +218,7 @@ public enum CCardSetEditorUI {
                         KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
                         new Runnable() {
                     @Override public void run() {
-                        VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().requestFocusInWindow();
+                        VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().requestFocusInWindow();
                     }
                 });
             }
@@ -305,7 +305,7 @@ public enum CCardSetEditorUI {
                 } else if (KeyEvent.VK_F == e.getKeyCode()) {
                     // let ctrl/cmd-F set focus to the text filter box
                     if (e.isControlDown() || e.isMetaDown()) {
-                        VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().requestFocusInWindow();
+                        VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().requestFocusInWindow();
                     }
                 }
             }

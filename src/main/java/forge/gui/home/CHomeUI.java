@@ -4,6 +4,8 @@ import forge.Command;
 import forge.Singletons;
 import forge.control.FControl;
 import forge.gui.FNetOverlay;
+import forge.gui.cardseteditor.CCardSetEditorUI;
+import forge.gui.cardseteditor.controllers.CEditorCardSet;
 import forge.gui.deckeditor.CDeckEditorUI;
 import forge.gui.deckeditor.controllers.CEditorConstructed;
 import forge.gui.framework.EDocID;
@@ -69,6 +71,14 @@ public enum CHomeUI implements ICDoc {
             public void run() {
                 Singletons.getControl().changeStateAutoFixLayout(FControl.Screens.DECK_EDITOR_CONSTRUCTED, "deck editor");
                 CDeckEditorUI.SINGLETON_INSTANCE.setCurrentEditorController(new CEditorConstructed());
+            }
+        });
+
+        VHomeUI.SINGLETON_INSTANCE.getLblCardSetEditor().setCommand(new Command() {
+            @Override
+            public void run() {
+                Singletons.getControl().changeStateAutoFixLayout(FControl.Screens.CARD_SET_EDITOR, "card/set editor");
+                CCardSetEditorUI.SINGLETON_INSTANCE.setCurrentEditorController(new CEditorCardSet());
             }
         });
 

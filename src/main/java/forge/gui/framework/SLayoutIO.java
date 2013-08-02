@@ -311,6 +311,7 @@ public final class SLayoutIO {
         switch(state) {
             case HOME_SCREEN:
                 return NewConstants.HOME_LAYOUT_FILE;
+
             case MATCH_SCREEN:
                 return NewConstants.MATCH_LAYOUT_FILE;
 
@@ -320,6 +321,9 @@ public final class SLayoutIO {
             case DRAFTING_PROCESS:
             case QUEST_CARD_SHOP:
                 return NewConstants.EDITOR_LAYOUT_FILE;
+                
+            case CARD_SET_EDITOR:
+                return NewConstants.CARD_SET_EDITOR_LAYOUT_FILE;
 
             case QUEST_BAZAAR:
                 return null;

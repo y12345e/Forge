@@ -37,8 +37,8 @@ import forge.gui.GuiUtils;
 import forge.gui.cardseteditor.CCardSetEditorUI;
 import forge.gui.cardseteditor.SEditorUtil;
 import forge.gui.cardseteditor.SFilterUtil;
-import forge.gui.cardseteditor.views.VCardCatalog;
-import forge.gui.cardseteditor.views.VCardCatalog.RangeTypes;
+import forge.gui.cardseteditor.views.VCardSetCatalog;
+import forge.gui.cardseteditor.views.VCardSetCatalog.RangeTypes;
 import forge.gui.framework.ICDoc;
 import forge.gui.home.quest.DialogChooseSets;
 import forge.gui.toolbox.FLabel;
@@ -54,7 +54,7 @@ import forge.quest.data.GameFormatQuest;
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  *
  */
-public enum CCardCatalog implements ICDoc {
+public enum CCardSetCatalog implements ICDoc {
     /** */
     SINGLETON_INSTANCE;
 
@@ -65,7 +65,7 @@ public enum CCardCatalog implements ICDoc {
     
     private boolean disableFiltering = false;
 
-    private CCardCatalog() {
+    private CCardSetCatalog() {
     }
 
     //========== Overridden methods
@@ -85,13 +85,13 @@ public enum CCardCatalog implements ICDoc {
     @SuppressWarnings("serial")
     public void initialize() {
         // Add/remove buttons (refresh analysis on add)
-        VCardCatalog.SINGLETON_INSTANCE.getBtnAdd().setCommand(new Command() {
+        VCardSetCatalog.SINGLETON_INSTANCE.getBtnAdd().setCommand(new Command() {
             @Override
             public void run() {
                 CCardSetEditorUI.SINGLETON_INSTANCE.addSelectedCards(false, 1);
             }
         });
-        VCardCatalog.SINGLETON_INSTANCE.getBtnAdd4().setCommand(new Command() {
+        VCardSetCatalog.SINGLETON_INSTANCE.getBtnAdd4().setCommand(new Command() {
             @Override
             public void run() {
                 CCardSetEditorUI.SINGLETON_INSTANCE.addSelectedCards(false, 4);
@@ -107,7 +107,7 @@ public enum CCardCatalog implements ICDoc {
             }
         };
 
-        for (Map.Entry<SEditorUtil.StatTypes, FLabel> entry : VCardCatalog.SINGLETON_INSTANCE.getStatLabels().entrySet()) {
+        for (Map.Entry<SEditorUtil.StatTypes, FLabel> entry : VCardSetCatalog.SINGLETON_INSTANCE.getStatLabels().entrySet()) {
             final FLabel statLabel = entry.getValue();
             statLabel.setCommand(updateFilterCommand);
 
@@ -122,7 +122,7 @@ public enum CCardCatalog implements ICDoc {
                             disableFiltering = true;
                             for (SEditorUtil.StatTypes s : SEditorUtil.StatTypes.values()) {
                                 if (s.group == group && s != st) {
-                                    VCardCatalog.SINGLETON_INSTANCE.getStatLabel(s).setSelected(false);
+                                    VCardSetCatalog.SINGLETON_INSTANCE.getStatLabel(s).setSelected(false);
                                 }
                             }
                             statLabel.setSelected(true);
@@ -134,7 +134,7 @@ public enum CCardCatalog implements ICDoc {
             }
         }
 
-        VCardCatalog.SINGLETON_INSTANCE.getStatLabel(SEditorUtil.StatTypes.TOTAL).setCommand(new Command() {
+        VCardSetCatalog.SINGLETON_INSTANCE.getStatLabel(SEditorUtil.StatTypes.TOTAL).setCommand(new Command() {
             private boolean lastToggle = true;
             
             @Override
@@ -143,7 +143,7 @@ public enum CCardCatalog implements ICDoc {
                 lastToggle = !lastToggle;
                 for (SEditorUtil.StatTypes s : SEditorUtil.StatTypes.values()) {
                     if (SEditorUtil.StatTypes.TOTAL != s) {
-                        VCardCatalog.SINGLETON_INSTANCE.getStatLabel(s).setSelected(lastToggle);
+                        VCardSetCatalog.SINGLETON_INSTANCE.getStatLabel(s).setSelected(lastToggle);
                     }
                 }
                 disableFiltering = false;
@@ -238,15 +238,15 @@ public enum CCardCatalog implements ICDoc {
                     }, !isActive(activeWorlds, w) && null != f);
                 }
                 popup.add(world);
-                popup.show(VCardCatalog.SINGLETON_INSTANCE.getBtnAddRestriction(), 0,
-                        VCardCatalog.SINGLETON_INSTANCE.getBtnAddRestriction().getHeight());
+                popup.show(VCardSetCatalog.SINGLETON_INSTANCE.getBtnAddRestriction(), 0,
+                        VCardSetCatalog.SINGLETON_INSTANCE.getBtnAddRestriction().getHeight());
             }
         };
-        FLabel btnAddRestriction = VCardCatalog.SINGLETON_INSTANCE.getBtnAddRestriction();
+        FLabel btnAddRestriction = VCardSetCatalog.SINGLETON_INSTANCE.getBtnAddRestriction();
         btnAddRestriction.setCommand(addRestrictionCommand);
         btnAddRestriction.setRightClickCommand(addRestrictionCommand); //show menu on right-click too
         
-        VCardCatalog.SINGLETON_INSTANCE.getCbSearchMode().addItemListener(new ItemListener() {
+        VCardSetCatalog.SINGLETON_INSTANCE.getCbSearchMode().addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent arg0) {
                 applyCurrentFilter();
@@ -263,8 +263,8 @@ public enum CCardCatalog implements ICDoc {
         };
         
         // add search restriction on ctrl-enter from either the textbox or combobox
-        VCardCatalog.SINGLETON_INSTANCE.getCbSearchMode().addKeyListener(new _OnCtrlEnter(addSearchRestriction));
-        VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().addKeyListener(new _OnCtrlEnter(addSearchRestriction) {
+        VCardSetCatalog.SINGLETON_INSTANCE.getCbSearchMode().addKeyListener(new _OnCtrlEnter(addSearchRestriction));
+        VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().addKeyListener(new _OnCtrlEnter(addSearchRestriction) {
             private boolean keypressPending;
             @Override
             public void keyReleased(KeyEvent e) {
@@ -285,12 +285,12 @@ public enum CCardCatalog implements ICDoc {
             }
         });
         
-        VCardCatalog.SINGLETON_INSTANCE.getLblName().setCommand(updateFilterCommand);
-        VCardCatalog.SINGLETON_INSTANCE.getLblType().setCommand(updateFilterCommand);
-        VCardCatalog.SINGLETON_INSTANCE.getLblText().setCommand(updateFilterCommand);
+        VCardSetCatalog.SINGLETON_INSTANCE.getLblName().setCommand(updateFilterCommand);
+        VCardSetCatalog.SINGLETON_INSTANCE.getLblType().setCommand(updateFilterCommand);
+        VCardSetCatalog.SINGLETON_INSTANCE.getLblText().setCommand(updateFilterCommand);
         
         // ensure mins can's exceed maxes and maxes can't fall below mins
-        for (Pair<FSpinner, FSpinner> sPair : VCardCatalog.SINGLETON_INSTANCE.getSpinners().values()) {
+        for (Pair<FSpinner, FSpinner> sPair : VCardSetCatalog.SINGLETON_INSTANCE.getSpinners().values()) {
             final FSpinner min = sPair.getLeft();
             final FSpinner max = sPair.getRight();
             
@@ -350,29 +350,29 @@ public enum CCardCatalog implements ICDoc {
 
         List<Predicate<? super PaperCard>> cardPredicates = new ArrayList<Predicate<? super PaperCard>>();
         cardPredicates.add(Predicates.instanceOf(PaperCard.class));
-        cardPredicates.add(SFilterUtil.buildColorAndTypeFilter(VCardCatalog.SINGLETON_INSTANCE.getStatLabels()));
+        cardPredicates.add(SFilterUtil.buildColorAndTypeFilter(VCardSetCatalog.SINGLETON_INSTANCE.getStatLabels()));
         cardPredicates.addAll(activePredicates);
         
         // apply current values in the range filters
         for (RangeTypes t : RangeTypes.values()) {
             if (activeRanges.contains(t)) {
-                cardPredicates.add(SFilterUtil.buildIntervalFilter(VCardCatalog.SINGLETON_INSTANCE.getSpinners(), t));
+                cardPredicates.add(SFilterUtil.buildIntervalFilter(VCardSetCatalog.SINGLETON_INSTANCE.getSpinners(), t));
             }
         }
         
         // get the current contents of the search box
         cardPredicates.add(SFilterUtil.buildTextFilter(
-                VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().getText(),
-                0 != VCardCatalog.SINGLETON_INSTANCE.getCbSearchMode().getSelectedIndex(),
-                VCardCatalog.SINGLETON_INSTANCE.getLblName().getSelected(),
-                VCardCatalog.SINGLETON_INSTANCE.getLblType().getSelected(),
-                VCardCatalog.SINGLETON_INSTANCE.getLblText().getSelected()));
+                VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().getText(),
+                0 != VCardSetCatalog.SINGLETON_INSTANCE.getCbSearchMode().getSelectedIndex(),
+                VCardSetCatalog.SINGLETON_INSTANCE.getLblName().getSelected(),
+                VCardSetCatalog.SINGLETON_INSTANCE.getLblType().getSelected(),
+                VCardSetCatalog.SINGLETON_INSTANCE.getLblText().getSelected()));
         
         Predicate<PaperCard> cardFilter = Predicates.and(cardPredicates);
         
         // show packs and cardsets in the card shop according to the toggle setting
         // this is special-cased apart from the buildColorAndTypeFilter() above
-        if (VCardCatalog.SINGLETON_INSTANCE.getStatLabel(SEditorUtil.StatTypes.PACK).getSelected()) {
+        if (VCardSetCatalog.SINGLETON_INSTANCE.getStatLabel(SEditorUtil.StatTypes.PACK).getSelected()) {
             List<Predicate<? super PaperCard>> itemPredicates = new ArrayList<Predicate<? super PaperCard>>();
             itemPredicates.add(cardFilter);
             itemPredicates.add(ItemPredicate.Presets.IS_PACK);
@@ -389,10 +389,10 @@ public enum CCardCatalog implements ICDoc {
     }
     
     private boolean canSearch() {
-        return !VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().getText().isEmpty() &&
-                (VCardCatalog.SINGLETON_INSTANCE.getLblName().getSelected() ||
-                 VCardCatalog.SINGLETON_INSTANCE.getLblType().getSelected() ||
-                 VCardCatalog.SINGLETON_INSTANCE.getLblText().getSelected());
+        return !VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().getText().isEmpty() &&
+                (VCardSetCatalog.SINGLETON_INSTANCE.getLblName().getSelected() ||
+                 VCardSetCatalog.SINGLETON_INSTANCE.getLblType().getSelected() ||
+                 VCardSetCatalog.SINGLETON_INSTANCE.getLblText().getSelected());
     }
     
     private <T> boolean isActive(Set<T> activeSet, T key) {
@@ -407,7 +407,7 @@ public enum CCardCatalog implements ICDoc {
             return;
         }
         
-        VCardCatalog.SINGLETON_INSTANCE.addRestrictionWidget(restriction.getLeft(), new Command() {
+        VCardSetCatalog.SINGLETON_INSTANCE.addRestrictionWidget(restriction.getLeft(), new Command() {
             @Override
             public void run() {
                 if (null != key) {
@@ -431,7 +431,7 @@ public enum CCardCatalog implements ICDoc {
     }
 
     private Pair<JPanel, Predicate<PaperCard>> buildRangeRestriction(RangeTypes t) {
-        final Pair<FSpinner, FSpinner> s = VCardCatalog.SINGLETON_INSTANCE.getSpinners().get(t);
+        final Pair<FSpinner, FSpinner> s = VCardSetCatalog.SINGLETON_INSTANCE.getSpinners().get(t);
         s.getLeft().setValue(0);
         s.getRight().setValue(10);
         
@@ -443,7 +443,7 @@ public enum CCardCatalog implements ICDoc {
             }
         });
         
-        return Pair.of(VCardCatalog.SINGLETON_INSTANCE.buildRangeRestrictionWidget(t), null);
+        return Pair.of(VCardSetCatalog.SINGLETON_INSTANCE.buildRangeRestrictionWidget(t), null);
     }
     
     private String buildSearchRestrictionText(String text, boolean isInverse, boolean wantName, boolean wantType, boolean wantText) {
@@ -460,11 +460,11 @@ public enum CCardCatalog implements ICDoc {
 
     private Pair<FLabel, Predicate<PaperCard>> buildSearchRestriction() {
         boolean isInverse =
-                VCardCatalog.SEARCH_MODE_INVERSE_INDEX == VCardCatalog.SINGLETON_INSTANCE.getCbSearchMode().getSelectedIndex();
-        String text = VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().getText();
-        boolean wantName = VCardCatalog.SINGLETON_INSTANCE.getLblName().getSelected();
-        boolean wantType = VCardCatalog.SINGLETON_INSTANCE.getLblType().getSelected();
-        boolean wantText = VCardCatalog.SINGLETON_INSTANCE.getLblText().getSelected();
+                VCardSetCatalog.SEARCH_MODE_INVERSE_INDEX == VCardSetCatalog.SINGLETON_INSTANCE.getCbSearchMode().getSelectedIndex();
+        String text = VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().getText();
+        boolean wantName = VCardSetCatalog.SINGLETON_INSTANCE.getLblName().getSelected();
+        boolean wantType = VCardSetCatalog.SINGLETON_INSTANCE.getLblType().getSelected();
+        boolean wantText = VCardSetCatalog.SINGLETON_INSTANCE.getLblText().getSelected();
         
         String shortText = buildSearchRestrictionText(text, isInverse, wantName, wantType, wantText);
         String fullText = null;
@@ -474,10 +474,10 @@ public enum CCardCatalog implements ICDoc {
                             isInverse, wantName, wantType, wantText);
         }
         
-        VCardCatalog.SINGLETON_INSTANCE.getTxfSearch().setText("");
+        VCardSetCatalog.SINGLETON_INSTANCE.getTxfSearch().setText("");
         
         return Pair.of(
-                VCardCatalog.SINGLETON_INSTANCE.buildPlainRestrictionWidget(shortText, fullText),
+                VCardSetCatalog.SINGLETON_INSTANCE.buildPlainRestrictionWidget(shortText, fullText),
                 SFilterUtil.buildTextFilter(text, isInverse, wantName, wantType, wantText));
     }
     
@@ -538,7 +538,7 @@ public enum CCardCatalog implements ICDoc {
         tooltip.append("</html>");
         
         return Pair.of(
-                VCardCatalog.SINGLETON_INSTANCE.buildPlainRestrictionWidget(displayName, tooltip.toString()),
+                VCardSetCatalog.SINGLETON_INSTANCE.buildPlainRestrictionWidget(displayName, tooltip.toString()),
                 allowReprints ? format.getFilterRules() : format.getFilterPrinted());
     }
     

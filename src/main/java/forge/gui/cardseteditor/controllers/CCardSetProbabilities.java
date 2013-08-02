@@ -10,7 +10,7 @@ import java.util.Map;
 import forge.Command;
 import forge.cardset.CardSetBase;
 import forge.gui.cardseteditor.CCardSetEditorUI;
-import forge.gui.cardseteditor.views.VProbabilities;
+import forge.gui.cardseteditor.views.VCardSetProbabilities;
 import forge.gui.framework.ICDoc;
 import forge.gui.toolbox.FLabel;
 import forge.item.PaperCard;
@@ -25,7 +25,7 @@ import forge.util.MyRandom;
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  *
  */
-public enum CProbabilities implements ICDoc {
+public enum CCardSetProbabilities implements ICDoc {
     /** */
     SINGLETON_INSTANCE;
 
@@ -45,7 +45,7 @@ public enum CProbabilities implements ICDoc {
     @Override
     @SuppressWarnings("serial")
     public void initialize() {
-        ((FLabel) VProbabilities.SINGLETON_INSTANCE.getLblReshuffle()).setCommand(
+        ((FLabel) VCardSetProbabilities.SINGLETON_INSTANCE.getLblReshuffle()).setCommand(
             new Command() { @Override  public void run() { update(); } });
     }
 
@@ -54,7 +54,7 @@ public enum CProbabilities implements ICDoc {
      */
     @Override
     public void update() {
-        VProbabilities.SINGLETON_INSTANCE.rebuildLabels(analyze());
+        VCardSetProbabilities.SINGLETON_INSTANCE.rebuildLabels(analyze());
     }
 
     //========== Other methods

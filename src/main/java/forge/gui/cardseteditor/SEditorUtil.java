@@ -10,7 +10,7 @@ import forge.Command;
 import forge.card.CardRules;
 import forge.card.CardRulesPredicates;
 import forge.gui.cardseteditor.views.ITableContainer;
-import forge.gui.cardseteditor.views.VCardCatalog;
+import forge.gui.cardseteditor.views.VCardSetCatalog;
 import forge.gui.cardseteditor.views.VCurrentCard;
 import forge.gui.toolbox.FLabel;
 import forge.gui.toolbox.FSkin;
@@ -113,7 +113,7 @@ public final class SEditorUtil  {
      */
     @SuppressWarnings("serial")
     public static void resetUI() {
-        VCardCatalog.SINGLETON_INSTANCE.getBtnAdd4().setVisible(true);
+        VCardSetCatalog.SINGLETON_INSTANCE.getBtnAdd4().setVisible(true);
         VCurrentCard.SINGLETON_INSTANCE.getBtnRemove4().setVisible(true);
 
         VCurrentCard.SINGLETON_INSTANCE.getBtnSave().setVisible(true);
@@ -123,12 +123,12 @@ public final class SEditorUtil  {
 
         VCurrentCard.SINGLETON_INSTANCE.getTxfTitle().setEnabled(true);
         
-        VCardCatalog.SINGLETON_INSTANCE.getPnlHeader().setVisible(false);
-        VCardCatalog.SINGLETON_INSTANCE.getLblTitle().setText("");
+        VCardSetCatalog.SINGLETON_INSTANCE.getPnlHeader().setVisible(false);
+        VCardSetCatalog.SINGLETON_INSTANCE.getLblTitle().setText("");
 
         VCurrentCard.SINGLETON_INSTANCE.getPnlHeader().setVisible(true);
 
-        VCardCatalog.SINGLETON_INSTANCE.getTabLabel().setText("Card Catalog");
+        VCardSetCatalog.SINGLETON_INSTANCE.getTabLabel().setText("Card Catalog");
 
         VCurrentCard.SINGLETON_INSTANCE.getBtnPrintProxies().setVisible(true);
         VCurrentCard.SINGLETON_INSTANCE.getBtnDoSideboard().setVisible(false);

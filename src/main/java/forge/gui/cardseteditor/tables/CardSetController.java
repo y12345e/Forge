@@ -25,8 +25,8 @@ import com.google.common.base.Supplier;
 
 import forge.cardset.CardSetBase;
 import forge.gui.cardseteditor.controllers.ACEditorBase;
-import forge.gui.cardseteditor.controllers.CProbabilities;
-import forge.gui.cardseteditor.controllers.CStatistics;
+import forge.gui.cardseteditor.controllers.CCardSetProbabilities;
+import forge.gui.cardseteditor.controllers.CCardSetStatistics;
 import forge.gui.cardseteditor.views.VCurrentCard;
 import forge.util.storage.IStorage;
 
@@ -94,8 +94,8 @@ public class CardSetController<T extends CardSetBase> {
         this.view.resetTables();
 
         VCurrentCard.SINGLETON_INSTANCE.getTxfTitle().setText(model.getName());
-        CStatistics.SINGLETON_INSTANCE.update();
-        CProbabilities.SINGLETON_INSTANCE.update();
+        CCardSetStatistics.SINGLETON_INSTANCE.update();
+        CCardSetProbabilities.SINGLETON_INSTANCE.update();
 
         if (this.isModelInSyncWithFolder()) {
             _setSaved(true);
