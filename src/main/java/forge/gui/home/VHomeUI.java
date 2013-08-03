@@ -31,10 +31,8 @@ import java.util.TreeMap;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-
 import net.miginfocom.swing.MigLayout;
 import forge.Singletons;
 import forge.gui.framework.EDocID;
@@ -60,6 +58,7 @@ import forge.gui.home.variant.VSubmenuArchenemy;
 import forge.gui.home.variant.VSubmenuPlanechase;
 import forge.gui.home.variant.VSubmenuVanguard;
 import forge.gui.toolbox.FLabel;
+import forge.gui.toolbox.FScrollPanel;
 import forge.gui.toolbox.FSkin;
 import forge.properties.NewConstants;
 import forge.properties.ForgePreferences.FPref;
@@ -86,7 +85,7 @@ public enum VHomeUI implements IVTopLevelUI {
 
     private final PnlMenu pnlMenu = new PnlMenu();
     private final PnlDisplay pnlDisplay = new PnlDisplay();
-    private final JScrollPane submenuScrollPane;
+    private final FScrollPanel pnlSubmenus;
 
     private JLabel lblLogo = new FLabel.Builder()
         .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_LOGO))
@@ -115,17 +114,8 @@ public enum VHomeUI implements IVTopLevelUI {
         pnlMainMenu.add(lblExit, "w 170px!, h 30px!, gap 0 0 0 8px");
         pnlMenu.add(pnlMainMenu);
         
-        JPanel pnlSubmenus = new JPanel(new MigLayout("insets 0, gap 0, wrap, hidemode 3"));
-        pnlSubmenus.setOpaque(false);
-        submenuScrollPane = new JScrollPane(pnlSubmenus,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        submenuScrollPane.setBorder(null);
-        submenuScrollPane.setOpaque(false);
-        submenuScrollPane.getViewport().setOpaque(false);
-        submenuScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        submenuScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
-        pnlMenu.add(submenuScrollPane, "w 100%!");
+        pnlSubmenus = new FScrollPanel(new MigLayout("insets 0, gap 0, wrap, hidemode 3"), true,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         // Add new menu items here (order doesn't matter).
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
@@ -181,6 +171,8 @@ public enum VHomeUI implements IVTopLevelUI {
                 allGroupLabels.get(e).groupClick(e);
             }
         }
+
+        pnlMenu.add(pnlSubmenus, "w 100%!");
         pnlDisplay.setBackground(FSkin.alphaColor(l00, 100));
     }
 
@@ -217,9 +209,9 @@ public enum VHomeUI implements IVTopLevelUI {
         return pnlDisplay;
     }
 
-    /** @return {@link javax.swing.JPanel} */
-    public JScrollPane getSubmenuScrollPane() {
-        return submenuScrollPane;
+    /** @return {@link forge.gui.toolbox.FScrollPanel} */
+    public FScrollPanel getPnlSubmenus() {
+        return pnlSubmenus;
     }
 
     /**
@@ -287,13 +279,13 @@ public enum VHomeUI implements IVTopLevelUI {
         @Override
         public void paintComponent(Graphics g) {
             final LblMenuItem lblSelected = CHomeUI.SINGLETON_INSTANCE.getLblSelected();
-            final JScrollPane scrollPane = VHomeUI.SINGLETON_INSTANCE.getSubmenuScrollPane();
+            final FScrollPanel scrollPanel = VHomeUI.SINGLETON_INSTANCE.getPnlSubmenus();
             final Graphics2D g2d = (Graphics2D) g.create();
             final int w = getWidth();
             final int h = getHeight();
 
             if (lblSelected.isShowing()) {
-                int yTop = lblSelected.getY() + lblSelected.getParent().getY() + scrollPane.getY() - scrollPane.getVerticalScrollBar().getValue();
+                int yTop = lblSelected.getY() + lblSelected.getParent().getY() + scrollPanel.getY() - scrollPanel.getVerticalScrollBar().getValue();
                 int yBottom = yTop + lblSelected.getHeight();
 
                 g2d.setColor(l00);
