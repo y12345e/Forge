@@ -102,16 +102,32 @@ public enum VHomeUI implements IVTopLevelUI {
         // Add main menu containing logo and menu buttons
         JPanel pnlMainMenu = new JPanel(new MigLayout("w 200px!, ax center, insets 0, gap 0, wrap"));
         pnlMainMenu.setOpaque(false);
-        pnlMainMenu.add(lblLogo, "w 170px!, h 170px!, gap 0 4px 0 4px");
 
-        pnlMainMenu.add(lblDeckEditor, "w 170px!, h 30px!, gap 0 0 0 8px");
-        pnlMainMenu.add(lblCardSetEditor, "w 170px!, h 30px!, gap 0 0 0 8px");        
+        List<FLabel> mainMenuLabels = new ArrayList<FLabel>();
+        mainMenuLabels.add(lblDeckEditor);
+        mainMenuLabels.add(lblCardSetEditor);
         if (NewConstants.SERVER_PORT_NUMBER >= 80) {
-            pnlMainMenu.add(lblStartServer, "w 170px!, h 30px!, gap 0 0 0 8px");
-            pnlMainMenu.add(lblStopServer, "w 170px!, h 30px!, gap 0 0 0 8px");
+            mainMenuLabels.add(lblStartServer);
+            mainMenuLabels.add(lblStopServer);
             lblStopServer.setEnabled(false);
         }
-        pnlMainMenu.add(lblExit, "w 170px!, h 30px!, gap 0 0 0 8px");
+        mainMenuLabels.add(lblExit);
+
+        int logoSize = 170;
+        int logoTopGap = 4;
+        int logoBottomGap = 4;
+        int labelHeight = 30;
+        int labelBottomGap = 8;
+        int pnlMainMenuHeight = logoSize + logoTopGap + logoBottomGap + 
+                mainMenuLabels.size() * (labelHeight + labelBottomGap);
+
+        pnlMainMenu.add(lblLogo, "w " + logoSize + "px!, h " + logoSize +
+                "px!, gap 0 " + logoTopGap + "px 0 " + logoBottomGap + "px");
+        String labelLayout = "w 170px!, h " + labelHeight +
+                "px!, gap 0 0 0 " + labelBottomGap + "px";
+        for (FLabel label : mainMenuLabels) {
+            pnlMainMenu.add(label, labelLayout);
+        }
         pnlMenu.add(pnlMainMenu);
         
         pnlSubmenus = new FScrollPanel(new MigLayout("insets 0, gap 0, wrap, hidemode 3"), true,
@@ -172,7 +188,7 @@ public enum VHomeUI implements IVTopLevelUI {
             }
         }
 
-        pnlMenu.add(pnlSubmenus, "w 100%!");
+        pnlMenu.add(pnlSubmenus, "w 100%!, h 100% - " + pnlMainMenuHeight + "px!");
         pnlDisplay.setBackground(FSkin.alphaColor(l00, 100));
     }
 
