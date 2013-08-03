@@ -31,6 +31,8 @@ import java.util.TreeMap;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
@@ -84,6 +86,7 @@ public enum VHomeUI implements IVTopLevelUI {
 
     private final PnlMenu pnlMenu = new PnlMenu();
     private final PnlDisplay pnlDisplay = new PnlDisplay();
+    private final JScrollPane submenuScrollPane;
 
     private JLabel lblLogo = new FLabel.Builder()
         .icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_LOGO))
@@ -112,6 +115,18 @@ public enum VHomeUI implements IVTopLevelUI {
         pnlMainMenu.add(lblExit, "w 170px!, h 30px!, gap 0 0 0 8px");
         pnlMenu.add(pnlMainMenu);
         
+        JPanel pnlSubmenus = new JPanel(new MigLayout("insets 0, gap 0, wrap, hidemode 3"));
+        pnlSubmenus.setOpaque(false);
+        submenuScrollPane = new JScrollPane(pnlSubmenus,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        submenuScrollPane.setBorder(null);
+        submenuScrollPane.setOpaque(false);
+        submenuScrollPane.getViewport().setOpaque(false);
+        submenuScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        submenuScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
+        pnlMenu.add(submenuScrollPane, "w 100%!");
+
         // Add new menu items here (order doesn't matter).
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuDraft.SINGLETON_INSTANCE);
@@ -158,8 +173,8 @@ public enum VHomeUI implements IVTopLevelUI {
         // For each group: add its title, then its panel, then "click" if necessary.
         for (final EMenuGroup e : allGroupPanels.keySet()) {
             allGroupLabels.put(e, new LblGroup(e));
-            pnlMenu.add(allGroupLabels.get(e), "w 100%!, h 30px!, gap 0 0 3px 3px");
-            pnlMenu.add(allGroupPanels.get(e), "w 100%!, gap 0 0 0 0");
+            pnlSubmenus.add(allGroupLabels.get(e), "w 100%!, h 30px!, gap 0 0 3px 3px");
+            pnlSubmenus.add(allGroupPanels.get(e), "w 100%!, gap 0 0 0 0");
 
             // Expand groups expanded from previous session
             if (Singletons.getModel().getPreferences().getPrefBoolean(FPref.valueOf("SUBMENU_" + e.toString()))) {
@@ -200,6 +215,11 @@ public enum VHomeUI implements IVTopLevelUI {
     /** @return {@link javax.swing.JPanel} */
     public PnlDisplay getPnlDisplay() {
         return pnlDisplay;
+    }
+
+    /** @return {@link javax.swing.JPanel} */
+    public JScrollPane getSubmenuScrollPane() {
+        return submenuScrollPane;
     }
 
     /**
@@ -267,12 +287,13 @@ public enum VHomeUI implements IVTopLevelUI {
         @Override
         public void paintComponent(Graphics g) {
             final LblMenuItem lblSelected = CHomeUI.SINGLETON_INSTANCE.getLblSelected();
+            final JScrollPane scrollPane = VHomeUI.SINGLETON_INSTANCE.getSubmenuScrollPane();
             final Graphics2D g2d = (Graphics2D) g.create();
             final int w = getWidth();
             final int h = getHeight();
 
             if (lblSelected.isShowing()) {
-                int yTop = lblSelected.getY() + lblSelected.getParent().getY();
+                int yTop = lblSelected.getY() + lblSelected.getParent().getY() + scrollPane.getY() - scrollPane.getVerticalScrollBar().getValue();
                 int yBottom = yTop + lblSelected.getHeight();
 
                 g2d.setColor(l00);
