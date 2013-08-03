@@ -100,33 +100,32 @@ public enum VHomeUI implements IVTopLevelUI {
 
     private VHomeUI() {
         // Add main menu containing logo and menu buttons
-        JPanel pnlMainMenu = new JPanel(new MigLayout("w 200px!, ax center, insets 0, gap 0, wrap"));
+        final JPanel pnlMainMenu = new JPanel(new MigLayout("w 200px!, ax center, insets 0, gap 0, wrap"));
         pnlMainMenu.setOpaque(false);
 
-        List<FLabel> mainMenuLabels = new ArrayList<FLabel>();
-        mainMenuLabels.add(lblDeckEditor);
-        mainMenuLabels.add(lblCardSetEditor);
+        final List<FLabel> mainMenuButtons = new ArrayList<FLabel>();
+        mainMenuButtons.add(lblDeckEditor);
+        mainMenuButtons.add(lblCardSetEditor);
         if (NewConstants.SERVER_PORT_NUMBER >= 80) {
-            mainMenuLabels.add(lblStartServer);
-            mainMenuLabels.add(lblStopServer);
+            mainMenuButtons.add(lblStartServer);
+            mainMenuButtons.add(lblStopServer);
             lblStopServer.setEnabled(false);
         }
-        mainMenuLabels.add(lblExit);
+        mainMenuButtons.add(lblExit);
 
-        int logoSize = 170;
-        int logoTopGap = 4;
-        int logoBottomGap = 4;
-        int labelHeight = 30;
-        int labelBottomGap = 8;
-        int pnlMainMenuHeight = logoSize + logoTopGap + logoBottomGap + 
-                mainMenuLabels.size() * (labelHeight + labelBottomGap);
+        final int logoSize = 170;
+        final int logoBottomGap = 4;
+        final int buttonHeight = 30;
+        final int buttonBottomGap = 8;
+        final int pnlMainMenuHeight = logoSize + logoBottomGap +
+                mainMenuButtons.size() * (buttonHeight + buttonBottomGap);
 
         pnlMainMenu.add(lblLogo, "w " + logoSize + "px!, h " + logoSize +
-                "px!, gap 0 " + logoTopGap + "px 0 " + logoBottomGap + "px");
-        String labelLayout = "w 170px!, h " + labelHeight +
-                "px!, gap 0 0 0 " + labelBottomGap + "px";
-        for (FLabel label : mainMenuLabels) {
-            pnlMainMenu.add(label, labelLayout);
+                "px!, gap 0 4px 0 " + logoBottomGap + "px");
+        String buttonLayout = "w 170px!, h " + buttonHeight +
+                "px!, gap 0 0 0 " + buttonBottomGap + "px";
+        for (FLabel button : mainMenuButtons) {
+            pnlMainMenu.add(button, buttonLayout);
         }
         pnlMenu.add(pnlMainMenu);
         

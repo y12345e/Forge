@@ -1,9 +1,15 @@
 package forge.gui.toolbox;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 
@@ -18,6 +24,12 @@ import javax.swing.ScrollPaneConstants;
  */
 @SuppressWarnings("serial")
 public class FScrollPanel extends JScrollPane {
+    private final Color clrMain = FSkin.getColor(FSkin.Colors.CLR_THEME);
+    private final Color arrowButtonBorderColor1 = FSkin.stepColor(clrMain, -20);
+    private final Color arrowButtonColor1 = FSkin.stepColor(clrMain, -10);
+    private final Color arrowButtonBorderColor2 = FSkin.stepColor(clrMain, 10);
+    private final Color arrowButtonColor2 = FSkin.stepColor(clrMain, 20);
+    private final Rectangle[] arrowButtonBounds = new Rectangle[4];
     private final JPanel innerPanel;
     private final boolean useArrowButtons;
     
@@ -91,6 +103,81 @@ public class FScrollPanel extends JScrollPane {
                 }
             });
         }
+    }
+    
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        if (useArrowButtons) {
+            //determine which buttons should be visible
+            boolean[] visible = new boolean[] { false, false, false, false };
+            final JScrollBar horzScrollBar = this.getHorizontalScrollBar();
+            if (horzScrollBar.isVisible()) { //NOTE: scrollbar wouldn't actually be visible since size set to 0 to hide it
+                visible[0] = horzScrollBar.getValue() > 0;
+                visible[1] = horzScrollBar.getValue() < horzScrollBar.getMaximum()  - horzScrollBar.getModel().getExtent();
+            }
+            final JScrollBar vertScrollBar = this.getVerticalScrollBar();
+            if (vertScrollBar.isVisible()) {
+                visible[2] = vertScrollBar.getValue() > 0;
+                visible[3] = vertScrollBar.getValue() < vertScrollBar.getMaximum() - vertScrollBar.getModel().getExtent();
+            }
+            Graphics2D g2d = (Graphics2D)g;
+            for (int dir = 0; dir < 4; dir++) {
+                drawArrowButton(g2d, dir, visible);
+            }
+        }
+    }
+    
+    private void drawArrowButton(final Graphics2D g, int dir, boolean[] visible) {
+        if (!visible[dir]) {
+            arrowButtonBounds[dir] = null; //prevent checking for mouse down
+            return;
+        }
+        
+        //determine bounds of button
+        int x, y, w, h;
+        final int panelWidth = getWidth();
+        final int panelHeight = getHeight();
+        final int arrowButtonSize = 20;
+        
+        if (dir < 2) { //if button for horizontal scrolling
+            y = 0;
+            h = panelHeight;
+            if (visible[2]) {
+                y += arrowButtonSize;
+                h -= arrowButtonSize;
+            }
+            if (visible[3]) {
+                h -= arrowButtonSize;
+            }
+            x = (dir == 0 ? 0 : panelWidth - arrowButtonSize);
+            w = arrowButtonSize;
+        }
+        else { //if button for vertical scrolling
+            x = 0;
+            w = panelWidth;
+            if (visible[0]) {
+                x += arrowButtonSize;
+                w -= arrowButtonSize;
+            }
+            if (visible[1]) {
+                w -= arrowButtonSize;
+            }
+            y = (dir == 2 ? 0 : panelHeight - arrowButtonSize);
+            h = arrowButtonSize;
+        }
+        
+        arrowButtonBounds[dir] = new Rectangle(x, y, w, h); //store bounds for use in mouse events
+        
+        //draw button
+        GradientPaint gradient = new GradientPaint(0, h, arrowButtonColor1, 0, 0, arrowButtonColor2);
+        g.setPaint(gradient);
+        g.fillRect(x, y, w, h);
+
+        g.setColor(arrowButtonBorderColor1);
+        g.drawRect(x, y, w - 2, h - 2);
+        g.setColor(arrowButtonBorderColor2);
+        g.drawRect(x + 1, y + 1, w - 4, h - 4);
     }
     
     //relay certain methods to the inner panel if it has been initialized
