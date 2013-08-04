@@ -5,12 +5,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.LayoutManager;
 import java.awt.PopupMenu;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.Timer;
 
 import forge.gui.toolbox.FSkin.SkinProp;
 
@@ -147,27 +152,65 @@ public class FScrollPanel extends JScrollPane {
         
         if (arrowButton == null) {
             SkinProp arrowProp;
+            JScrollBar scrollBar;
+            int incrementDirection;
             switch (dir) {
                 case 0:
                     arrowProp = FSkin.LayoutImages.IMG_CUR_L;
+                    scrollBar = getHorizontalScrollBar();
+                    incrementDirection = -1;
                     break;
                 case 1:
                     arrowProp = FSkin.LayoutImages.IMG_CUR_R;
+                    scrollBar = getHorizontalScrollBar();
+                    incrementDirection = 1;
                     break;
                 case 2:
                     arrowProp = FSkin.LayoutImages.IMG_CUR_T;
+                    scrollBar = getVerticalScrollBar();
+                    incrementDirection = -1;
                     break;
                 default:
                     arrowProp = FSkin.LayoutImages.IMG_CUR_B;
+                    scrollBar = getVerticalScrollBar();
+                    incrementDirection = 1;
                     break;
             }
             arrowButton = arrowButtons[dir] = new FLabel.ButtonBuilder()
                 .icon(new ImageIcon(FSkin.getImage(arrowProp)))
                 .iconScaleAuto(true).iconScaleFactor(1.8).build();
+            hookArrowButtonEvents(arrowButton, scrollBar, incrementDirection);
         }
         //absolutely position button in front of scroll panel
         arrowButton.setSize(w, h);
         FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, this, x, y);
+    }
+    
+    private void hookArrowButtonEvents(final FLabel arrowButton, final JScrollBar scrollBar, final int incrementDirection) {
+        //create timer to continue scrollling while mouse remains down
+        final Timer timer = new Timer(50, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (!arrowButton.isVisible()) {
+                    //ensure timer stops if button hidden from scrolling to beginning/end (based on incrementDirection)
+                    ((Timer)e.getSource()).stop();
+                }
+                scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
+            }
+        });
+        timer.setInitialDelay(500); //wait half a second after mouse down before starting timer
+
+        arrowButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
+                timer.start();
+            }
+            
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                timer.stop();
+            }
+        });
     }
     
     //relay certain methods to the inner panel if it has been initialized
