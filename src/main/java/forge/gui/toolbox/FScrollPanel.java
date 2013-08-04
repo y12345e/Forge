@@ -1,22 +1,25 @@
 package forge.gui.toolbox;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.PopupMenu;
 import java.awt.Rectangle;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+
+import net.miginfocom.swing.MigLayout;
+import forge.Singletons;
 
 /** 
  * An extension of JScrollPane that can be used as a panel and supports using arrow buttons to scroll instead of scrollbars
@@ -29,6 +32,7 @@ public class FScrollPanel extends JScrollPane {
     private final Color arrowButtonColor1 = FSkin.stepColor(clrMain, -10);
     private final Color arrowButtonBorderColor2 = FSkin.stepColor(clrMain, 10);
     private final Color arrowButtonColor2 = FSkin.stepColor(clrMain, 20);
+    private final FLabel[] arrowButtons = new FLabel[4];
     private final Rectangle[] arrowButtonBounds = new Rectangle[4];
     private final JPanel innerPanel;
     private final boolean useArrowButtons;
@@ -81,27 +85,12 @@ public class FScrollPanel extends JScrollPane {
         innerPanel.setOpaque(false);
         setOpaque(false);
         setBorder(null);
-        
-        JScrollBar horzScrollBar = getHorizontalScrollBar();
-        JScrollBar vertScrollBar = getVerticalScrollBar();
-        horzScrollBar.setUnitIncrement(16);
-        vertScrollBar.setUnitIncrement(16);
-        
+        getHorizontalScrollBar().setUnitIncrement(16);
+        getVerticalScrollBar().setUnitIncrement(16);
         if (useArrowButtons) {
-            horzScrollBar.setPreferredSize(new Dimension(0, 0)); //ensure scrollbar isn't shown
-            horzScrollBar.addAdjustmentListener(new AdjustmentListener() {
-                @Override
-                public void adjustmentValueChanged(AdjustmentEvent arg0) {
-                    
-                }
-            });
-            vertScrollBar.setPreferredSize(new Dimension(0, 0)); //ensure scrollbar isn't shown
-            vertScrollBar.addAdjustmentListener(new AdjustmentListener() {
-                @Override
-                public void adjustmentValueChanged(AdjustmentEvent arg0) {
-                    
-                }
-            });
+            //ensure scrollbar aren't shown
+            getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
+            getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
         }
     }
     
@@ -129,7 +118,11 @@ public class FScrollPanel extends JScrollPane {
     }
     
     private void drawArrowButton(final Graphics2D g, int dir, boolean[] visible) {
+        FLabel arrowButton = arrowButtons[dir];
         if (!visible[dir]) {
+            if (arrowButton != null) {
+                arrowButton.setVisible(false);
+            }
             arrowButtonBounds[dir] = null; //prevent checking for mouse down
             return;
         }
@@ -169,15 +162,23 @@ public class FScrollPanel extends JScrollPane {
         
         arrowButtonBounds[dir] = new Rectangle(x, y, w, h); //store bounds for use in mouse events
         
+        if (arrowButton == null) {
+            arrowButton = arrowButtons[dir] = new FLabel.ButtonBuilder().icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_PLUS)).build();
+            arrowButton.setVisible(false); //prevent showing until bounds set below
+            this.add(arrowButton);
+        }
+        arrowButton.setLayout(new MigLayout("w " + w + "px!, h " + h + "px!"));
+        arrowButton.setVisible(true);
+        
         //draw button
-        GradientPaint gradient = new GradientPaint(0, h, arrowButtonColor1, 0, 0, arrowButtonColor2);
+        /*GradientPaint gradient = new GradientPaint(0, h, arrowButtonColor1, 0, 0, arrowButtonColor2);
         g.setPaint(gradient);
         g.fillRect(x, y, w, h);
 
         g.setColor(arrowButtonBorderColor1);
         g.drawRect(x, y, w - 2, h - 2);
         g.setColor(arrowButtonBorderColor2);
-        g.drawRect(x + 1, y + 1, w - 4, h - 4);
+        g.drawRect(x + 1, y + 1, w - 4, h - 4);*/
     }
     
     //relay certain methods to the inner panel if it has been initialized
