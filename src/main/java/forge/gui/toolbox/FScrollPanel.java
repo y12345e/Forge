@@ -1,27 +1,18 @@
 package forge.gui.toolbox;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Event;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.LayoutManager;
-import java.awt.Point;
 import java.awt.PopupMenu;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-import javax.swing.JInternalFrame;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import net.miginfocom.swing.MigLayout;
-import forge.Singletons;
+import forge.gui.toolbox.FSkin.SkinProp;
 
 /** 
  * An extension of JScrollPane that can be used as a panel and supports using arrow buttons to scroll instead of scrollbars
@@ -125,7 +116,7 @@ public class FScrollPanel extends JScrollPane {
         int x, y, w, h;
         final int panelWidth = getWidth();
         final int panelHeight = getHeight();
-        final int arrowButtonSize = 20;
+        final int arrowButtonSize = 18;
         
         if (dir < 2) { //if button for horizontal scrolling
             y = 0;
@@ -155,9 +146,26 @@ public class FScrollPanel extends JScrollPane {
         }
         
         if (arrowButton == null) {
-            arrowButton = arrowButtons[dir] = new FLabel.ButtonBuilder().icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_PLUS)).build();
+            SkinProp arrowProp;
+            switch (dir) {
+                case 0:
+                    arrowProp = FSkin.LayoutImages.IMG_CUR_L;
+                    break;
+                case 1:
+                    arrowProp = FSkin.LayoutImages.IMG_CUR_R;
+                    break;
+                case 2:
+                    arrowProp = FSkin.LayoutImages.IMG_CUR_T;
+                    break;
+                default:
+                    arrowProp = FSkin.LayoutImages.IMG_CUR_B;
+                    break;
+            }
+            arrowButton = arrowButtons[dir] = new FLabel.ButtonBuilder()
+                .icon(new ImageIcon(FSkin.getImage(arrowProp)))
+                .iconScaleAuto(true).iconScaleFactor(1.8).build();
         }
-        //absolutely position button in front of scroll panel if not already
+        //absolutely position button in front of scroll panel
         arrowButton.setSize(w, h);
         FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, this, x, y);
     }
