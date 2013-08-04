@@ -34,43 +34,66 @@ public enum FAbsolutePositioner {
     /** */
     SINGLETON_INSTANCE;
 
-    private final JPanel pnl = new JPanel();
+    private final JPanel panel = new JPanel();
+    private Point panelScreenLocation;
 
     private FAbsolutePositioner() {
-        pnl.setOpaque(false);
-        pnl.setLayout(null);
+        panel.setOpaque(false);
+        panel.setLayout(null);
     }
     
     public void initialize(JLayeredPane parent, Integer index) {
-        parent.add(pnl, index);
+        parent.add(panel, index);
     }
     
     public void containerResized(Rectangle mainBounds) {
-        pnl.setBounds(mainBounds);
-        pnl.validate();
+        panel.setBounds(mainBounds);
+        panel.validate();
+        panelScreenLocation = panel.getLocationOnScreen(); //cache screen location of panel
     }
     
-    public void show(Component comp, Point screenLocation) {
-        if (comp.getParent() == pnl) {
-            comp.setLocation(screenLocation);
-            return;
+    /**
+     * Show the given component absolutely positioned at the given screen location
+     * 
+     * @param comp &emsp; Component to absolutely position
+     * @param screenX &emsp; Screen X location to show component at
+     * @param screenY &emsp; Screen Y location to show component at
+     */
+    public void show(Component comp, int screenX, int screenY) {
+        if (comp.getParent() != panel) {
+            comp.setVisible(false);
+            panel.add(comp);
         }
-        comp.setVisible(false);
-        pnl.add(comp);
-        comp.setLocation(screenLocation);
+        comp.setLocation(screenX - panelScreenLocation.x, screenY - panelScreenLocation.y);
         comp.setVisible(true);
     }
     
-    public void show(Component comp, Point relativeLocation, Component relativeToComp) {
-        Point offset = relativeToComp.getLocationOnScreen();
-        show(comp, new Point(relativeLocation.x + offset.x, relativeLocation.y + offset.y));
+    /**
+     * Show the given component absolutely positioned relative to another component
+     * 
+     * @param comp &emsp; Component to absolutely position
+     * @param relativeToComp &emsp; Component to position relative to
+     * @param offsetX &emsp; X offset of relative location
+     * @param offsetY &emsp; Y offset of relative location
+     */
+    public void show(Component comp, Component relativeToComp, int offsetX, int offsetY) {
+        Point screenLocation = relativeToComp.getLocationOnScreen();
+        show(comp, screenLocation.x + offsetX, screenLocation.y + offsetY);
     }
     
+    /**
+     * Hide given absolutely positioned component
+     * 
+     * @param comp &emsp; Component to hide
+     */
     public void hide(Component comp) {
-        pnl.remove(comp);
+        panel.remove(comp);
     }
     
+    /**
+     * Hide all absolutely positioned components
+     */
     public void hideAll() {
-        pnl.removeAll();
+        panel.removeAll();
     }
 }

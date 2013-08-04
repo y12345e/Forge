@@ -106,14 +106,13 @@ public class FScrollPanel extends JScrollPane {
                 visible[2] = vertScrollBar.getValue() > 0;
                 visible[3] = vertScrollBar.getValue() < vertScrollBar.getMaximum() - vertScrollBar.getModel().getExtent();
             }
-            Graphics2D g2d = (Graphics2D)g;
             for (int dir = 0; dir < 4; dir++) {
-                drawArrowButton(g2d, dir, visible);
+                updateArrowButton(dir, visible);
             }
         }
     }
     
-    private void drawArrowButton(final Graphics2D g, int dir, boolean[] visible) {
+    private void updateArrowButton(int dir, boolean[] visible) {
         FLabel arrowButton = arrowButtons[dir];
         if (!visible[dir]) {
             if (arrowButton != null) {
@@ -160,7 +159,7 @@ public class FScrollPanel extends JScrollPane {
         }
         //absolutely position button in front of scroll panel if not already
         arrowButton.setSize(w, h);
-        FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, new Point(x, y), innerPanel);
+        FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, this, x, y);
     }
     
     //relay certain methods to the inner panel if it has been initialized
