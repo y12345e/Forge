@@ -8,11 +8,13 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LayoutManager;
+import java.awt.Point;
 import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -27,13 +29,7 @@ import forge.Singletons;
  */
 @SuppressWarnings("serial")
 public class FScrollPanel extends JScrollPane {
-    private final Color clrMain = FSkin.getColor(FSkin.Colors.CLR_THEME);
-    private final Color arrowButtonBorderColor1 = FSkin.stepColor(clrMain, -20);
-    private final Color arrowButtonColor1 = FSkin.stepColor(clrMain, -10);
-    private final Color arrowButtonBorderColor2 = FSkin.stepColor(clrMain, 10);
-    private final Color arrowButtonColor2 = FSkin.stepColor(clrMain, 20);
     private final FLabel[] arrowButtons = new FLabel[4];
-    private final Rectangle[] arrowButtonBounds = new Rectangle[4];
     private final JPanel innerPanel;
     private final boolean useArrowButtons;
     
@@ -123,7 +119,6 @@ public class FScrollPanel extends JScrollPane {
             if (arrowButton != null) {
                 arrowButton.setVisible(false);
             }
-            arrowButtonBounds[dir] = null; //prevent checking for mouse down
             return;
         }
         
@@ -160,25 +155,12 @@ public class FScrollPanel extends JScrollPane {
             h = arrowButtonSize;
         }
         
-        arrowButtonBounds[dir] = new Rectangle(x, y, w, h); //store bounds for use in mouse events
-        
         if (arrowButton == null) {
             arrowButton = arrowButtons[dir] = new FLabel.ButtonBuilder().icon(FSkin.getIcon(FSkin.InterfaceIcons.ICO_PLUS)).build();
-            arrowButton.setVisible(false); //prevent showing until bounds set below
-            this.add(arrowButton);
         }
-        arrowButton.setLayout(new MigLayout("w " + w + "px!, h " + h + "px!"));
-        arrowButton.setVisible(true);
-        
-        //draw button
-        /*GradientPaint gradient = new GradientPaint(0, h, arrowButtonColor1, 0, 0, arrowButtonColor2);
-        g.setPaint(gradient);
-        g.fillRect(x, y, w, h);
-
-        g.setColor(arrowButtonBorderColor1);
-        g.drawRect(x, y, w - 2, h - 2);
-        g.setColor(arrowButtonBorderColor2);
-        g.drawRect(x + 1, y + 1, w - 4, h - 4);*/
+        //absolutely position button in front of scroll panel if not already
+        arrowButton.setSize(w, h);
+        FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, new Point(x, y), innerPanel);
     }
     
     //relay certain methods to the inner panel if it has been initialized
