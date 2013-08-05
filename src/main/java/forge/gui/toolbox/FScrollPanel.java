@@ -25,7 +25,7 @@ import forge.gui.toolbox.FSkin.SkinProp;
  */
 @SuppressWarnings("serial")
 public class FScrollPanel extends JScrollPane {
-    private final FLabel[] arrowButtons = new FLabel[4];
+    private final ArrowButton[] arrowButtons = new ArrowButton[4];
     private final JPanel innerPanel;
     private final boolean useArrowButtons;
     
@@ -109,7 +109,7 @@ public class FScrollPanel extends JScrollPane {
     }
     
     private void updateArrowButton(int dir, boolean[] visible) {
-        FLabel arrowButton = arrowButtons[dir];
+        ArrowButton arrowButton = arrowButtons[dir];
         if (!visible[dir]) {
             if (arrowButton != null) {
                 arrowButton.setVisible(false);
@@ -151,66 +151,70 @@ public class FScrollPanel extends JScrollPane {
         }
         
         if (arrowButton == null) {
-            SkinProp arrowProp;
-            JScrollBar scrollBar;
-            int incrementDirection;
             switch (dir) {
                 case 0:
-                    arrowProp = FSkin.LayoutImages.IMG_CUR_L;
-                    scrollBar = getHorizontalScrollBar();
-                    incrementDirection = -1;
+                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_L, getHorizontalScrollBar(), -1);
                     break;
                 case 1:
-                    arrowProp = FSkin.LayoutImages.IMG_CUR_R;
-                    scrollBar = getHorizontalScrollBar();
-                    incrementDirection = 1;
+                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_R, getHorizontalScrollBar(), 1);
                     break;
                 case 2:
-                    arrowProp = FSkin.LayoutImages.IMG_CUR_T;
-                    scrollBar = getVerticalScrollBar();
-                    incrementDirection = -1;
+                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_T, getVerticalScrollBar(), -1);
                     break;
                 default:
-                    arrowProp = FSkin.LayoutImages.IMG_CUR_B;
-                    scrollBar = getVerticalScrollBar();
-                    incrementDirection = 1;
+                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_B, getVerticalScrollBar(), 1);
                     break;
             }
-            arrowButton = arrowButtons[dir] = new FLabel.ButtonBuilder()
-                .icon(new ImageIcon(FSkin.getImage(arrowProp)))
-                .iconScaleAuto(true).iconScaleFactor(1.8).build();
-            hookArrowButtonEvents(arrowButton, scrollBar, incrementDirection);
+            arrowButtons[dir] = arrowButton;
         }
         //absolutely position button in front of scroll panel
         arrowButton.setSize(w, h);
         FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, this, x, y);
     }
     
-    private void hookArrowButtonEvents(final FLabel arrowButton, final JScrollBar scrollBar, final int incrementDirection) {
-        //create timer to continue scrollling while mouse remains down
-        final Timer timer = new Timer(50, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (!arrowButton.isVisible()) {
-                    //ensure timer stops if button hidden from scrolling to beginning/end (based on incrementDirection)
-                    ((Timer)e.getSource()).stop();
+    private class ArrowButton extends FLabel {
+        private final JScrollBar scrollBar;
+        private final int incrementDirection;
+        public ArrowButton(final SkinProp arrowProp, final JScrollBar scrollBar0, final int incrementDirection0) {
+            super(new FLabel.ButtonBuilder()
+                    .icon(new ImageIcon(FSkin.getImage(arrowProp)))
+                    .iconScaleAuto(true).iconScaleFactor(1.8));
+            scrollBar = scrollBar0;
+            incrementDirection = incrementDirection0;
+            hookArrowButtonEvents(this, scrollBar0, incrementDirection0);
+        }
+        
+        @Override
+        public void paintComponent(final Graphics g) {
+            super.paintComponent(g);
+        }
+        
+        private void hookArrowButtonEvents(final FLabel arrowButton, final JScrollBar scrollBar, final int incrementDirection) {
+            //create timer to continue scrollling while mouse remains down
+            final Timer timer = new Timer(50, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (!arrowButton.isVisible()) {
+                        //ensure timer stops if button hidden from scrolling to beginning/end (based on incrementDirection)
+                        ((Timer)e.getSource()).stop();
+                    }
+                    scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
                 }
-                scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
-            }
-        });
-        timer.setInitialDelay(500); //wait half a second after mouse down before starting timer
+            });
+            timer.setInitialDelay(500); //wait half a second after mouse down before starting timer
 
-        arrowButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(final MouseEvent e) {
-                scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
-                timer.start();
-            }
-            
-            @Override
-            public void mouseReleased(final MouseEvent e) {
-                timer.stop();
-            }
-        });
+            arrowButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(final MouseEvent e) {
+                    scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
+                    timer.start();
+                }
+                
+                @Override
+                public void mouseReleased(final MouseEvent e) {
+                    timer.stop();
+                }
+            });
+        }
     }
     
     //relay certain methods to the inner panel if it has been initialized
