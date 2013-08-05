@@ -1,9 +1,13 @@
 package forge.gui.toolbox;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
@@ -11,14 +15,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.Timer;
 
-import forge.gui.toolbox.FSkin.SkinProp;
+import forge.gui.framework.ILocalRepaint;
 
 /** 
  * An extension of JScrollPane that can be used as a panel and supports using arrow buttons to scroll instead of scrollbars
@@ -123,16 +127,17 @@ public class FScrollPanel extends JScrollPane {
         final int panelWidth = getWidth();
         final int panelHeight = getHeight();
         final int arrowButtonSize = 18;
+        final int cornerSize = arrowButtonSize - 1; //make borders line up
         
         if (dir < 2) { //if button for horizontal scrolling
             y = 0;
             h = panelHeight;
             if (visible[2]) {
-                y += arrowButtonSize;
-                h -= arrowButtonSize;
+                y += cornerSize;
+                h -= cornerSize;
             }
             if (visible[3]) {
-                h -= arrowButtonSize;
+                h -= cornerSize;
             }
             x = (dir == 0 ? 0 : panelWidth - arrowButtonSize);
             w = arrowButtonSize;
@@ -141,11 +146,11 @@ public class FScrollPanel extends JScrollPane {
             x = 0;
             w = panelWidth;
             if (visible[0]) {
-                x += arrowButtonSize;
-                w -= arrowButtonSize;
+                x += cornerSize;
+                w -= cornerSize;
             }
             if (visible[1]) {
-                w -= arrowButtonSize;
+                w -= cornerSize;
             }
             y = (dir == 2 ? 0 : panelHeight - arrowButtonSize);
             h = arrowButtonSize;
@@ -154,16 +159,16 @@ public class FScrollPanel extends JScrollPane {
         if (arrowButton == null) {
             switch (dir) {
                 case 0:
-                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_L, getHorizontalScrollBar(), -1);
+                    arrowButton = new LeftArrowButton(getHorizontalScrollBar());
                     break;
                 case 1:
-                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_R, getHorizontalScrollBar(), 1);
+                    arrowButton = new RightArrowButton(getHorizontalScrollBar());
                     break;
                 case 2:
-                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_T, getVerticalScrollBar(), -1);
+                    arrowButton = new TopArrowButton(getVerticalScrollBar());
                     break;
                 default:
-                    arrowButton = new ArrowButton(FSkin.LayoutImages.IMG_CUR_B, getVerticalScrollBar(), 1);
+                    arrowButton = new BottomArrowButton(getVerticalScrollBar());
                     break;
             }
             arrowButtons[dir] = arrowButton;
@@ -173,46 +178,169 @@ public class FScrollPanel extends JScrollPane {
         FAbsolutePositioner.SINGLETON_INSTANCE.show(arrowButton, this, x, y);
     }
     
-    private class ArrowButton extends FLabel {
-        public ArrowButton(final SkinProp arrowProp, final JScrollBar scrollBar, final int incrementDirection) {
-            super(new FLabel.ButtonBuilder()
-                    .icon(new ImageIcon(FSkin.getImage(arrowProp)))
-                    .iconScaleAuto(true).iconScaleFactor(1.8));
-            hookEvents(this, scrollBar, incrementDirection);
+    private abstract class ArrowButton extends JLabel implements ILocalRepaint {
+        private final Color clrFore = FSkin.getColor(FSkin.Colors.CLR_TEXT);
+        private final Color clrBack = FSkin.getColor(FSkin.Colors.CLR_INACTIVE);
+        private final Color d50 = FSkin.stepColor(clrBack, -50);
+        private final Color d10 = FSkin.stepColor(clrBack, -10);
+        private final Color l10 = FSkin.stepColor(clrBack, 10);
+        private final Color l20 = FSkin.stepColor(clrBack, 20);
+        private final AlphaComposite alphaDefault = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
+        private final AlphaComposite alphaHovered = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.9f);
+        protected final int arrowSize = 6;
+        private final JScrollBar scrollBar;
+        private final int incrementDirection;
+        private boolean hovered;
+
+        protected ArrowButton(final JScrollBar scrollBar0, final int incrementDirection0) {
+            super("");
+            scrollBar = scrollBar0;
+            incrementDirection = incrementDirection0;
+            timer.setInitialDelay(500); //wait half a second after mouse down before starting timer
+            addMouseListener(madEvents);
+        }
+        
+        @Override
+        public void repaintSelf() {
+            final Dimension d = getSize();
+            repaint(0, 0, d.width, d.height);
         }
         
         @Override
         public void paintComponent(final Graphics g) {
-            g.setColor(Color.white); //draw white background to prevent button being semi-transparent
-            g.fillRect(0, 0, getWidth(), getHeight());
+            Graphics2D g2d = (Graphics2D)g;
+
+            int w = getWidth();
+            int h = getHeight();
+
+            g.setColor(Color.white); //draw white background before composite so not semi-transparent
+            g.fillRect(0, 0, w, h);
+
+            Composite oldComp = g2d.getComposite();
+            g2d.setComposite(hovered ? alphaHovered : alphaDefault);
+
+            GradientPaint gradient = new GradientPaint(0, h, d10, 0, 0, l20);
+            g2d.setPaint(gradient);
+            g.fillRect(0, 0, w, h);
+
+            g.setColor(d50);
+            g.drawRect(0, 0, w - 1, h - 1);
+            g.setColor(l10);
+            g.drawRect(1, 1, w - 3, h - 3);
+
+            g.setColor(clrFore);
+            drawArrow(g);
+
             super.paintComponent(g);
+
+            g2d.setComposite(oldComp);
+        }
+
+        protected abstract void drawArrow(final Graphics g);
+        
+        //timer to continue scrollling while mouse remains down
+        final Timer timer = new Timer(50, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (!isVisible()) {
+                    //ensure timer stops if button hidden from scrolling to beginning/end (based on incrementDirection)
+                    ((Timer)e.getSource()).stop();
+                    return;
+                }
+                scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
+            }
+        });
+
+        private final MouseAdapter madEvents = new MouseAdapter() {
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
+                timer.start();
+            }
+            
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                timer.stop();
+            }
+            
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                hovered = true;
+                repaintSelf();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hovered = false;
+                repaintSelf();
+            }
+            
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!hovered) {
+                    hovered = true;
+                    repaintSelf();
+                }
+            }
+        };
+    }
+    
+    private class LeftArrowButton extends ArrowButton {
+        public LeftArrowButton(final JScrollBar horzScrollbar) {
+            super(horzScrollbar, -1);
         }
         
-        private void hookEvents(final FLabel arrowButton, final JScrollBar scrollBar, final int incrementDirection) {
-            //create timer to continue scrollling while mouse remains down
-            final Timer timer = new Timer(50, new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (!arrowButton.isVisible()) {
-                        //ensure timer stops if button hidden from scrolling to beginning/end (based on incrementDirection)
-                        ((Timer)e.getSource()).stop();
-                    }
-                    scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
-                }
-            });
-            timer.setInitialDelay(500); //wait half a second after mouse down before starting timer
-
-            arrowButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(final MouseEvent e) {
-                    scrollBar.setValue(scrollBar.getValue() + scrollBar.getUnitIncrement() * incrementDirection);
-                    timer.start();
-                }
-                
-                @Override
-                public void mouseReleased(final MouseEvent e) {
-                    timer.stop();
-                }
-            });
+        @Override
+        protected void drawArrow(final Graphics g) {
+            int centerX = getWidth() / 2;
+            int centerY = getHeight() / 2;
+            int halfSize = arrowSize / 2;
+            g.fillPolygon(new int[] { centerX - halfSize, centerX + halfSize, centerX + halfSize },
+                    new int[] { centerY, centerY + arrowSize, centerY - arrowSize }, 3);
+        }
+    }
+    
+    private class RightArrowButton extends ArrowButton {
+        public RightArrowButton(final JScrollBar horzScrollbar) {
+            super(horzScrollbar, 1);
+        }
+        
+        @Override
+        protected void drawArrow(final Graphics g) {
+            int centerX = getWidth() / 2;
+            int centerY = getHeight() / 2;
+            int halfSize = arrowSize / 2;
+            g.fillPolygon(new int[] { centerX + halfSize, centerX - halfSize, centerX - halfSize },
+                    new int[] { centerY, centerY + arrowSize, centerY - arrowSize }, 3);
+        }
+    }
+    
+    private class TopArrowButton extends ArrowButton {
+        public TopArrowButton(final JScrollBar vertScrollbar) {
+            super(vertScrollbar, -1);
+        }
+        
+        @Override
+        protected void drawArrow(final Graphics g) {
+            int centerX = getWidth() / 2;
+            int centerY = getHeight() / 2;
+            int halfSize = arrowSize / 2;
+            g.fillPolygon(new int[] { centerX, centerX + arrowSize, centerX - arrowSize },
+                    new int[] { centerY - halfSize, centerY + halfSize, centerY + halfSize }, 3);
+        }
+    }
+    
+    private class BottomArrowButton extends ArrowButton {
+        public BottomArrowButton(final JScrollBar vertScrollbar) {
+            super(vertScrollbar, 1);
+        }
+        
+        @Override
+        protected void drawArrow(final Graphics g) {
+            int centerX = getWidth() / 2;
+            int centerY = getHeight() / 2;
+            int halfSize = arrowSize / 2;
+            g.fillPolygon(new int[] { centerX, centerX + arrowSize, centerX - arrowSize },
+                    new int[] { centerY + halfSize, centerY - halfSize, centerY - halfSize }, 3);
         }
     }
     
