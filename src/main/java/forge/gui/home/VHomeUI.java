@@ -293,32 +293,43 @@ public enum VHomeUI implements IVTopLevelUI {
 
         @Override
         public void paintComponent(Graphics g) {
+            super.paintComponent(g);
             final LblMenuItem lblSelected = CHomeUI.SINGLETON_INSTANCE.getLblSelected();
             final FScrollPanel scrollPanel = VHomeUI.SINGLETON_INSTANCE.getPnlSubmenus();
             final Graphics2D g2d = (Graphics2D) g.create();
             final int w = getWidth();
-            final int h = getHeight();
-
+            int y1 = 0;
+            int y2 = 0;
+            int h1 = getHeight();
+            int h2 = 0;
+            
             if (lblSelected.isShowing()) {
-                int yTop = lblSelected.getY() + lblSelected.getParent().getY() + scrollPanel.getY() - scrollPanel.getVerticalScrollBar().getValue();
-                int yBottom = yTop + lblSelected.getHeight();
+                int scrollPanelTop = scrollPanel.getY();
+                int labelTop = lblSelected.getY() + lblSelected.getParent().getY() + scrollPanelTop - scrollPanel.getVerticalScrollBar().getValue();
+                y2 = labelTop + lblSelected.getHeight();
 
-                g2d.setColor(l00);
-                g2d.fillRect(0, 0, w, yTop);
-                g2d.fillRect(0, yBottom, w, h);
-
-                GradientPaint edge = new GradientPaint(w - 8, 0, l00, w, 0, d80, false);
-                g2d.setPaint(edge);
-                g2d.fillRect(w - 8, 0, w, yTop);
-                g2d.fillRect(w - 8, yBottom, w, h);
+                //ensure clipped to scroll panel
+                if (y2 > scrollPanelTop) {
+                    if (labelTop < scrollPanelTop) {
+                        labelTop = scrollPanelTop;
+                    }
+                    h2 = h1 - y2;
+                    h1 = labelTop - y1;
+                }
             }
-            else {
-                g2d.setColor(l00);
-                g2d.fillRect(0, 0, w, h);
 
-                GradientPaint edge = new GradientPaint(w - 8, 0, l00, w, 0, d80, false);
-                g2d.setPaint(edge);
-                g2d.fillRect(w - 8, 0, w, h);
+            g2d.setColor(l00);
+            g2d.fillRect(0, y1, w, h1);
+            if (h2 > 0) {
+                g2d.fillRect(0, y2, w, h2);
+            }
+            
+            int x = w - 8;
+            GradientPaint edge = new GradientPaint(x, 0, l00, w, 0, d80, false);
+            g2d.setPaint(edge);
+            g2d.fillRect(x, y1, w, h1);
+            if (h2 > 0) {
+                g2d.fillRect(x, y2, w, h2);
             }
 
             g2d.dispose();
