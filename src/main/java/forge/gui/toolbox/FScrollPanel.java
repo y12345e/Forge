@@ -1,5 +1,6 @@
 package forge.gui.toolbox;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -173,23 +174,21 @@ public class FScrollPanel extends JScrollPane {
     }
     
     private class ArrowButton extends FLabel {
-        private final JScrollBar scrollBar;
-        private final int incrementDirection;
-        public ArrowButton(final SkinProp arrowProp, final JScrollBar scrollBar0, final int incrementDirection0) {
+        public ArrowButton(final SkinProp arrowProp, final JScrollBar scrollBar, final int incrementDirection) {
             super(new FLabel.ButtonBuilder()
                     .icon(new ImageIcon(FSkin.getImage(arrowProp)))
                     .iconScaleAuto(true).iconScaleFactor(1.8));
-            scrollBar = scrollBar0;
-            incrementDirection = incrementDirection0;
-            hookArrowButtonEvents(this, scrollBar0, incrementDirection0);
+            hookEvents(this, scrollBar, incrementDirection);
         }
         
         @Override
         public void paintComponent(final Graphics g) {
+            g.setColor(Color.white); //draw white background to prevent button being semi-transparent
+            g.fillRect(0, 0, getWidth(), getHeight());
             super.paintComponent(g);
         }
         
-        private void hookArrowButtonEvents(final FLabel arrowButton, final JScrollBar scrollBar, final int incrementDirection) {
+        private void hookEvents(final FLabel arrowButton, final JScrollBar scrollBar, final int incrementDirection) {
             //create timer to continue scrollling while mouse remains down
             final Timer timer = new Timer(50, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
