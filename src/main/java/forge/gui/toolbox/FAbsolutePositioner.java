@@ -35,7 +35,6 @@ public enum FAbsolutePositioner {
     SINGLETON_INSTANCE;
 
     private final JPanel panel = new JPanel();
-    private Point panelScreenLocation;
 
     private FAbsolutePositioner() {
         panel.setOpaque(false);
@@ -49,7 +48,6 @@ public enum FAbsolutePositioner {
     public void containerResized(Rectangle mainBounds) {
         panel.setBounds(mainBounds);
         panel.validate();
-        panelScreenLocation = panel.getLocationOnScreen(); //cache screen location of panel
     }
     
     /**
@@ -64,6 +62,7 @@ public enum FAbsolutePositioner {
             comp.setVisible(false);
             panel.add(comp);
         }
+        Point panelScreenLocation = panel.getLocationOnScreen();
         comp.setLocation(screenX - panelScreenLocation.x, screenY - panelScreenLocation.y);
         comp.setVisible(true);
     }
