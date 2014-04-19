@@ -1953,12 +1953,12 @@ public class Card extends GameEntity implements Comparable<Card> {
 
         for (int i = 0; i < keywords.size(); i++) {
             KeywordInstance keyword = keywords.get(i);
-            if (keyword.getType().equals(KeywordType.PreventAllDamageBy)
-                    || keyword.getType().equals(KeywordType.CantEquip)
-                    || keyword.getType().equals(KeywordType.SpellCantTarget)) {
+            if (keyword.getId() == KeywordType.PreventAllDamageBy
+                    || keyword.getId() == KeywordType.CantEquip
+                    || keyword.getId() == KeywordType.SpellCantTarget) {
                 continue;
             }
-            if (keyword.getType().equals(KeywordType.etbCounter)) {
+            if (keyword.getId() == KeywordType.etbCounter) {
                 final StringBuilder s = new StringBuilder();
                 if(keyword.hasOverridingDescription()) {
                     s.append(keyword.getOverridingDescription());
@@ -1978,28 +1978,27 @@ public class Card extends GameEntity implements Comparable<Card> {
                     s.append(" on it.");
                 }
                 sbLong.append(s).append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Protection)) {
+            } else if (keyword.getId() == KeywordType.Protection) {
                 sbLong.append(keyword.getOverridingDescription()).append("\r\n");
-            } else if (keyword.startsWith("Creatures can't attack unless their controller pays")) {
-                final String[] k = keyword.split(":");
-                if (!k[3].equals("no text")) {
-                    sbLong.append(k[3]).append("\r\n");
+            } else if (keyword.getId() == KeywordType.Creatures_cant_attack_unless_their_controller_pays) {
+                if (!keyword.getOverridingDescription().equals("no text")) {
+                    sbLong.append(keyword.getOverridingDescription()).append("\r\n");
                 }
-            } else if (keyword.getType().equals(KeywordType.Enchant)) {
+            } else if (keyword.getId() == KeywordType.Enchant) {
                 String k = keyword;
                 k = k.replace("Curse", "");
                 sbLong.append(k).append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Fading) || keyword.getType().equals(KeywordType.Ripple) || keyword.getType().equals(KeywordType.Vanishing)) {
+            } else if (keyword.getId() == KeywordType.Fading || keyword.getId() == KeywordType.Ripple || keyword.getId() == KeywordType.Vanishing) {
                 sbLong.append("Fading").append(keyword.getMagnitude()).append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Madness)) {
+            } else if (keyword.getId() == KeywordType.Madness) {
                 sbLong.append("Madness " + ManaCostParser.parse(keyword.getMyCost().toString())).append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Devour)) {
+            } else if (keyword.getId() == KeywordType.Devour) {
                 sbLong.append("Devour " + keyword.getMyCost());
                 if(keyword.hasOverridingDescription()) {
                     sbLong.append(keyword.getOverridingDescription());
                 }
                 sbLong.append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Morph)) {
+            } else if (keyword.getId() == KeywordType.Morph) {
                 sbLong.append("Morph");
                 if (keyword.hasCost()) {
                     final Cost mCost = keyword.getMyCost();
@@ -2012,7 +2011,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     }
                     sbLong.append("\r\n");
                 }
-            } else if (keyword.getType().equals(KeywordType.Echo)) {
+            } else if (keyword.getId() == KeywordType.Echo) {
                 sbLong.append("Echo ");
                 if(keyword.hasOverridingDescription()) {
                     sbLong.append(keyword.getOverridingDescription());
@@ -2022,7 +2021,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                 }
                 sbLong.append(" (At the beginning of your upkeep, if CARDNAME came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)");
                 sbLong.append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Cumulative_Upkeep)) {
+            } else if (keyword.getId() == KeywordType.Cumulative_Upkeep) {
                 sbLong.append("Cumulative upkeep ");
                 if(keyword.hasOverridingDescription()) {
                     sbLong.append(keyword.getOverridingDescription());
@@ -2031,21 +2030,21 @@ public class Card extends GameEntity implements Comparable<Card> {
                     sbLong.append(keyword.getMyCost());
                 }
                 sbLong.append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Amplify)) {
+            } else if (keyword.getId() == KeywordType.Amplify) {
                 sbLong.append("Amplify ");
                 final String magnitude = keyword.getMagnitude();
                 sbLong.append(magnitude);
                 sbLong.append(" (As this creature enters the battlefield, put a +1/+1 counter on it for each ");
                 sbLong.append(keyword.getType().replace(",", " and/or ")).append(" card you reveal in your hand.)");
                 sbLong.append("\r\n");
-            }  else if (keyword.getType().equals(KeywordType.Alternative_Cost)) {
+            }  else if (keyword.getId() == KeywordType.Alternative_Cost) {
                 sbLong.append("Has alternative cost.");
-            } else if (keyword.getType().equals(KeywordType.AlternateAdditionalCost)) {
+            } else if (keyword.getId() == KeywordType.AlternateAdditionalCost) {
                 final Cost cost1 = keyword.getMyCost(0);
                 final Cost cost2 = keyword.getMyCost(1);
                 sbLong.append("As an additional cost to cast " + this.getName() + ", " + cost1.toSimpleString()
                         + " or pay " + cost2.toSimpleString() + ".\r\n");
-            } else if (keyword.getType().equals(KeywordType.Kicker)) {
+            } else if (keyword.getId() == KeywordType.Kicker) {
                 final Cost cost = keyword.getMyCost();
                 sbLong.append("Kicker " + cost.toSimpleString() + "\r\n");
             } else if (keyword.endsWith(".") && !keyword.startsWith("Haunt")) {
@@ -2053,14 +2052,14 @@ public class Card extends GameEntity implements Comparable<Card> {
             } else if (keyword.contains("At the beginning of your upkeep, ")
                     && keyword.contains(" unless you pay")) {
                 sbLong.append(keyword.toString()).append("\r\n");
-            } else if (keyword.getType().equals(KeywordType.Modular) || keyword.getType().equals(KeywordType.Soulshift) || keyword.getType().equals(KeywordType.Bloodthirst)
-                    || keyword.getType().equals(KeywordType.etbReplacement) || keyword.getType().equals(KeywordType.MayEffectFromOpeningHand)) {
+            } else if (keyword.getId() == KeywordType.Modular || keyword.getId() == KeywordType.Soulshift || keyword.getId() == KeywordType.Bloodthirst
+                    || keyword.getId() == KeywordType.etbReplacement || keyword.getId() == KeywordType.MayEffectFromOpeningHand) {
                 continue;
-            } else if (keyword.getType().equals(KeywordType.Provoke)) {
+            } else if (keyword.getId() == KeywordType.Provoke) {
                 sbLong.append(keyword);
                 sbLong.append(" (When this attacks, you may have target creature ");
                 sbLong.append("defending player controls untap and block it if able.)");
-            } else if (keyword.getType().equals(KeywordType.Haunt)) {
+            } else if (keyword.getId() == KeywordType.Haunt) {
                 sb.append("\r\nHaunt (");
                 if (this.isCreature()) {
                     sb.append("When this creature dies, exile it haunting target creature.");
@@ -2075,7 +2074,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     sb.append("\r\n");
                 }
                 sb.append("Convoke (Each creature you tap while casting this spell reduces its cost by 1 or by one mana of that creature's color.)");
-            } else if (keyword.getType().equals(KeywordType.Offering)) {
+            } else if (keyword.getId() == KeywordType.Offering) {
                 String offeringType = keyword.getType();
                 if (sb.length() != 0) {
                     sb.append("\r\n");
@@ -2086,22 +2085,22 @@ public class Card extends GameEntity implements Comparable<Card> {
                 sbLong.append("and paying the difference in mana costs between this and the sacrificed ");
                 sbLong.append(offeringType);
                 sbLong.append(". Mana cost includes color.)");
-            } else if (keyword.getType().equals(KeywordType.Soulbond)) {
+            } else if (keyword.getId() == KeywordType.Soulbond) {
                 sbLong.append(keyword);
                 sbLong.append(" (You may pair this creature ");
                 sbLong.append("with another unpaired creature when either ");
                 sbLong.append("enters the battlefield. They remain paired for ");
                 sbLong.append("as long as you control both of them)");
-            } else if (keyword.getType().equals(KeywordType.Equip) || keyword.getType().equals(KeywordType.Fortify)) {
+            } else if (keyword.getId() == KeywordType.Equip || keyword.getId() == KeywordType.Fortify) {
                 // keyword parsing takes care of adding a proper description
                 continue;
-            } else if (keyword.startsWith("CantBeBlockedBy")) {
+            } else if (keyword.getId() == KeywordType.CantBeBlockedBy) {
                 sbLong.append(this.getName()).append(" can't be blocked ");
-                if (keyword.startsWith("CantBeBlockedByAmount"))
-                    sbLong.append(getTextForKwCantBeBlockedByAmount(keyword));
-                else
-                    sbLong.append(getTextForKwCantBeBlockedByType(keyword));
-            } else if (keyword.getType().equals(KeywordType.CantBlock)) {
+                sbLong.append(getTextForKwCantBeBlockedByType(keyword));
+            } else if (keyword.getId() == KeywordType.CantBeBlockedByAmount) {
+                sbLong.append(this.getName()).append(" can't be blocked ");
+                sbLong.append(getTextForKwCantBeBlockedByAmount(keyword));
+            } else if (keyword.getId() == KeywordType.CantBlock) {
                 sbLong.append(this.getName()).append(" can't block ");
                 if (keyword.contains("CardUID")) {
                     sbLong.append("CardID (").append(Integer.valueOf(keyword.split("CantBlockCardUID_")[1])).append(")");
@@ -2109,7 +2108,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     final String[] k = keyword.split(":");
                     sbLong.append(k.length > 1 ? k[1] + ".\r\n" : "");
                 }
-            } else if (keyword.getType().equals(KeywordType.Unblockable)) {
+            } else if (keyword.getId() == KeywordType.Unblockable) {
                 sbLong.append(this.getName()).append(" can't be blocked.\r\n");
             }
             else {
@@ -2133,17 +2132,17 @@ public class Card extends GameEntity implements Comparable<Card> {
         return sb.toString();
     }
 
-    private String getTextForKwCantBeBlockedByAmount(String keyword) {
-        String restriction = keyword.split(" ", 2)[1];
+    private String getTextForKwCantBeBlockedByAmount(KeywordInstance keyword) {
+        String restriction = keyword.getRawString();
         boolean isLT = "LT".equals(restriction.substring(0,2));
         final String byClause = isLT ? "except by " : "by more than ";
         int cnt = Integer.parseInt(restriction.substring(2));
         return byClause + Lang.nounWithNumeral(cnt, isLT ? "or more creature" : "creature");
     }
 
-    private String getTextForKwCantBeBlockedByType(String keyword) {
+    private String getTextForKwCantBeBlockedByType(KeywordInstance keyword) {
         boolean negative = true;
-        List<String> subs = Lists.newArrayList(TextUtil.split(keyword.split(" ", 2)[1], ','));
+        List<String> subs = Lists.newArrayList(TextUtil.split(keyword.getType(), ','));
         List<List<String>> subsAnd = Lists.newArrayList();
         List<String> orClauses = new ArrayList<String>();
         for (int iOr = 0; iOr < subs.size(); iOr++) {
@@ -3969,7 +3968,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a int.
      */
     public final int getNetAttack() {
-        if (this.getAmountOfKeyword("CARDNAME's power and toughness are switched") % 2 != 0) {
+        if (this.getAmountOfKeyword(KeywordType.CARDNAMEs_power_and_toughness_are_switched) % 2 != 0) {
             return this.getUnswitchedToughness();
         }
         return this.getUnswitchedPower();
@@ -4024,7 +4023,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a int.
      */
     public final int getNetDefense() {
-        if (this.getAmountOfKeyword("CARDNAME's power and toughness are switched") % 2 != 0) {
+        if (this.getAmountOfKeyword(KeywordType.CARDNAMEs_power_and_toughness_are_switched) % 2 != 0) {
             return this.getUnswitchedPower();
         }
         return this.getUnswitchedToughness();
@@ -4288,7 +4287,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     public final int getKeywordAmount(final KeywordType keyword) {
         int res = 0;
         for (final KeywordInstance k : this.getKeyword()) {
-            if (k.getType().equals(keyword)) {
+            if (k.getId() == keyword) {
                 res++;
             }
         }
@@ -4403,7 +4402,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                 Iterable<KeywordInstance> list = Iterables.filter(toFilter, Predicates.not(new Predicate<KeywordInstance>() {
                     @Override
                     public boolean apply(KeywordInstance ki) {
-                        return ck.getRemoveKeywords().contains(ki.getType());
+                        return ck.getRemoveKeywords().contains(ki.getId());
                     }
                 }));
 
@@ -4554,7 +4553,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      */
     public void removeExtrinsicKeyword(final KeywordType s,final boolean hid) {
         for(int i=0;i<exKeywords.size();i++) {
-            if(exKeywords.get(i).getType().equals(s) && exKeywords.get(i).isHidden() == hid) {
+            if(exKeywords.get(i).getId() == s && exKeywords.get(i).isHidden() == hid) {
                 exKeywords.remove(i);
                 --i;
             }
@@ -4569,7 +4568,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      */
     public void removeAllExtrinsicKeyword(final KeywordType s) {
         for(int i=0;i<exKeywords.size();i++) {
-            if(exKeywords.get(i).getType().equals(s)) {
+            if(exKeywords.get(i).getId() == s) {
                 exKeywords.remove(i);
                 --i;
             }
@@ -5068,7 +5067,7 @@ public class Card extends GameEntity implements Comparable<Card> {
         return Iterables.size(Iterables.filter(this.getKeyword(),new Predicate<KeywordInstance>() {
             @Override
             public boolean apply(KeywordInstance ki) {
-                return ki.getType().equals(keyword);
+                return ki.getId() == keyword;
             }
         })) > 0;
     }
@@ -5077,7 +5076,7 @@ public class Card extends GameEntity implements Comparable<Card> {
         return Iterables.size(Iterables.filter(this.getKeyword(),new Predicate<KeywordInstance>() {
             @Override
             public boolean apply(KeywordInstance ki) {
-                return !ki.isHidden() && ki.getType().equals(t);
+                return !ki.isHidden() && ki.getId() == t;
             }
         })) > 0;
     }
@@ -5114,7 +5113,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     public final int getAmountOfKeyword(final KeywordType k) {
         int count = 0;
         for (KeywordInstance kw : this.getKeyword()) {
-            if (kw.getType().equals(k)) {
+            if (kw.getId() == k) {
                 count++;
             }
         }
@@ -5136,7 +5135,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     public final int getKeywordMagnitude(final KeywordType k) {
         int count = 0;
         for (final KeywordInstance kw : this.getKeyword()) {
-            if (kw.getType().equals(k)) {
+            if (kw.getId() == k) {
                 count += Integer.parseInt(kw.getMagnitude());
             }
         }
@@ -7321,51 +7320,33 @@ public class Card extends GameEntity implements Comparable<Card> {
             return 0;
         }
 
-        for (String kw : source.getKeyword()) {
-            if (isCombat) {
-                if (kw.equals("Prevent all combat damage that would be dealt to and dealt by CARDNAME.")) {
-                    return 0;
-                }
-                if (kw.equals("Prevent all combat damage that would be dealt by CARDNAME.")) {
-                    return 0;
-                }
-            }
-            if (kw.equals("Prevent all damage that would be dealt to and dealt by CARDNAME.")) {
-                return 0;
-            }
-            if (kw.equals("Prevent all damage that would be dealt by CARDNAME.")) {
+        if(isCombat && (source.hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_by_CARDNAME)
+                || source.hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME))) {
+            return 0;
+        }
+        if(!isCombat && (source.hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_by_CARDNAME)
+                || source.hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME))) {
+            return 0;
+        }
+        if (hasKeyword(KeywordType.Absorb)) {
+            final int absorbed = this.getKeywordMagnitude(KeywordType.Absorb);
+            if (restDamage > absorbed) {
+                restDamage = restDamage - absorbed;
+            } else {
                 return 0;
             }
         }
-        for (String kw : this.getKeyword()) {
-            if (isCombat) {
-                if (kw.equals("Prevent all combat damage that would be dealt to and dealt by CARDNAME.")) {
-                    return 0;
-                }
-                if (kw.equals("Prevent all combat damage that would be dealt to CARDNAME.")) {
-                    return 0;
-                }
-            }
-            if (kw.equals("Prevent all damage that would be dealt to CARDNAME.")) {
+        for(KeywordInstance ki : getKeyword()) {
+            if(ki.getId() != KeywordType.PreventAllDamageBy)
+                continue;
+
+            String valid = ki.getType();
+            if (source.isValid(valid, this.getController(), this)) {
                 return 0;
-            }
-            if (kw.equals("Prevent all damage that would be dealt to and dealt by CARDNAME.")) {
-                return 0;
-            }
-            if (kw.startsWith("Absorb")) {
-                final int absorbed = this.getKeywordMagnitude("Absorb");
-                if (restDamage > absorbed) {
-                    restDamage = restDamage - absorbed;
-                } else {
-                    return 0;
-                }
-            }
-            if (kw.startsWith("PreventAllDamageBy")) {
-                String valid = this.getKeyword().get(this.getKeywordPosition("PreventAllDamageBy"));
-                valid = valid.split(" ", 2)[1];
-                if (source.isValid(valid, this.getController(), this)) {
-                    return 0;
-                }
             }
         }
 
