@@ -19,6 +19,7 @@ package forge.game.ability.effects;
 
 import forge.game.ability.SpellAbilityEffect;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.replacement.ReplacementEffect;
 import forge.game.spellability.SpellAbility;
 import forge.game.staticability.StaticAbility;
@@ -99,7 +100,7 @@ public abstract class AnimateEffectBase extends SpellAbilityEffect {
                     removeCreatureTypes, timestamp);
         }
 
-        c.addChangedCardKeywords(keywords, removeKeywords, sa.hasParam("RemoveAllAbilities"), timestamp);
+        c.addChangedCardKeywords(KeywordType.parseAll(keywords,c,false), KeywordType.smartValuesOf(removeKeywords), sa.hasParam("RemoveAllAbilities"), timestamp);
 
         for (final String k : hiddenKeywords) {
             c.addHiddenExtrinsicKeyword(k);

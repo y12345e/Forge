@@ -27,10 +27,7 @@ import forge.game.*;
 import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityUtils;
 import forge.game.ability.ApiType;
-import forge.game.card.Card;
-import forge.game.card.CardFactoryUtil;
-import forge.game.card.CardLists;
-import forge.game.card.CardUtil;
+import forge.game.card.*;
 import forge.game.cost.Cost;
 import forge.game.player.Player;
 import forge.game.replacement.ReplacementEffect;
@@ -401,7 +398,7 @@ public class StaticAbilityContinuous {
             // TODO regular keywords currently don't try to use keyword multiplier
             // (Although nothing uses it at this time)
             if ((addKeywords != null) || (removeKeywords != null) || removeAllAbilities) {
-                affectedCard.addChangedCardKeywords(addKeywords, removeKeywords, removeAllAbilities,
+                affectedCard.addChangedCardKeywords(KeywordType.parseAll(Arrays.asList(addKeywords),affectedCard,false), KeywordType.smartValuesOf(Arrays.asList(removeKeywords)), removeAllAbilities,
                         hostCard.getTimestamp());
             }
 

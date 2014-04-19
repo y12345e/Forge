@@ -24,20 +24,20 @@ import java.util.List;
  * <p>
  * Card_Keywords class.
  * </p>
- * 
+ *
  * @author Forge
  * @version $Id$
  */
 public class CardKeywords {
     // takes care of individual card types
-    private List<String> keywords = new ArrayList<String>();
-    private List<String> removeKeywords = new ArrayList<String>();
+    private List<KeywordInstance> keywords = new ArrayList<KeywordInstance>();
+    private List<KeywordType> removeKeywords = new ArrayList<KeywordType>();
     private boolean removeAllKeywords = false;
 
     /**
-     * 
+     *
      * Card_Keywords.
-     * 
+     *
      * @param keywordList
      *            an ArrayList<String>
      * @param removeKeywordList
@@ -47,36 +47,36 @@ public class CardKeywords {
      * @param stamp
      *            a long
      */
-    CardKeywords(final List<String> keywordList, final List<String> removeKeywordList, final boolean removeAll) {
+    CardKeywords(final List<KeywordInstance> keywordList, final List<KeywordType> removeKeywordList, final boolean removeAll) {
         this.keywords = keywordList;
         this.removeKeywords = removeKeywordList;
         this.removeAllKeywords = removeAll;
     }
 
     /**
-     * 
+     *
      * getKeywords.
-     * 
+     *
      * @return ArrayList<String>
      */
-    public final List<String> getKeywords() {
+    public final List<KeywordInstance> getKeywords() {
         return this.keywords;
     }
 
     /**
-     * 
+     *
      * getRemoveKeywords.
-     * 
+     *
      * @return ArrayList<String>
      */
-    public final List<String> getRemoveKeywords() {
+    public final List<KeywordType> getRemoveKeywords() {
         return this.removeKeywords;
     }
 
     /**
-     * 
+     *
      * isRemoveAllKeywords.
-     * 
+     *
      * @return boolean
      */
     public final boolean isRemoveAllKeywords() {

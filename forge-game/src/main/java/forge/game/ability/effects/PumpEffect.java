@@ -9,6 +9,7 @@ import forge.game.ability.SpellAbilityEffect;
 import forge.game.card.Card;
 import forge.game.card.CardFactoryUtil;
 import forge.game.card.CardUtil;
+import forge.game.card.KeywordType;
 import forge.game.event.GameEventCardStatsChanged;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
@@ -48,7 +49,7 @@ public class PumpEffect extends SpellAbilityEffect {
 
         applyTo.addTempAttackBoost(a);
         applyTo.addTempDefenseBoost(d);
-        applyTo.addChangedCardKeywords(kws, new ArrayList<String>(), false, timestamp);
+        applyTo.addChangedCardKeywords(KeywordType.parseAll(kws,applyTo,false), new ArrayList<KeywordType>(), false, timestamp);
 
         if (!sa.hasParam("Permanent")) {
             // If not Permanent, remove Pumped at EOT

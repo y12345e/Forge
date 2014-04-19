@@ -23,7 +23,7 @@ import java.util.Map;
 import forge.GuiBase;
 
 public final class ForgeConstants {
-    private static final String _INSTALL_ROOT        = GuiBase.getInterface().getInstallRoot();
+    private static final String _INSTALL_ROOT        = GuiBase.getInterface().getInstallRoot().substring("../".length());
     public static final String PROFILE_FILE          = _INSTALL_ROOT + "forge.profile.properties";
     public static final String PROFILE_TEMPLATE_FILE = PROFILE_FILE + ".example";
 

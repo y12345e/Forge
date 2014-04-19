@@ -48,6 +48,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -990,6 +992,10 @@ public class FSkin {
         // Non-default (preferred) skin name and dir.
         FSkin.preferredName = skinName.toLowerCase().replace(' ', '_');
         FSkin.preferredDir = ForgeConstants.SKINS_DIR + preferredName + "/";
+
+        System.out.println(Paths.get(FSkin.preferredDir).toAbsolutePath());
+        System.out.println(Paths.get(".").toAbsolutePath());
+        System.out.println(System.getProperty("user.dir"));
 
         if (onInit) {
             final File f = new File(preferredDir + ForgeConstants.SPLASH_BG_FILE);

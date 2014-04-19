@@ -8,11 +8,7 @@ import forge.ai.SpellAbilityAi;
 import forge.game.Game;
 import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityUtils;
-import forge.game.card.Card;
-import forge.game.card.CardFactory;
-import forge.game.card.CardLists;
-import forge.game.card.CardPredicates;
-import forge.game.card.CardUtil;
+import forge.game.card.*;
 import forge.game.phase.PhaseHandler;
 import forge.game.phase.PhaseType;
 import forge.game.player.Player;
@@ -365,7 +361,7 @@ public class AnimateAi extends SpellAbilityAi {
                     removeCreatureTypes, timestamp);
         }
 
-        source.addChangedCardKeywords(keywords, removeKeywords, sa.hasParam("RemoveAllAbilities"), timestamp);
+        source.addChangedCardKeywords(KeywordType.parseAll(keywords,source,false), KeywordType.smartValuesOf(removeKeywords), sa.hasParam("RemoveAllAbilities"), timestamp);
 
         for (final String k : hiddenKeywords) {
             source.addHiddenExtrinsicKeyword(k);

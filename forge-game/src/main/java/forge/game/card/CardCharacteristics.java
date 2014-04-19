@@ -54,6 +54,16 @@ public class CardCharacteristics {
     private String imageKey = "";
     private Map<String, String> sVars = new TreeMap<String, String>();
 
+    public List<KeywordInstance> getInKeywords() {
+        return keywords;
+    }
+
+    public void setInKeywords(List<KeywordInstance> keywords) {
+        this.keywords = keywords;
+    }
+
+    private List<KeywordInstance> keywords = new ArrayList<KeywordInstance>();
+
     private CardRarity rarity = CardRarity.Unknown;
     private String curSetCode = CardEdition.UNKNOWN.getCode();
 

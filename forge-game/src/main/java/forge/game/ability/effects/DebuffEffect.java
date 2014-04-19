@@ -4,6 +4,8 @@ import forge.GameCommand;
 import forge.game.Game;
 import forge.game.ability.SpellAbilityEffect;
 import forge.game.card.Card;
+import forge.game.card.KeywordInstance;
+import forge.game.card.KeywordType;
 import forge.game.spellability.SpellAbility;
 
 import java.util.ArrayList;
@@ -72,7 +74,7 @@ public class DebuffEffect extends SpellAbilityEffect {
                     tgtC.removeIntrinsicKeyword(kw);
                     tgtC.removeAllExtrinsicKeyword(kw);
                 }
-                tgtC.addChangedCardKeywords(new ArrayList<String>(), kws, false, timestamp);
+                tgtC.addChangedCardKeywords(new ArrayList<KeywordInstance>(), KeywordType.smartValuesOf(kws), false, timestamp);
             }
             if (!sa.hasParam("Permanent")) {
                 game.getEndOfTurn().addUntil(new GameCommand() {

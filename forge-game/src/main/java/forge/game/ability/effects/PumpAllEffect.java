@@ -6,6 +6,7 @@ import forge.game.ability.AbilityUtils;
 import forge.game.ability.SpellAbilityEffect;
 import forge.game.card.Card;
 import forge.game.card.CardFactoryUtil;
+import forge.game.card.KeywordType;
 import forge.game.event.GameEventCardStatsChanged;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
@@ -52,7 +53,7 @@ public class PumpAllEffect extends SpellAbilityEffect {
 
             tgtC.addTempAttackBoost(a);
             tgtC.addTempDefenseBoost(d);
-            tgtC.addChangedCardKeywords(kws, new ArrayList<String>(), false, timestamp);
+            tgtC.addChangedCardKeywords(KeywordType.parseAll(kws,tgtC,false), new ArrayList<KeywordType>(), false, timestamp);
 
             for (String kw : hiddenkws) {
                 tgtC.addHiddenExtrinsicKeyword(kw);

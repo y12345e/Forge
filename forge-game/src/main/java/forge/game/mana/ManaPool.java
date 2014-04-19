@@ -24,6 +24,7 @@ import com.google.common.collect.Multimap;
 import forge.card.MagicColor;
 import forge.card.mana.ManaCostShard;
 import forge.game.GlobalRuleChange;
+import forge.game.card.KeywordType;
 import forge.game.event.EventValueChangeType;
 import forge.game.event.GameEventManaPool;
 import forge.game.event.GameEventZone;
@@ -236,7 +237,7 @@ public class ManaPool implements Iterable<Mana> {
         if (sa.isSpell() && sa.getHostCard() != null) {
             if (sa.getHostCard().isCreature() && mana.addsKeywords(sa)) {
                 final long timestamp = sa.getHostCard().getGame().getNextTimestamp();
-                sa.getHostCard().addChangedCardKeywords(Arrays.asList(mana.getAddedKeywords().split(" & ")), new ArrayList<String>(), false, timestamp);
+                sa.getHostCard().addChangedCardKeywords(KeywordType.parseAll(Arrays.asList(mana.getAddedKeywords().split(" & ")),sa.getHostCard(),false), new ArrayList<KeywordType>(), false, timestamp);
             }
             if (mana.addsCounters(sa)) {
                 mana.getManaAbility().createETBCounters(sa.getHostCard());
