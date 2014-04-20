@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,12 +13,14 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.math.Vector2;
 
 import forge.Forge.Graphics;
+import forge.assets.CardFaceSymbols;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
+import forge.assets.FSkinImage;
 import forge.assets.ImageCache;
 import forge.assets.FSkinColor.Colors;
 import forge.card.CardDetailUtil;
-import forge.card.CardDetailUtil.CardBorderColor;
+import forge.card.CardDetailUtil.DetailColors;
 import forge.game.card.Card;
 import forge.game.spellability.SpellAbility;
 import forge.match.input.Input;
@@ -169,8 +173,20 @@ public class InputSelectCard {
         private static final FSkinColor BACK_COLOR = FSkinColor.get(Colors.CLR_OVERLAY).alphaColor(ALPHA_COMPOSITE);
         private static final FSkinFont NAME_FONT = FSkinFont.get(16);
         private static final FSkinFont TYPE_FONT = FSkinFont.get(14);
-        private static final FSkinFont TEXT_FONT = FSkinFont.get(12);
-        private static final float PADDING = 3;
+        private static final FSkinFont SET_FONT = TYPE_FONT;
+        private static final FSkinFont TEXT_FONT = TYPE_FONT;
+        private static final FSkinFont ID_FONT = TEXT_FONT;
+        private static final FSkinFont PT_FONT = NAME_FONT;
+        private static final float NAME_BOX_TINT = 0.2f;
+        private static final float TEXT_BOX_TINT = 0.1f;
+        private static final float PT_BOX_TINT = 0.2f;
+        private static final float MANA_COST_PADDING = 3;
+        private static final float SET_BOX_MARGIN = 1;
+        private static final float MANA_SYMBOL_SIZE = FSkinImage.MANA_1.getNearestHQWidth(2 * (NAME_FONT.getFont().getCapHeight() - MANA_COST_PADDING));
+
+        private static Color fromDetailColor(DetailColors detailColor) {
+            return FSkinColor.fromRGB(detailColor.r, detailColor.g, detailColor.b);
+        }
 
         private static final Backdrop backdrop = new Backdrop();
 
@@ -397,11 +413,11 @@ public class InputSelectCard {
                 }
             }
 
-            private static void drawZoom(Graphics g, Card card, float w, float h) {
+            private static void drawZoom(Graphics g, Card card, float width, float height) {
                 float x = FDialog.INSETS;
                 float y = x;
-                w -= 2 * x;
-                h -= 2 * y;
+                float w = width - 2 * x;
+                float h = height - 2 * y;
 
                 Texture image = ImageCache.getImage(card);
 
@@ -434,11 +450,11 @@ public class InputSelectCard {
                 g.drawImage(image, x, y, w, h);
             }
 
-            private static void drawDetails(Graphics g, Card card, float w, float h) {
+            private static void drawDetails(Graphics g, Card card, float width, float height) {
                 float x = FDialog.INSETS;
                 float y = x;
-                w -= 2 * x;
-                h -= 2 * y;
+                float w = width - 2 * x;
+                float h = height - 2 * y;
 
                 float ratio = h / w;
                 if (ratio > FCardPanel.ASPECT_RATIO) {
@@ -462,8 +478,8 @@ public class InputSelectCard {
                 h -= 2 * blackBorderThickness;
 
                 //determine colors for borders
-                List<CardBorderColor> borderColors = CardDetailUtil.getBorderColors(card, canShow, true);
-                CardBorderColor borderColor = borderColors.get(0);
+                List<DetailColors> borderColors = CardDetailUtil.getBorderColors(card, canShow, true);
+                DetailColors borderColor = borderColors.get(0);
                 Color color1 = FSkinColor.fromRGB(borderColor.r, borderColor.g, borderColor.b);
                 Color color2 = null;
                 if (borderColors.size() > 1) {
@@ -477,31 +493,135 @@ public class InputSelectCard {
                     g.fillGradientRect(color1, color2, false, x, y, w, h);
                 }
 
-                float colorBorderThickness = 2 * blackBorderThickness;
-                x += colorBorderThickness;
-                y += colorBorderThickness;
-                w -= 2 * colorBorderThickness;
-                h = NAME_FONT.getFont().getLineHeight() + TYPE_FONT.getFont().getLineHeight() + 3 * PADDING;
+                Color idForeColor = FSkinColor.getHighContrastColor(color1);
 
-                //draw background for name and type lines
-                int nameManaCostStep = 100; //TODO: add better background colors to CardBorderColor enum
-                color1 = FSkinColor.stepColor(color1, nameManaCostStep);
+                float outerBorderThickness = 2 * blackBorderThickness;
+                x += outerBorderThickness;
+                y += outerBorderThickness;
+                w -= 2 * outerBorderThickness;
+                h =  Math.max(MANA_SYMBOL_SIZE + 2 * MANA_COST_PADDING, 2 * NAME_FONT.getFont().getCapHeight()) + 2 * TYPE_FONT.getFont().getCapHeight() + 2;
+
+                //draw name/type box
+                Color nameBoxColor1 = FSkinColor.tintColor(Color.WHITE, color1, NAME_BOX_TINT);
+                Color nameBoxColor2 = color2 == null ? null : FSkinColor.tintColor(Color.WHITE, color2, NAME_BOX_TINT);
+                drawCardNameBox(g, card, nameBoxColor1, nameBoxColor2, x, y, w, h);
+
+                float ptBoxHeight = 2 * PT_FONT.getFont().getCapHeight();
+
+                float innerBorderThickness = outerBorderThickness / 2;
+                y += h + innerBorderThickness;
+                h = height - FDialog.INSETS - blackBorderThickness - ptBoxHeight - 2 * innerBorderThickness - y; 
+
+                Color textBoxColor1 = FSkinColor.tintColor(Color.WHITE, color1, TEXT_BOX_TINT);
+                Color textBoxColor2 = color2 == null ? null : FSkinColor.tintColor(Color.WHITE, color2, TEXT_BOX_TINT);
+                drawCardTextBox(g, card, canShow, textBoxColor1, textBoxColor2, x, y, w, h);
+
+                y += h + innerBorderThickness;
+                h = ptBoxHeight;
+
+                Color ptColor1 = FSkinColor.tintColor(Color.WHITE, color1, PT_BOX_TINT);
+                Color ptColor2 = color2 == null ? null : FSkinColor.tintColor(Color.WHITE, color2, PT_BOX_TINT);
+                drawCardIdAndPtBox(g, card, idForeColor, ptColor1, ptColor2, x, y, w, h);
+            }
+
+            private static void drawCardNameBox(Graphics g, Card card, Color color1, Color color2, float x, float y, float w, float h) {
                 if (color2 == null) {
                     g.fillRect(color1, x, y, w, h);
                 }
                 else {
-                    color2 = FSkinColor.stepColor(color2, nameManaCostStep);
                     g.fillGradientRect(color1, color2, false, x, y, w, h);
                 }
                 g.drawRect(1, Color.BLACK, x, y, w, h);
 
-                x += PADDING;
-                y += 2 * PADDING;
-                h = NAME_FONT.getFont().getLineHeight() + PADDING;
-                g.drawText(card.getName(), NAME_FONT, Color.BLACK, x, y, w, h, false, HAlignment.LEFT, false);
+                float padding = h / 8;
+
+                //make sure name/mana cost row height is tall enough for both
+                h = Math.max(MANA_SYMBOL_SIZE + 2 * MANA_COST_PADDING, 2 * NAME_FONT.getFont().getCapHeight());
+
+                float manaCostWidth = CardFaceSymbols.getWidth(card.getManaCost(), MANA_SYMBOL_SIZE) + MANA_COST_PADDING;
+                CardFaceSymbols.drawManaCost(g, card.getManaCost(), x + w - manaCostWidth, y + (h - MANA_SYMBOL_SIZE) / 2, MANA_SYMBOL_SIZE);
+
+                x += padding;
+                w -= 2 * padding;
+                g.drawText(card.getName(), NAME_FONT, Color.BLACK, x, y, w - manaCostWidth - padding, h, false, HAlignment.LEFT, true);
+
                 y += h;
-                h = TYPE_FONT.getFont().getLineHeight() + PADDING;
-                g.drawText(CardDetailUtil.formatCardType(card), TYPE_FONT, Color.BLACK, x, y, w, h, false, HAlignment.LEFT, false);
+                h = 2 * TYPE_FONT.getFont().getCapHeight();
+
+                String set = card.getCurSetCode();
+                if (!StringUtils.isEmpty(set)) {
+                    float setWidth = SET_FONT.getFont().getBounds(set).width + SET_FONT.getFont().getCapHeight();
+                    drawSetLabel(g, card, set, padding, x + w + padding - setWidth - SET_BOX_MARGIN, y + SET_BOX_MARGIN, setWidth, h - SET_BOX_MARGIN);
+                    w -= setWidth; //reduce available width for type
+                }
+
+                g.drawText(CardDetailUtil.formatCardType(card), TYPE_FONT, Color.BLACK, x, y, w, h, false, HAlignment.LEFT, true);
+            }
+
+            private static void drawSetLabel(Graphics g, Card card, String set, float padding, float x, float y, float w, float h) {
+                Color backColor;
+                switch(card.getRarity()) {
+                case Uncommon:
+                    backColor = fromDetailColor(DetailColors.UNCOMMON);
+                    break;
+                case Rare:
+                    backColor = fromDetailColor(DetailColors.RARE);
+                    break;
+                case MythicRare:
+                    backColor = fromDetailColor(DetailColors.MYTHIC);
+                    break;
+                case Special: //"Timeshifted" or other Special Rarity Cards
+                    backColor = fromDetailColor(DetailColors.SPECIAL);
+                    break;
+                default: //case BasicLand: + case Common:
+                    backColor = fromDetailColor(DetailColors.COMMON);
+                    break;
+                }
+
+                Color foreColor = FSkinColor.getHighContrastColor(backColor);
+                g.fillRect(backColor, x, y, w, h);
+                g.drawText(set, SET_FONT, foreColor, x, y, w, h, false, HAlignment.CENTER, true);
+            }
+
+            private static void drawCardTextBox(Graphics g, Card card, boolean canShow, Color color1, Color color2, float x, float y, float w, float h) {
+                if (color2 == null) {
+                    g.fillRect(color1, x, y, w, h);
+                }
+                else {
+                    g.fillGradientRect(color1, color2, false, x, y, w, h);
+                }
+                g.drawRect(1, Color.BLACK, x, y, w, h);
+
+                float padX = TEXT_FONT.getFont().getCapHeight() / 2;
+                float padY = padX + 2; //add a little more vertical padding
+                x += padX;
+                y += padY;
+                w -= 2 * padX;
+                h -= 2 * padY;
+                g.drawText(CardDetailUtil.composeCardText(card, canShow), TEXT_FONT, Color.BLACK, x, y, w, h, true, HAlignment.LEFT, false);
+            }
+
+            private static void drawCardIdAndPtBox(Graphics g, Card card, Color idForeColor, Color color1, Color color2, float x, float y, float w, float h) {
+                String idText = CardDetailUtil.formatCardId(card);
+                g.drawText(idText, ID_FONT, idForeColor, x, y + ID_FONT.getFont().getCapHeight() / 2, w, h, false, HAlignment.LEFT, false);
+
+                String ptText = CardDetailUtil.formatPowerToughness(card);
+                if (StringUtils.isEmpty(ptText)) { return; }
+
+                float padding = PT_FONT.getFont().getCapHeight() / 2;
+                float boxWidth = Math.min(PT_FONT.getFont().getBounds(ptText).width + 2 * padding,
+                        w - ID_FONT.getFont().getBounds(idText).width - padding); //prevent box overlapping ID
+                x += w - boxWidth;
+                w = boxWidth;
+
+                if (color2 == null) {
+                    g.fillRect(color1, x, y, w, h);
+                }
+                else {
+                    g.fillGradientRect(color1, color2, false, x, y, w, h);
+                }
+                g.drawRect(1, Color.BLACK, x, y, w, h);
+                g.drawText(ptText, PT_FONT, Color.BLACK, x, y, w, h, false, HAlignment.CENTER, true);
             }
         }
     }
