@@ -81,11 +81,17 @@ public final class CardPredicates {
         };
     }
 
-    public static final Predicate<Card> containsKeyword(final String keyword) {
+    public static final Predicate<Card> containsKeyword(final KeywordType keyword) {
         return new Predicate<Card>() {
             @Override
             public boolean apply(final Card c) {
-                return Iterables.any(c.getKeyword(), PredicateString.contains(keyword));
+                return Iterables.any(c.getKeyword(), new Predicate<KeywordInstance>() {
+
+                    @Override
+                    public boolean apply(KeywordInstance keywordInstance) {
+                        return keywordInstance.getId() == keyword;
+                    }
+                });
             }
         };
     }

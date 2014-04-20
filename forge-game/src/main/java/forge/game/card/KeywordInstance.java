@@ -108,7 +108,9 @@ public class KeywordInstance extends CardTraitBase {
     }
 
     public String toString() {
-        String res = id.toString();
+        String res;
+
+        res = id.description != null ? id.description : "";
 
         if(id.reminderText != null) {
             res += " (" + id.reminderText + ")";

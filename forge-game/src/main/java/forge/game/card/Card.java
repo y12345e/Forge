@@ -1930,7 +1930,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      */
     public final String getNonAbilityText() {
         final StringBuilder sb = new StringBuilder();
-        final ArrayList<String> keyword = this.getHiddenExtrinsicKeyword();
+        final ArrayList<KeywordInstance> keyword = this.getHiddenExtrinsicKeyword();
 
         sb.append(this.keywordsToText(keyword));
 
@@ -1951,6 +1951,10 @@ public class Card extends GameEntity implements Comparable<Card> {
         final StringBuilder sb = new StringBuilder();
         final StringBuilder sbLong = new StringBuilder();
 
+        for(KeywordInstance ki : keywords) {
+            sbLong.append(ki.toString()).append("\r\n");
+        }
+/*
         for (int i = 0; i < keywords.size(); i++) {
             KeywordInstance keyword = keywords.get(i);
             if (keyword.getId() == KeywordType.PreventAllDamageBy
@@ -2130,6 +2134,9 @@ public class Card extends GameEntity implements Comparable<Card> {
         sb.append(sbLong);
 
         return sb.toString();
+        */
+
+        return sbLong.toString();
     }
 
     private String getTextForKwCantBeBlockedByAmount(KeywordInstance keyword) {
@@ -2402,7 +2409,9 @@ public class Card extends GameEntity implements Comparable<Card> {
 
         // keyword descriptions
         for (int i = 0; i < kw.size(); i++) {
-            final String keyword = kw.get(i);
+            final KeywordInstance keyword = kw.get(i);
+            sb.append(keyword.toString()).append("\r\n");
+            /*
             if ((keyword.startsWith("Ripple") && !sb.toString().contains("Ripple"))
                     || (keyword.startsWith("Dredge") && !sb.toString().contains("Dredge"))
                     || (keyword.startsWith("CARDNAME is ") && !sb.toString().contains("CARDNAME is "))) {
@@ -2516,6 +2525,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                 sb.append(keyword)
                         .append(" (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)\r\n");
             }
+            */
         }
         return sb;
     }
@@ -3304,14 +3314,13 @@ public class Card extends GameEntity implements Comparable<Card> {
             getGame().getGameLog().add(GameLogEntryType.STACK_RESOLVE, "Trying to equip " + c.getName() + " but it can't be equipped.");
             return;
         }
-        if (this.hasStartOfKeyword("CantEquip")) {
-            final int keywordPosition = this.getKeywordPosition("CantEquip");
-            final String parse = this.getKeyword().get(keywordPosition).toString();
-            final String[] k = parse.split(" ", 2);
-            final String[] restrictions = k[1].split(",");
-            if (c.isValid(restrictions, this.getController(), this)) {
-                getGame().getGameLog().add(GameLogEntryType.STACK_RESOLVE, "Trying to equip " + c.getName() + " but it can't be equipped.");
-                return;
+        for(KeywordInstance ki : getKeyword()) {
+            if(ki.getId() == KeywordType.CantEquip) {
+                String[] restrictions = ki.getType().split(",");
+                if (c.isValid(restrictions, this.getController(), this)) {
+                    getGame().getGameLog().add(GameLogEntryType.STACK_RESOLVE, "Trying to equip " + c.getName() + " but it can't be equipped.");
+                    return;
+                }
             }
         }
 
@@ -4584,24 +4593,14 @@ public class Card extends GameEntity implements Comparable<Card> {
      * 
      * @return a {@link java.util.ArrayList} object.
      */
-    public final ArrayList<String> getHiddenExtrinsicKeyword() {
-        while (true) {
-            try {
-                final ArrayList<String> keywords = new ArrayList<String>();
-                for (String keyword : this.hiddenExtrinsicKeyword) {
-                    if (keyword == null) {
-                        continue;
-                    }
-                    if (keyword.startsWith("HIDDEN")) {
-                        keyword = keyword.substring(7);
-                    }
-                    keywords.add(keyword);
-                }
-                return keywords;
-            } catch (IndexOutOfBoundsException ex) {
-                // Do nothing and let the while loop retry
+    public final ArrayList<KeywordInstance> getHiddenExtrinsicKeyword() {
+        ArrayList<KeywordInstance> res = new ArrayList<KeywordInstance>();
+        for(KeywordInstance ki : exKeywords) {
+            if(ki.isHidden()) {
+                res.add(ki);
             }
         }
+        return res;
     }
 
 
@@ -8057,87 +8056,80 @@ public class Card extends GameEntity implements Comparable<Card> {
         }
 
         if (this.getKeyword() != null) {
-            final List<String> list = this.getKeyword();
 
-            String kw = "";
-            for (int i = 0; i < list.size(); i++) {
-                kw = list.get(i);
-                if (!kw.startsWith("Protection")) {
-                    continue;
-                }
-                if (kw.equals("Protection from white")) {
+            for(KeywordInstance ki : getKeyword()) {
+                if(ki.getId() == KeywordType.Protection_from_white) {
                     if (source.isWhite() && !source.getName().equals("White Ward")
                             && !source.getName().contains("Pledge of Loyalty")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from blue")) {
+                } else if (ki.getId() == KeywordType.Protection_from_blue) {
                     if (source.isBlue() && !source.getName().equals("Blue Ward")
                             && !source.getName().contains("Pledge of Loyalty")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from black")) {
+                } else if (ki.getId() == KeywordType.Protection_from_black) {
                     if (source.isBlack() && !source.getName().equals("Black Ward")
                             && !source.getName().contains("Pledge of Loyalty")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from red")) {
+                } else if (ki.getId() == KeywordType.Protection_from_red) {
                     if (source.isRed() && !source.getName().equals("Red Ward")
                             && !source.getName().contains("Pledge of Loyalty")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from green")) {
+                } else if (ki.getId() == KeywordType.Protection_from_green) {
                     if (source.isGreen() && !source.getName().equals("Green Ward")
                             && !source.getName().contains("Pledge of Loyalty")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from creatures")) {
+                } else if (ki.getId() == KeywordType.Protection_from_creatures) {
                     if (source.isCreature()) {
                         return true;
                     }
-                } else if (kw.equals("Protection from artifacts")) {
+                } else if (ki.getId() == KeywordType.Protection_from_artifacts) {
                     if (source.isArtifact()) {
                         return true;
                     }
-                } else if (kw.equals("Protection from enchantments")) {
+                } else if (ki.getId() == KeywordType.Protection_from_enchantments) {
                     if (source.isEnchantment() && !source.getName().contains("Tattoo Ward")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from everything")) {
+                } else if (ki.getId() == KeywordType.Protection_from_everything) {
                     return true;
-                } else if (kw.startsWith("Protection:")) { // uses isValid
-                    final String characteristic = kw.split(":")[1];
-                    final String[] characteristics = characteristic.split(",");
+                } else if (ki.getId() == KeywordType.Protection) { // uses isValid
+                    final String[] characteristics = ki.getType().split(",");
                     if (source.isValid(characteristics, this.getController(), this)
-                      && !source.getName().contains("Flickering Ward") && !source.getName().contains("Pentarch Ward")
-                      && !source.getName().contains("Cho-Manno's Blessing") && !source.getName().contains("Floating Shield")
-                      && !source.getName().contains("Ward of Lights")) {
+                            && !source.getName().contains("Flickering Ward") && !source.getName().contains("Pentarch Ward")
+                            && !source.getName().contains("Cho-Manno's Blessing") && !source.getName().contains("Floating Shield")
+                            && !source.getName().contains("Ward of Lights")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from colored spells")) {
+                } else if (ki.getId() == KeywordType.Protection_from_colored_spells) {
                     if (source.isSpell() && !source.isColorless()) {
                         return true;
                     }
-                } else if (kw.equals("Protection from Dragons")) {
+                } else if (ki.getId() == KeywordType.Protection_from_Dragons) {
                     if (source.isType("Dragon")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from Demons")) {
+                } else if (ki.getId() == KeywordType.Protection_from_Demons) {
                     if (source.isType("Demon")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from Goblins")) {
+                } else if (ki.getId() == KeywordType.Protection_from_Goblins) {
                     if (source.isType("Goblin")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from Clerics")) {
+                } else if (ki.getId() == KeywordType.Protection_from_Clerics) {
                     if (source.isType("Cleric")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from Gorgons")) {
+                } else if (ki.getId() == KeywordType.Protection_from_Gorgons) {
                     if (source.isType("Gorgon")) {
                         return true;
                     }
-                } else if (kw.equals("Protection from the chosen player")) {
+                } else if (ki.getId() == KeywordType.Protection_from_the_chosen_player) {
                     if (source.getController().equals(this.chosenPlayer)) {
                         return true;
                     }
@@ -8212,12 +8204,12 @@ public class Card extends GameEntity implements Comparable<Card> {
         final Card source = sa.getHostCard();
 
         if (this.getKeyword() != null) {
-            for (String kw : this.getKeyword()) {
-                if (kw.equals("Shroud")) {
+            for(KeywordInstance ki : this.getKeyword()) {
+                if(ki.getId() == KeywordType.Shroud) {
                     return false;
                 }
 
-                if (kw.equals("Hexproof")) {
+                if (ki.getId() == KeywordType.Hexproof) {
                     if (sa.getActivatingPlayer().getOpponents().contains(this.getController())) {
                         if (!sa.getActivatingPlayer().getKeywords().contains("Spells and abilities you control can target hexproof creatures")) {
                             return false;
@@ -8225,56 +8217,55 @@ public class Card extends GameEntity implements Comparable<Card> {
                     }
                 }
 
-                if (kw.equals("CARDNAME can't be the target of Aura spells.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_the_target_of_Aura_spells) {
                     if (source.isAura() && sa.isSpell()) {
                         return false;
                     }
                 }
 
-                if (kw.equals("CARDNAME can't be enchanted.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_enchanted) {
                     if (source.isAura()) {
                         return false;
                     }
                 } //Sets source as invalid enchant target for computer player only.
 
-                if (kw.equals("CARDNAME can't be equipped.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_equipped) {
                     if (source.isEquipment()) {
                         return false;
                     }
                 } //Sets source as invalid equip target for computer player only.
 
-                if (kw.equals("CARDNAME can't be the target of red spells or abilities from red sources.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_the_target_of_red_spells_or_abilities_from_red_sources) {
                     if (source.isRed()) {
                         return false;
                     }
                 }
 
-                if (kw.equals("CARDNAME can't be the target of black spells.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_the_target_of_black_spells) {
                     if (source.isBlack() && sa.isSpell()) {
                         return false;
                     }
                 }
 
-                if (kw.equals("CARDNAME can't be the target of blue spells.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_the_target_of_blue_spells) {
                     if (source.isBlue() && sa.isSpell()) {
                         return false;
                     }
                 }
 
-                if (kw.equals("CARDNAME can't be the target of spells.")) {
+                if (ki.getId() == KeywordType.CARDNAME_cant_be_the_target_of_spells) {
                     if (sa.isSpell()) {
                         return false;
                     }
                 }
             }
         }
-        if (sa.isSpell() && source.hasStartOfKeyword("SpellCantTarget")) {
-            final int keywordPosition = source.getKeywordPosition("SpellCantTarget");
-            final String parse = source.getKeyword().get(keywordPosition).toString();
-            final String[] k = parse.split(":");
-            final String[] restrictions = k[1].split(",");
-            if (this.isValid(restrictions, source.getController(), source)) {
-                return false;
+        if (sa.isSpell() && source.hasKeyword(KeywordType.SpellCantTarget)) {
+            for(KeywordInstance ki : source.getKeyword()) {
+                String[] restrictions = ki.getType().split(",");
+                if (this.isValid(restrictions, source.getController(), source)) {
+                    return false;
+                }
             }
         }
         return true;
@@ -8319,17 +8310,18 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a boolean
      */
     public final boolean canBeEquippedBy(final Card equip) {
-        if (equip.hasStartOfKeyword("CantEquip")) {
-            final int keywordPosition = equip.getKeywordPosition("CantEquip");
-            final String parse = equip.getKeyword().get(keywordPosition).toString();
-            final String[] k = parse.split(" ", 2);
-            final String[] restrictions = k[1].split(",");
-            if (this.isValid(restrictions, equip.getController(), equip)) {
-                return false;
+        if (equip.hasKeyword(KeywordType.CantEquip)) {
+            for(KeywordInstance ki : equip.getKeyword()) {
+                if(ki.getId() == KeywordType.CantEquip) {
+                    String[] restrictions = ki.getType().split(",");
+                    if (this.isValid(restrictions, equip.getController(), equip)) {
+                        return false;
+                    }
+                }
             }
         }
         if (this.hasProtectionFrom(equip)
-            || this.hasKeyword("CARDNAME can't be equipped.")
+            || this.hasKeyword(KeywordType.CARDNAME_cant_be_equipped)
             || !this.isValid("Creature", equip.getController(), equip)) {
             return false;
         }

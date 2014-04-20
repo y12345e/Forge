@@ -28,9 +28,7 @@ import forge.game.*;
 import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityUtils;
 import forge.game.ability.ApiType;
-import forge.game.card.Card;
-import forge.game.card.CardLists;
-import forge.game.card.CardPredicates;
+import forge.game.card.*;
 import forge.game.card.CardPredicates.Presets;
 import forge.game.event.*;
 import forge.game.mana.ManaPool;
@@ -126,7 +124,7 @@ public class Player extends GameEntity implements Comparable<Player> {
     private List<Card> inboundTokens = new ArrayList<Card>();
 
     /** The keywords. */
-    private ArrayList<String> keywords = new ArrayList<String>();
+    private ArrayList<KeywordInstance> keywords = new ArrayList<KeywordInstance>();
 
     /** The mana pool. */
     private ManaPool manaPool = new ManaPool(this);
@@ -685,21 +683,17 @@ public class Player extends GameEntity implements Comparable<Player> {
 
         int restDamage = damage;
 
-        for (String kw : source.getKeyword()) {
-            if (isCombat) {
-                if (kw.equals("Prevent all combat damage that would be dealt to and dealt by CARDNAME.")) {
-                    return 0;
-                }
-                if (kw.equals("Prevent all combat damage that would be dealt by CARDNAME.")) {
-                    return 0;
-                }
-            }
-            if (kw.equals("Prevent all damage that would be dealt to and dealt by CARDNAME.")) {
-                return 0;
-            }
-            if (kw.equals("Prevent all damage that would be dealt by CARDNAME.")) {
-                return 0;
-            }
+        if(isCombat && (source.hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_by_CARDNAME)
+                || source.hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME))) {
+            return 0;
+        }
+        if(!isCombat && (source.hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_by_CARDNAME)
+                || source.hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_CARDNAME)
+                || hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_and_dealt_by_CARDNAME))) {
+            return 0;
         }
 
         // Prevent Damage static abilities
@@ -1085,7 +1079,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * 
      * @return the keywords
      */
-    public final ArrayList<String> getKeywords() {
+    public final ArrayList<KeywordInstance> getKeywords() {
         return this.keywords;
     }
 
@@ -1095,7 +1089,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @param keyword
      *            the keyword
      */
-    public final void addKeyword(final String keyword) {
+    public final void addKeyword(final KeywordInstance keyword) {
         this.keywords.add(keyword);
     }
 
@@ -1122,8 +1116,13 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return boolean
      */
     @Override
-    public final boolean hasKeyword(final String keyword) {
-        return this.keywords.contains(keyword);
+    public final boolean hasKeyword(final KeywordType keyword) {
+        return Iterables.size(Iterables.filter(this.getKeywords(),new Predicate<KeywordInstance>() {
+            @Override
+            public boolean apply(KeywordInstance ki) {
+                return ki.getId() == keyword;
+            }
+        })) > 0;
     }
 
     /**
@@ -1151,37 +1150,56 @@ public class Player extends GameEntity implements Comparable<Player> {
     @Override
     public boolean hasProtectionFrom(final Card source) {
         if (this.getKeywords() != null) {
-            final ArrayList<String> list = this.getKeywords();
-
-            String kw = "";
-            for (int i = 0; i < list.size(); i++) {
-                kw = list.get(i);
-
-                if (kw.equals("Protection from white") && source.isWhite()) {
-                    return true;
-                }
-                if (kw.equals("Protection from blue") && source.isBlue()) {
-                    return true;
-                }
-                if (kw.equals("Protection from black") && source.isBlack()) {
-                    return true;
-                }
-                if (kw.equals("Protection from red") && source.isRed()) {
-                    return true;
-                }
-                if (kw.equals("Protection from green") && source.isGreen()) {
-                    return true;
-                }
-
-                if (kw.startsWith("Protection:")) { // uses isValid
-                    final String characteristic = kw.split(":")[1];
-                    final String[] characteristics = characteristic.split(",");
-                    if (source.isValid(characteristics, this, null)) {
+                for(KeywordInstance ki : getKeywords()) {
+                    if(ki.getId() == KeywordType.Protection_from_white) {
+                        if (source.isWhite() && !source.getName().equals("White Ward")
+                                && !source.getName().contains("Pledge of Loyalty")) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_blue) {
+                        if (source.isBlue() && !source.getName().equals("Blue Ward")
+                                && !source.getName().contains("Pledge of Loyalty")) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_black) {
+                        if (source.isBlack() && !source.getName().equals("Black Ward")
+                                && !source.getName().contains("Pledge of Loyalty")) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_red) {
+                        if (source.isRed() && !source.getName().equals("Red Ward")
+                                && !source.getName().contains("Pledge of Loyalty")) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_green) {
+                        if (source.isGreen() && !source.getName().equals("Green Ward")
+                                && !source.getName().contains("Pledge of Loyalty")) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_creatures) {
+                        if (source.isCreature()) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_artifacts) {
+                        if (source.isArtifact()) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_enchantments) {
+                        if (source.isEnchantment() && !source.getName().contains("Tattoo Ward")) {
+                            return true;
+                        }
+                    } else if (ki.getId() == KeywordType.Protection_from_everything) {
                         return true;
+                    } else if (ki.getId() == KeywordType.Protection) { // uses isValid
+                        final String[] characteristics = ki.getType().split(",");
+                        if (source.isValid(characteristics, this, null)
+                                && !source.getName().contains("Flickering Ward") && !source.getName().contains("Pentarch Ward")
+                                && !source.getName().contains("Cho-Manno's Blessing") && !source.getName().contains("Floating Shield")
+                                && !source.getName().contains("Ward of Lights")) {
+                            return true;
+                        }
                     }
                 }
-
-            }
         }
         return false;
     }
@@ -1497,9 +1515,11 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return a int.
      */
     protected final int getDredgeNumber(final Card c) {
-        for (String s : c.getKeyword()) {
-            if (s.startsWith("Dredge")) {
-                return Integer.parseInt("" + s.charAt(s.length() - 1));
+        if(c.hasKeyword(KeywordType.Dredge)) {
+            for(KeywordInstance ki : c.getKeyword()) {
+                if(ki.getId() == KeywordType.Dredge) {
+                    return Integer.parseInt(ki.getMagnitude());
+                }
             }
         }
         return 0;
@@ -1804,7 +1824,7 @@ public class Player extends GameEntity implements Comparable<Player> {
                 return false;
 
             final Zone zone = game.getZoneOf(land);
-            if (zone != null && (zone.is(ZoneType.Battlefield) || (!zone.is(ZoneType.Hand) && !land.hasStartOfKeyword("May be played")))) {
+            if (zone != null && (zone.is(ZoneType.Battlefield) || (!zone.is(ZoneType.Hand) && !land.hasKeyword(KeywordType.May_be_played)))) {
                 return false;
             }
         }
@@ -1817,10 +1837,9 @@ public class Player extends GameEntity implements Comparable<Player> {
 
         // check for adjusted max lands play per turn
         int adjMax = 1;
-        for (String keyword : this.getKeywords()) {
-            if (keyword.startsWith("AdjustLandPlays")) {
-                final String[] k = keyword.split(":");
-                adjMax += Integer.valueOf(k[1]);
+        for (KeywordInstance keyword : this.getKeywords()) {
+            if (keyword.getId() == KeywordType.AdjustLandPlays) {
+                adjMax += Integer.valueOf(keyword.getMagnitude());
             }
         }
         if (this.numLandsPlayed < adjMax) {
@@ -2777,13 +2796,14 @@ public class Player extends GameEntity implements Comparable<Player> {
     }
 
     public int getTokenDoublersMagnitude() {
-        int tokenDoublers = 0;
-        for (String kw : this.getKeywords()) {
-            if (kw.equals("TokenDoubler")) {
-                tokenDoublers++;
+
+        return 1 << Iterables.size(Iterables.filter(getKeywords(), new Predicate<KeywordInstance>() {
+
+            @Override
+            public boolean apply(KeywordInstance keywordInstance) {
+                return keywordInstance.getId() == KeywordType.TokenDoubler;
             }
-        }
-        return 1 << tokenDoublers; // pow(a,0) = 1; pow(a,1) = a
+        })); // pow(a,0) = 1; pow(a,1) = a
     }
 
     public void onCleanupPhase() {
