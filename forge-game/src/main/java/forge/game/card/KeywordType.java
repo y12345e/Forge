@@ -251,6 +251,7 @@ public enum KeywordType {
     Prevent_all_damage_that_would_be_dealt_to_CARDNAME("Prevent all damage that would be dealt to CARDNAME.", null),
     Remove_CARDNAME_from_your_deck_before_playing_if_youre_not_playing_for_ante("Remove CARDNAME from your deck before playing if you're not playing for ante.", null),
     Reveal_the_first_card_you_draw_each_turn("Reveal the first card you draw each turn.", null),
+    Reveal_the_first_card_you_draw_on_each_of_your_turns("Reveal the first card you draw on each of your turns.", null),
     Schemes_cant_be_set_in_motion_this_turn("Schemes can't be set in motion this turn.", null),
     Skip_all_combat_phases_of_this_turn("Skip all combat phases of this turn.", null),
     Skip_all_combat_phases_of_your_next_turn("Skip all combat phases of your next turn.", null),

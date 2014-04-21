@@ -239,7 +239,7 @@ public class Player extends GameEntity implements Comparable<Player> {
 
     public void setSchemeInMotion() {
         for (final Player p : game.getPlayers()) {
-            if (p.hasKeyword("Schemes can't be set in motion this turn.")) {
+            if (p.hasKeyword(KeywordType.Schemes_cant_be_set_in_motion_this_turn)) {
                 return;
             }
         }
@@ -465,7 +465,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return a boolean.
      */
     public final boolean canGainLife() {
-        if (this.hasKeyword("You can't gain life.") || this.hasKeyword("Your life total can't change.")) {
+        if (this.hasKeyword(KeywordType.You_cant_gain_life) || this.hasKeyword(KeywordType.Your_life_total_cant_change)) {
             return false;
         }
         return true;
@@ -518,7 +518,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return a boolean.
      */
     public final boolean canLoseLife() {
-        if (this.hasKeyword("Your life total can't change.")) {
+        if (this.hasKeyword(KeywordType.Your_life_total_cant_change)) {
             return false;
         }
         return true;
@@ -537,7 +537,7 @@ public class Player extends GameEntity implements Comparable<Player> {
         if (this.life < lifePayment) {
             return false;
         }
-        if ((lifePayment > 0) && this.hasKeyword("Your life total can't change.")) {
+        if ((lifePayment > 0) && this.hasKeyword(KeywordType.Your_life_total_cant_change)) {
             return false;
         }
         return true;
@@ -599,15 +599,15 @@ public class Player extends GameEntity implements Comparable<Player> {
         //String additionalLog = "";
         source.addDealtDamageToPlayerThisTurn(this.getName(), amount);
 
-        boolean infect = source.hasKeyword("Infect")
-                || this.hasKeyword("All damage is dealt to you as though its source had infect.");
+        boolean infect = source.hasKeyword(KeywordType.Infect)
+                || this.hasKeyword(KeywordType.All_damage_is_dealt_to_you_as_though_its_source_had_infect);
 
         if (infect) {
             this.addPoisonCounters(amount, source);
         } else {
             // Worship does not reduce the damage dealt but changes the effect
             // of the damage
-            if (this.hasKeyword("Damage that would reduce your life total to less than 1 reduces it to 1 instead.")
+            if (this.hasKeyword(KeywordType.Damage_that_would_reduce_your_life_total_to_less_than_1_reduces_it_to_1_instead)
                     && this.life <= amount) {
                 this.loseLife(Math.min(amount, this.life - 1));
             } else {
@@ -627,7 +627,7 @@ public class Player extends GameEntity implements Comparable<Player> {
         }
 
         this.assignedDamage.put(source, amount);
-        if (source.hasKeyword("Lifelink")) {
+        if (source.hasKeyword(KeywordType.Lifelink)) {
             source.getController().gainLife(amount, source);
         }
         source.getDamageHistory().registerDamage(this);
@@ -732,7 +732,7 @@ public class Player extends GameEntity implements Comparable<Player> {
     public final int staticReplaceDamage(final int damage, final Card source, final boolean isCombat) {
         int restDamage = damage;
 
-        if (this.hasKeyword("Damage that would reduce your life total to less than 1 reduces it to 1 instead.")) {
+        if (this.hasKeyword(KeywordType.Damage_that_would_reduce_your_life_total_to_less_than_1_reduces_it_to_1_instead)) {
             restDamage = Math.min(restDamage, this.life - 1);
         }
 
@@ -847,7 +847,7 @@ public class Player extends GameEntity implements Comparable<Player> {
     @Override
     public final int preventDamage(final int damage, final Card source, final boolean isCombat) {
         if (game.getStaticEffects().getGlobalRuleChange(GlobalRuleChange.noPrevention)
-                || source.hasKeyword("Damage that would be dealt by CARDNAME can't be prevented.")) {
+                || source.hasKeyword(KeywordType.Damage_that_would_be_dealt_by_CARDNAME_cant_be_prevented)) {
             return damage;
         }
 
@@ -1043,7 +1043,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      *            the source
      */
     public final void addPoisonCounters(final int num, final Card source) {
-        if (!this.hasKeyword("You can't get poison counters")) {
+        if (!this.hasKeyword(KeywordType.You_cant_get_poison_counters)) {
             setPoisonCounters(poisonCounters + num, source);
         }
     }
@@ -1099,8 +1099,19 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @param keyword
      *            the keyword
      */
-    public final void removeKeyword(final String keyword) {
-        this.keywords.remove(keyword);
+    public final void removeKeyword(final KeywordType keyword) {
+        Iterable<KeywordInstance> rem = Iterables.filter(keywords,new Predicate<KeywordInstance>() {
+
+            @Override
+            public boolean apply(KeywordInstance keywordInstance) {
+                return keywordInstance.getId() != keyword;
+            }
+        });
+
+        keywords.clear();
+        for(KeywordInstance ki : rem) {
+            keywords.add(ki);
+        }
     }
 
     /*
@@ -1134,7 +1145,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      */
     @Override
     public final boolean canBeTargetedBy(final SpellAbility sa) {
-        if (this.hasKeyword("Shroud") || (!this.equals(sa.getActivatingPlayer()) && this.hasKeyword("Hexproof"))
+        if (this.hasKeyword(KeywordType.Shroud) || (!this.equals(sa.getActivatingPlayer()) && this.hasKeyword(KeywordType.Hexproof))
                 || this.hasProtectionFrom(sa.getHostCard())) {
             return false;
         }
@@ -1241,10 +1252,10 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return true if a player can draw a card, false otherwise
      */
     public final boolean canDraw() {
-        if (this.hasKeyword("You can't draw cards.")) {
+        if (this.hasKeyword(KeywordType.You_cant_draw_cards)) {
             return false;
         }
-        if (this.hasKeyword("You can't draw more than one card each turn.")) {
+        if (this.hasKeyword(KeywordType.You_cant_draw_more_than_one_card_each_turn)) {
             return this.numDrawnThisTurn < 1;
         }
         return true;
@@ -1316,8 +1327,8 @@ public class Player extends GameEntity implements Comparable<Player> {
                 boolean reveal = false;
                 final List<Card> cards = this.getCardsIn(ZoneType.Battlefield);
                 for (final Card card : cards) {
-                    if (card.hasKeyword("Reveal the first card you draw each turn")
-                            || (card.hasKeyword("Reveal the first card you draw on each of your turns") && game.getPhaseHandler().isPlayerTurn(this))) {
+                    if (card.hasKeyword(KeywordType.Reveal_the_first_card_you_draw_each_turn)
+                            || (card.hasKeyword(KeywordType.Reveal_the_first_card_you_draw_on_each_of_your_turns) && game.getPhaseHandler().isPlayerTurn(this))) {
                         reveal = true;
                         break;
                     }
@@ -1466,7 +1477,7 @@ public class Player extends GameEntity implements Comparable<Player> {
             cl.addAll(opponent.getZone(ZoneType.Exile).getCardsPlayerCanActivate(this));
             cl.addAll(opponent.getZone(ZoneType.Graveyard).getCardsPlayerCanActivate(this));
             cl.addAll(opponent.getZone(ZoneType.Library).getCardsPlayerCanActivate(this));
-            if (opponent.hasKeyword("Play with your hand revealed.")) {
+            if (opponent.hasKeyword(KeywordType.Play_with_your_hand_revealed)) {
                 cl.addAll(opponent.getZone(ZoneType.Hand).getCardsPlayerCanActivate(this));
             }
         }
@@ -1817,10 +1828,10 @@ public class Player extends GameEntity implements Comparable<Player> {
         }
 
         if (land != null && !ignoreZoneAndTiming) {
-            if (land.getOwner() != this && !land.hasKeyword("May be played by your opponent"))
+            if (land.getOwner() != this && !land.hasKeyword(KeywordType.May_be_played_by_your_opponent))
                 return false;
             
-            if (land.getOwner() == this && land.hasKeyword("May be played by your opponent") && !land.hasKeyword("May be played"))
+            if (land.getOwner() == this && land.hasKeyword(KeywordType.May_be_played_by_your_opponent) && !land.hasKeyword(KeywordType.May_be_played))
                 return false;
 
             final Zone zone = game.getZoneOf(land);
@@ -1831,7 +1842,7 @@ public class Player extends GameEntity implements Comparable<Player> {
 
         // **** Check for land play limit per turn ****
         // Dev Mode
-        if (this.canCheatPlayUnlimitedLands || this.hasKeyword("You may play any number of additional lands on each of your turns.")) {
+        if (this.canCheatPlayUnlimitedLands || this.hasKeyword(KeywordType.You_may_play_any_number_of_additional_lands_on_each_of_your_turns)) {
             return true;
         }
 
@@ -2082,7 +2093,7 @@ public class Player extends GameEntity implements Comparable<Player> {
             return false;
         }
 
-        return (this.hasKeyword("You can't lose the game.") || this.getOpponent().hasKeyword("You can't win the game."));
+        return (this.hasKeyword(KeywordType.You_cant_lose_the_game) || this.getOpponent().hasKeyword(KeywordType.You_cant_win_the_game));
     }
 
     /**
@@ -2093,7 +2104,7 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return a boolean.
      */
     public final boolean cantLoseForZeroOrLessLife() {
-        return (this.hasKeyword("You don't lose the game for having 0 or less life."));
+        return (this.hasKeyword(KeywordType.You_dont_lose_the_game_for_having_0_or_less_life));
     }
 
     /**
@@ -2110,9 +2121,9 @@ public class Player extends GameEntity implements Comparable<Player> {
 
                 continue; // except self and already dead
             }
-            isAnyOppLoseProof |= p.hasKeyword("You can't lose the game.");
+            isAnyOppLoseProof |= p.hasKeyword(KeywordType.You_cant_lose_the_game);
         }
-        return this.hasKeyword("You can't win the game.") || isAnyOppLoseProof;
+        return this.hasKeyword(KeywordType.You_cant_win_the_game) || isAnyOppLoseProof;
     }
 
     /**
@@ -2891,18 +2902,18 @@ public class Player extends GameEntity implements Comparable<Player> {
      * @return a boolean.
      */
     public boolean isSkippingCombat() {
-        if (hasKeyword("Skip your next combat phase.")) {
+        if (hasKeyword(KeywordType.Skip_your_next_combat_phase)) {
             return true;
         }
-        if (hasKeyword("Skip your combat phase.")) {
+        if (hasKeyword(KeywordType.Skip_your_combat_phase)) {
             return true;
         }
-        if (hasKeyword("Skip all combat phases of your next turn.")) {
-            removeKeyword("Skip all combat phases of your next turn.");
-            addKeyword("Skip all combat phases of this turn.");
+        if (hasKeyword(KeywordType.Skip_all_combat_phases_of_your_next_turn)) {
+            removeKeyword(KeywordType.Skip_all_combat_phases_of_your_next_turn);
+            addKeyword(KeywordType.Skip_all_combat_phases_of_this_turn.getInstance(null,false,false));
             return true;
         }
-        if (hasKeyword("Skip all combat phases of this turn.")) {
+        if (hasKeyword(KeywordType.Skip_the_untap_step_of_this_turn)) {
             return true;
         }
         return false;
@@ -3055,12 +3066,12 @@ public class Player extends GameEntity implements Comparable<Player> {
     }
 
     public boolean isSkippingDraw() {
-        if (hasKeyword("Skip your next draw step.")) {
-            removeKeyword("Skip your next draw step.");
+        if (hasKeyword(KeywordType.Skip_your_next_draw_step)) {
+            removeKeyword(KeywordType.Skip_your_next_draw_step);
             return true;
         }
 
-        if (hasKeyword("Skip your draw step.")) {
+        if (hasKeyword(KeywordType.Skip_your_draw_step)) {
             return true;
         }
 

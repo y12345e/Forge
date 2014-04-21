@@ -30,6 +30,7 @@ import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityUtils;
 import forge.game.ability.ApiType;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.cost.Cost;
 import forge.game.cost.CostPartMana;
 import forge.game.mana.Mana;
@@ -1724,7 +1725,7 @@ public abstract class SpellAbility extends CardTraitBase implements ISpellAbilit
     public boolean tracksManaSpent() {
         if (this.hostCard == null || this.hostCard.getRules() == null) { return false; }
 
-        if (this.hostCard.hasKeyword("Sunburst")) {
+        if (this.hostCard.hasKeyword(KeywordType.Sunburst)) {
             return true;
         }
         String text = this.hostCard.getRules().getOracleText();

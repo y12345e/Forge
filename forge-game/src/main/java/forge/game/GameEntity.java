@@ -18,6 +18,7 @@
 package forge.game;
 
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.event.GameEventCardAttachment;
 import forge.game.event.GameEventCardAttachment.AttachMethod;
 
@@ -337,7 +338,7 @@ public abstract class GameEntity extends GameObject {
      *            the keyword
      * @return true, if successful
      */
-    public boolean hasKeyword(final String keyword) {
+    public boolean hasKeyword(final KeywordType keyword) {
         return false;
     }
 

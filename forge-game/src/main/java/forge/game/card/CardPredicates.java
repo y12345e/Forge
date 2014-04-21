@@ -72,7 +72,7 @@ public final class CardPredicates {
         };
     }
 
-    public static final Predicate<Card> hasKeyword(final String keyword) {
+    public static final Predicate<Card> hasKeyword(final KeywordType keyword) {
         return new Predicate<Card>() {
             @Override
             public boolean apply(final Card c) {

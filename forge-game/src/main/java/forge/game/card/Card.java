@@ -1114,7 +1114,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a boolean.
      */
     public final boolean hasFirstStrike() {
-        return this.hasKeyword("First Strike");
+        return this.hasKeyword(KeywordType.First_strike);
     }
 
     /**
@@ -1125,7 +1125,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a boolean.
      */
     public final boolean hasDoubleStrike() {
-        return this.hasKeyword("Double Strike");
+        return this.hasKeyword(KeywordType.Double_strike);
     }
 
     /**
@@ -1147,17 +1147,17 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return true, if successful
      */
     public final boolean canReceiveCounters(final CounterType type) {
-        if (this.hasKeyword("CARDNAME can't have counters placed on it.")) {
+        if (this.hasKeyword(KeywordType.CARDNAME_cant_have_counters_put_on_it)) {
             return false;
         }
         if (this.isCreature() && type == CounterType.M1M1) {
             for (final Card c : this.getController().getCreaturesInPlay()) { // look for Melira, Sylvok Outcast
-                if (c.hasKeyword("Creatures you control can't have -1/-1 counters placed on them.")) {
+                if (c.hasKeyword(KeywordType.Creatures_you_control_cant_have_M1M1_counters_placed_on_them)) {
                     return false;
                 }
             }
         } else if (type == CounterType.DREAM) {
-            if (this.hasKeyword("CARDNAME can't have more than seven dream counters on it.") && this.getCounters(CounterType.DREAM) > 6) {
+            if (this.hasKeyword(KeywordType.CARDNAME_cant_have_more_than_seven_dream_counters_on_it) && this.getCounters(CounterType.DREAM) > 6) {
                 return false;
             }
         }
@@ -1184,7 +1184,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             return;
         }
         if (this.canReceiveCounters(counterType)) {
-            if (counterType == CounterType.DREAM && this.hasKeyword("CARDNAME can't have more than seven dream counters on it.")) {
+            if (counterType == CounterType.DREAM && this.hasKeyword(KeywordType.CARDNAME_cant_have_more_than_seven_dream_counters_on_it)) {
             	addAmount = Math.min(7 - this.getCounters(CounterType.DREAM), addAmount);
             }
         } else {
@@ -2775,7 +2775,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a boolean.
      */
     public final boolean canBeShielded() {
-        return !this.hasKeyword("CARDNAME can't be regenerated.");
+        return !this.hasKeyword(KeywordType.CARDNAME_cant_be_regenerated);
     }
 
     // is this "Card" supposed to be a token?
@@ -3030,7 +3030,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a boolean.
      */
     public final boolean hasSickness() {
-        return this.sickness && !this.hasKeyword("Haste");
+        return this.sickness && !this.hasKeyword(KeywordType.Haste);
     }
 
     /**
@@ -3040,7 +3040,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return boolean
      */
     public final boolean isSick() {
-        return this.sickness && this.isCreature() && !this.hasKeyword("Haste");
+        return this.sickness && this.isCreature() && !this.hasKeyword(KeywordType.Haste);
     }
 
     /**
@@ -3310,7 +3310,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      *            a {@link forge.game.card.Card} object.
      */
     public final void equipCard(final Card c) {
-        if (c.hasKeyword("CARDNAME can't be equipped.")) {
+        if (c.hasKeyword(KeywordType.CARDNAME_cant_be_equipped)) {
             getGame().getGameLog().add(GameLogEntryType.STACK_RESOLVE, "Trying to equip " + c.getName() + " but it can't be equipped.");
             return;
         }
@@ -3547,7 +3547,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      *            a {@link forge.game.GameEntity} object.
      */
     public final void enchantEntity(final GameEntity entity) {
-        if (entity.hasKeyword("CARDNAME can't be enchanted.")) {
+        if (entity.hasKeyword(KeywordType.CARDNAME_cant_be_enchanted)) {
             getGame().getGameLog().add(GameLogEntryType.STACK_RESOLVE, "Trying to enchant " + entity.getName()
             + " but it can't be enchanted.");
             return;
@@ -4047,7 +4047,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return a int.
      */
     public final int getNetCombatDamage() {
-        if (this.hasKeyword("CARDNAME assigns no combat damage")) {
+        if (this.hasKeyword(KeywordType.CARDNAME_assigns_no_combat_damage)) {
             return 0;
         }
 
@@ -4973,7 +4973,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     }
 
     private boolean switchPhaseState() {
-        if (!this.phasedOut && this.hasKeyword("CARDNAME can't phase out.")) {
+        if (!this.phasedOut && this.hasKeyword(KeywordType.CARDNAME_cant_phase_out)) {
             return false;
         }
 
@@ -5089,8 +5089,8 @@ public class Card extends GameEntity implements Comparable<Card> {
      *            an array of {@link java.lang.String} objects.
      * @return a boolean.
      */
-    public final boolean hasAnyKeyword(final Iterable<String> keywords) {
-        for (final String keyword : keywords) {
+    public final boolean hasAnyKeyword(final Iterable<KeywordType> keywords) {
+        for (final KeywordType keyword : keywords) {
             if (this.hasKeyword(keyword)) {
                 return true;
             }
@@ -7376,7 +7376,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     public final int preventDamage(final int damage, final Card source, final boolean isCombat) {
 
         if (getGame().getStaticEffects().getGlobalRuleChange(GlobalRuleChange.noPrevention)
-                || source.hasKeyword("Damage that would be dealt by CARDNAME can't be prevented.")) {
+                || source.hasKeyword(KeywordType.Damage_that_would_be_dealt_by_CARDNAME_cant_be_prevented)) {
             return damage;
         }
 
@@ -7629,7 +7629,7 @@ public class Card extends GameEntity implements Comparable<Card> {
         this.addReceivedDamageFromThisTurn(source, damageToAdd);
         source.addDealtDamageToThisTurn(this, damageToAdd);
 
-        if (source.hasKeyword("Lifelink")) {
+        if (source.hasKeyword(KeywordType.Lifelink)) {
             source.getController().gainLife(damageToAdd, source);
         }
 
@@ -7650,7 +7650,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             final Game game = source.getGame();
 
             boolean wither = (game.getStaticEffects().getGlobalRuleChange(GlobalRuleChange.alwaysWither)
-                    || source.hasKeyword("Wither") || source.hasKeyword("Infect"));
+                    || source.hasKeyword(KeywordType.Wither) || source.hasKeyword(KeywordType.Infect));
 
             if (this.isInPlay()) {
                 if (wither) {
@@ -7660,7 +7660,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     this.damage += damageToAdd;
             }
 
-            if (source.hasKeyword("Deathtouch") && this.isCreature()) {
+            if (source.hasKeyword(KeywordType.Deathtouch) && this.isCreature()) {
                 game.getAction().destroy(this, null);
                 damageType = DamageType.Deathtouch;
             }
@@ -8161,7 +8161,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     }
 
     public final boolean canBeDestroyed() {
-        return isInPlay() && (!hasKeyword("Indestructible") || (isCreature() && getNetDefense() <= 0));
+        return isInPlay() && (!hasKeyword(KeywordType.Indestructible) || (isCreature() && getNetDefense() <= 0));
     }
 
     /**
@@ -8294,7 +8294,7 @@ public class Card extends GameEntity implements Comparable<Card> {
         }
 
         if (this.hasProtectionFrom(aura)
-            || (this.hasKeyword("CARDNAME can't be enchanted.") && !aura.getName().equals("Anti-Magic Aura")
+            || (this.hasKeyword(KeywordType.CARDNAME_cant_be_enchanted) && !aura.getName().equals("Anti-Magic Aura")
                     && !(aura.getName().equals("Consecrate Land") && aura.isInZone(ZoneType.Battlefield)))
             || ((tgt != null) && !this.isValid(tgt.getValidTgts(), aura.getController(), aura))) {
             return false;
@@ -8509,14 +8509,14 @@ public class Card extends GameEntity implements Comparable<Card> {
         case Graveyard:
         case Stack:
             //cards in these zones are visible to all
-            if (isFaceDown() && getController().isOpponentOf(viewer) && !hasKeyword("Your opponent may look at this card.")) {
+            if (isFaceDown() && getController().isOpponentOf(viewer) && !hasKeyword(KeywordType.Your_opponent_may_look_at_this_card)) {
                 break; //exception is face down cards controlled by opponents
             }
             return true;
         case Hand:
         case Sideboard:
             //face-up cards in these zones are hidden to opponents unless they specify otherwise
-            if (getController().isOpponentOf(viewer) && !hasKeyword("Your opponent may look at this card.")) {
+            if (getController().isOpponentOf(viewer) && !hasKeyword(KeywordType.Your_opponent_may_look_at_this_card)) {
                 break;
             }
             return true;
@@ -8524,10 +8524,10 @@ public class Card extends GameEntity implements Comparable<Card> {
         case PlanarDeck:
         case SchemeDeck:
             //cards in these zones are hidden to all unless they specify otherwise
-            if (getController() == viewer && hasKeyword("You may look at this card.")) {
+            if (getController() == viewer && hasKeyword(KeywordType.You_may_look_at_this_card)) {
                 return true;
             }
-            if (getController().isOpponentOf(viewer) && hasKeyword("Your opponent may look at this card.")) {
+            if (getController().isOpponentOf(viewer) && hasKeyword(KeywordType.Your_opponent_may_look_at_this_card)) {
                 return true;
             }
             break;
@@ -8615,7 +8615,7 @@ public class Card extends GameEntity implements Comparable<Card> {
         	return false;
         }
         if (source != null && getController().isOpponentOf(source.getActivatingPlayer())
-                && getController().hasKeyword("Spells and abilities your opponents control can't cause you to sacrifice permanents.")) {
+                && getController().hasKeyword(KeywordType.Spells_and_abilities_your_opponents_control_cant_cause_you_to_sacrifice_permanents)) {
             return false;
         }
         return true;
@@ -8653,7 +8653,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                 return;
             }
         }
-        if (sa.getHostCard().hasKeyword("Fuse")) // it's ok that such card won't change its side
+        if (sa.getHostCard().hasKeyword(KeywordType.Fuse)) // it's ok that such card won't change its side
             return;
 
         throw new RuntimeException("Not found which part to choose for ability " + sa + " from card " + this);
