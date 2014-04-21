@@ -45,6 +45,7 @@ public class Forge implements ApplicationListener {
     private static ShapeRenderer shapeRenderer;
     private static FScreen currentScreen;
     private static SplashScreen splashScreen;
+    private static KeyInputAdapter keyInputAdapter;
     private static final Stack<FScreen> screens = new Stack<FScreen>();
 
     public Forge(Clipboard clipboard0) {
@@ -124,6 +125,7 @@ public class Forge implements ApplicationListener {
 
     private static void setCurrentScreen(FScreen screen0) {
         try {
+            endKeyInput(); //end key input before switching screens
             Animation.endAll(); //end all active animations before switching screens
     
             currentScreen = screen0;
@@ -208,8 +210,73 @@ public class Forge implements ApplicationListener {
         shapeRenderer.dispose();
     }
 
+    public static void startKeyInput(KeyInputAdapter adapter) {
+        if (keyInputAdapter == adapter) { return; }
+        if (keyInputAdapter != null) {
+            keyInputAdapter.onInputEnd(); //make sure previous adapter is ended
+        }
+        keyInputAdapter = adapter;
+        Gdx.input.setOnscreenKeyboardVisible(true);
+    }
+
+    public static void endKeyInput() {
+        if (keyInputAdapter == null) { return; }
+        keyInputAdapter.onInputEnd();
+        keyInputAdapter = null;
+        MainInputProcessor.keyTyped = false;
+        MainInputProcessor.lastKeyTyped = '\0';
+        Gdx.input.setOnscreenKeyboardVisible(false);
+    }
+
+    public static abstract class KeyInputAdapter {
+        public abstract FDisplayObject getOwner();
+        public abstract boolean allowTouchInput();
+        public abstract boolean keyTyped(char ch);
+        public abstract boolean keyDown(int keyCode);
+        public abstract void onInputEnd();
+
+        //also allow handling of keyUp but don't require it
+        public boolean keyUp(int keyCode) {
+            return false;
+        }
+    }
+
     private static class MainInputProcessor extends FGestureAdapter {
         private static final ArrayList<FDisplayObject> potentialListeners = new ArrayList<FDisplayObject>();
+        private static char lastKeyTyped;
+        private static boolean keyTyped;
+
+        @Override
+        public boolean keyDown(int keyCode) {
+            if (keyInputAdapter != null) {
+                return keyInputAdapter.keyDown(keyCode);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean keyUp(int keyCode) {
+            keyTyped = false; //reset on keyUp
+            if (keyInputAdapter != null) {
+                return keyInputAdapter.keyUp(keyCode);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean keyTyped(char ch) {
+            if (keyInputAdapter != null) {
+                if (ch >= ' ' && ch <= '~') { //only process this event if character is printable
+                    //prevent firing this event more than once for the same character on the same key down, otherwise it fires too often
+                    if (lastKeyTyped != ch || !keyTyped) {
+                        keyTyped = true;
+                        lastKeyTyped = ch;
+                        return keyInputAdapter.keyTyped(ch);
+                    }
+                }
+            }
+            return false;
+        }
 
         @Override
         public boolean touchDown(int x, int y, int pointer, int button) {
@@ -221,6 +288,13 @@ public class Forge implements ApplicationListener {
                 }
                 else {
                     currentScreen.buildTouchListeners(x, y, potentialListeners);
+                }
+
+                if (keyInputAdapter != null) {
+                    if (!keyInputAdapter.allowTouchInput() || !potentialListeners.contains(keyInputAdapter.getOwner())) {
+                        endKeyInput(); //end key input and suppress touch event if needed
+                        potentialListeners.clear();
+                    }
                 }
             }
             return super.touchDown(x, y, pointer, button);

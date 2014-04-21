@@ -68,6 +68,7 @@ public enum CSubmenuPreferences implements ICDoc {
 
         lstControls.clear(); // just in case
         lstControls.add(Pair.of(view.getCbAnte(), FPref.UI_ANTE));
+        lstControls.add(Pair.of(view.getCbAnteMatchRarity(), FPref.UI_ANTE_MATCH_RARITY));
         lstControls.add(Pair.of(view.getCbManaBurn(), FPref.UI_MANABURN));
         lstControls.add(Pair.of(view.getCbScaleLarger(), FPref.UI_SCALE_LARGER));
         lstControls.add(Pair.of(view.getCbRandomArtInPools(), FPref.UI_RANDOM_ART_IN_POOLS));
@@ -88,6 +89,7 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbPromptFreeBlocks(), FPref.MATCHPREF_PROMPT_FREE_BLOCKS));
         lstControls.add(Pair.of(view.getCbCompactPrompt(), FPref.UI_COMPACT_PROMPT));
         lstControls.add(Pair.of(view.getCbHideReminderText(), FPref.UI_HIDE_REMINDER_TEXT));
+        lstControls.add(Pair.of(view.getCbOpenPacksIndiv(), FPref.UI_OPEN_PACKS_INDIV));
 
         for(final Pair<JCheckBox, FPref> kv : lstControls) {
             kv.getKey().addItemListener(new ItemListener() {

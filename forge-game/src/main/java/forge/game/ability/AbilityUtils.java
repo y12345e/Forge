@@ -486,6 +486,13 @@ public class AbilityUtils {
             }
             return CardFactoryUtil.playerXCount(players, calcX[1], card) * multiplier;
         }
+        if (calcX[0].startsWith("ThisTargetedPlayer")) {
+            final ArrayList<Player> players = new ArrayList<Player>();
+            if (null != ability) {
+                Iterables.addAll(players, ability.getTargets().getTargetPlayers());
+            }
+            return CardFactoryUtil.playerXCount(players, calcX[1], card) * multiplier;
+        }
         if (calcX[0].startsWith("TargetedObjects")) {
             final List<GameObject> objects = new ArrayList<GameObject>();
             // Make list of all targeted objects starting with the root SpellAbility
@@ -738,6 +745,14 @@ public class AbilityUtils {
         }
 
         String valid = type;
+        int eqIndex = valid.indexOf("EQ");
+        if (eqIndex >= 0) {
+            char reference = valid.charAt(eqIndex + 2); // take whatever goes after EQ
+            if (Character.isLetter(reference)) {
+                String varName = valid.split("EQ")[1].split("\\+")[0];
+                valid = valid.replace("EQ" + varName, "EQ" + Integer.toString(calculateAmount(source, varName, sa)));
+            }
+        }
 
         return CardLists.getValidCards(list, valid.split(","), sa.getActivatingPlayer(), source);
     }

@@ -219,6 +219,9 @@ public class QuestPreferencesHandler extends SkinnedPanel {
         pnlShop.add(new FLabel.Builder().text("Wins for Pack").build(), constraints2);
         pnlShop.add(new PrefInput(QPref.SHOP_WINS_FOR_ADDITIONAL_PACK, ErrType.SHOP), constraints1);
 
+        pnlShop.add(new FLabel.Builder().text("Wins per Set Unlock").build(), constraints2);
+        pnlShop.add(new PrefInput(QPref.WINS_UNLOCK_SET, ErrType.SHOP), constraints1);
+
         pnlShop.add(new FLabel.Builder().text("Common Singles").build(), constraints2);
         pnlShop.add(new PrefInput(QPref.SHOP_SINGLES_COMMON, ErrType.SHOP), constraints1);
 
@@ -399,6 +402,13 @@ public class QuestPreferencesHandler extends SkinnedPanel {
                     return "Value too small (minimum 1).";
                 } else if (val > 25) {
                     return "Value too large (maximum 25).";
+                }
+                break;
+            case WINS_UNLOCK_SET:
+                if (val < 1) {
+                    return "Value too small (minimum 1).";
+                } else if (val > 100) {
+                    return "Value too large (maximum 100).";
                 }
                 break;
             case STARTING_POOL_COLOR_BIAS:

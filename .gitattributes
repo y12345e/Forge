@@ -195,7 +195,9 @@ forge-core/src/main/java/forge/deck/io/DeckStorage.java -text
 forge-core/src/main/java/forge/deck/io/OldDeckFileFormatException.java -text
 forge-core/src/main/java/forge/deck/io/package-info.java -text
 forge-core/src/main/java/forge/deck/package-info.java -text
+forge-core/src/main/java/forge/item/BoosterBox.java -text
 forge-core/src/main/java/forge/item/BoosterPack.java -text
+forge-core/src/main/java/forge/item/BoxedProduct.java -text
 forge-core/src/main/java/forge/item/FatPack.java -text
 forge-core/src/main/java/forge/item/IPaperCard.java -text
 forge-core/src/main/java/forge/item/InventoryItem.java -text
@@ -701,6 +703,7 @@ forge-gui-desktop/src/main/java/forge/download/GuiDownloader.java -text
 forge-gui-desktop/src/main/java/forge/download/package-info.java -text
 forge-gui-desktop/src/main/java/forge/error/BugReportDialog.java -text
 forge-gui-desktop/src/main/java/forge/error/package-info.java -text
+forge-gui-desktop/src/main/java/forge/gui/BoxedProductCardListViewer.java -text
 forge-gui-desktop/src/main/java/forge/gui/CardContainer.java -text
 forge-gui-desktop/src/main/java/forge/gui/CardDetailPanel.java -text
 forge-gui-desktop/src/main/java/forge/gui/CardListViewer.java -text
@@ -1171,6 +1174,7 @@ forge-gui-mobile/src/forge/toolbox/FDisplayObject.java -text
 forge-gui-mobile/src/forge/toolbox/FEvent.java -text
 forge-gui-mobile/src/forge/toolbox/FFileChooser.java -text
 forge-gui-mobile/src/forge/toolbox/FGestureAdapter.java -text
+forge-gui-mobile/src/forge/toolbox/FGroupList.java -text
 forge-gui-mobile/src/forge/toolbox/FLabel.java -text
 forge-gui-mobile/src/forge/toolbox/FList.java -text
 forge-gui-mobile/src/forge/toolbox/FOptionPane.java -text
@@ -1203,6 +1207,7 @@ forge-gui/pom.xml -text
 forge-gui/res/ai/Default.ai -text
 forge-gui/res/ai/Reckless.ai -text
 forge-gui/res/blockdata/blocks.txt svneol=native#text/plain
+forge-gui/res/blockdata/boosterboxes.txt -text
 forge-gui/res/blockdata/boosters-special.txt -text
 forge-gui/res/blockdata/fantasyblocks.txt -text
 forge-gui/res/blockdata/fatpacks.txt -text

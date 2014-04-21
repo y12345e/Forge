@@ -60,6 +60,7 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final JCheckBox cbSingletons = new OptionsCheckBox("Singleton Mode");
     private final JCheckBox cbRemoveArtifacts = new OptionsCheckBox("Remove Artifacts");
     private final JCheckBox cbAnte = new OptionsCheckBox("Play for Ante");
+    private final JCheckBox cbAnteMatchRarity = new OptionsCheckBox("Match Ante Rarity");
     private final JCheckBox cbUploadDraft = new OptionsCheckBox("Upload Draft Picks");
     private final JCheckBox cbEnableAICheats = new OptionsCheckBox("Allow AI Cheating");
     private final JCheckBox cbManaBurn = new OptionsCheckBox("Mana Burn");
@@ -78,6 +79,7 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final JCheckBox cbPromptFreeBlocks = new OptionsCheckBox("Free Block Handling");
     private final JCheckBox cbCompactPrompt = new OptionsCheckBox("Compact Prompt");
     private final JCheckBox cbHideReminderText = new OptionsCheckBox("Hide Reminder Text");
+    private final JCheckBox cbOpenPacksIndiv = new OptionsCheckBox("Open Packs Individually");
 
     private final Map<FPref, KeyboardShortcutField> shortcutFields = new HashMap<FPref, KeyboardShortcutField>();
 
@@ -129,6 +131,9 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbAnte, regularConstraints);
         pnlPrefs.add(new NoteLabel("Determines whether or not the game is played for ante."), regularConstraints);
+
+        pnlPrefs.add(cbAnteMatchRarity, regularConstraints);
+        pnlPrefs.add(new NoteLabel("Attempts to make antes the same rarity for all players."), regularConstraints);
 
         pnlPrefs.add(cbUploadDraft, regularConstraints);
         pnlPrefs.add(new NoteLabel("Sends draft picks to Forge servers for analysis, to improve draft AI."), regularConstraints);
@@ -201,6 +206,9 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbHideReminderText, regularConstraints);
         pnlPrefs.add(new NoteLabel("Hide reminder text in Card Detail pane."), regularConstraints);
+
+        pnlPrefs.add(cbOpenPacksIndiv, regularConstraints);
+        pnlPrefs.add(new NoteLabel("When opening Fat Packs and Booster Boxes, booster packs will be opened and displayed one at a time."), regularConstraints);
 
         // Sound options
         pnlPrefs.add(new SectionLabel("Sound Options"), sectionConstraints + ", gaptop 2%");
@@ -431,6 +439,11 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     public JCheckBox getCbAnte() {
         return cbAnte;
     }
+    
+    /** @return {@link javax.swing.JCheckBox} */
+    public JCheckBox getCbAnteMatchRarity() {
+        return cbAnteMatchRarity;
+    }
 
     /** @return {@link javax.swing.JCheckBox} */
     public JCheckBox getCbManaBurn() {
@@ -499,6 +512,10 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
     public final JCheckBox getCbHideReminderText() {
         return cbHideReminderText;
+    }
+
+    public final JCheckBox getCbOpenPacksIndiv() {
+        return cbOpenPacksIndiv;
     }
 
     /** @return {@link forge.toolbox.FLabel} */
