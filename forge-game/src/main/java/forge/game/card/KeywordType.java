@@ -174,6 +174,7 @@ public enum KeywordType {
     CARDNAME_can_block_only_creatures_with_flying("CARDNAME can block only creatures with flying.", null),
     CARDNAME_can_only_attack_alone("CARNDAME can only attack alone.", null),
     CARDNAME_cant_attack("CARDNAME can't attack.", null),
+    CARDNAME_cant_attack_alone("CARDNAME can't attack alone.", null),
     CARDNAME_cant_attack_during_extra_turns("CARDNAME can't attack during extra turns.", null),
     CARDNAME_cant_attack_if_defending_player_controls_an_untapped_creature_with_power("CARNDAME can't attack if defending player controls an untapped creature with power {string}.",null, KwParamType.String),
     CARDNAME_cant_attack_or_block("CARDNAME can't attack or block.", null),

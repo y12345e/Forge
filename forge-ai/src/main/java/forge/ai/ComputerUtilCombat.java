@@ -18,6 +18,7 @@
 package forge.ai;
 
 import com.google.common.base.Predicate;
+
 import forge.game.CardTraitBase;
 import forge.game.Game;
 import forge.game.GameEntity;
@@ -29,6 +30,7 @@ import forge.game.card.Card;
 import forge.game.card.CardFactoryUtil;
 import forge.game.card.CardLists;
 import forge.game.card.CounterType;
+import forge.game.card.KeywordType;
 import forge.game.combat.Combat;
 import forge.game.combat.CombatUtil;
 import forge.game.player.Player;
@@ -448,13 +450,13 @@ public class ComputerUtilCombat {
         int flankingMagnitude = 0;
         if (attacker.hasKeyword("Flanking") && !defender.hasKeyword("Flanking")) {
 
-            flankingMagnitude = attacker.getAmountOfKeyword("Flanking");
+            flankingMagnitude = attacker.getAmountOfKeyword(KeywordType.Flanking);
 
             if (flankingMagnitude >= defender.getNetDefense()) {
                 return 0;
             }
             if ((flankingMagnitude >= (defender.getNetDefense() - defender.getDamage()))
-                    && !defender.hasKeyword("Indestructible")) {
+                    && !defender.hasKeyword(KeywordType.Indestructible)) {
                 return 0;
             }
 
@@ -520,7 +522,7 @@ public class ComputerUtilCombat {
         int flankingMagnitude = 0;
         if (attacker.hasKeyword("Flanking") && !defender.hasKeyword("Flanking")) {
 
-            flankingMagnitude = attacker.getAmountOfKeyword("Flanking");
+            flankingMagnitude = attacker.getAmountOfKeyword(KeywordType.Flanking);
 
             if (flankingMagnitude >= defender.getNetDefense()) {
                 return 0;
@@ -732,7 +734,7 @@ public class ComputerUtilCombat {
         int power = 0;
 
         if (attacker.hasKeyword("Flanking") && !blocker.hasKeyword("Flanking")) {
-            power -= attacker.getAmountOfKeyword("Flanking");
+            power -= attacker.getAmountOfKeyword(KeywordType.Flanking);
         }
         
         // Serene Master switches power with attacker
@@ -895,7 +897,7 @@ public class ComputerUtilCombat {
         int toughness = 0;
 
         if (attacker.hasKeyword("Flanking") && !blocker.hasKeyword("Flanking")) {
-            toughness -= attacker.getAmountOfKeyword("Flanking");
+            toughness -= attacker.getAmountOfKeyword(KeywordType.Flanking);
         }
         
         if (blocker.getName().equals("Shape Stealer")) {
@@ -1533,7 +1535,7 @@ public class ComputerUtilCombat {
         int flankingMagnitude = 0;
         if (attacker.hasKeyword("Flanking") && !defender.hasKeyword("Flanking")) {
 
-            flankingMagnitude = attacker.getAmountOfKeyword("Flanking");
+            flankingMagnitude = attacker.getAmountOfKeyword(KeywordType.Flanking);
 
             if (flankingMagnitude >= defender.getNetDefense()) {
                 return false;
@@ -1681,7 +1683,7 @@ public class ComputerUtilCombat {
         int flankingMagnitude = 0;
         if (attacker.hasKeyword("Flanking") && !defender.hasKeyword("Flanking")) {
 
-            flankingMagnitude = attacker.getAmountOfKeyword("Flanking");
+            flankingMagnitude = attacker.getAmountOfKeyword(KeywordType.Flanking);
 
             if (flankingMagnitude >= defender.getNetDefense()) {
                 return true;

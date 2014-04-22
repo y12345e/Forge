@@ -19,6 +19,7 @@ package forge.game;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
 import forge.card.MagicColor;
 import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityFactory.AbilityRecordType;
@@ -27,12 +28,14 @@ import forge.game.ability.ApiType;
 import forge.game.card.Card;
 import forge.game.card.CardLists;
 import forge.game.card.CardPredicates;
+import forge.game.card.KeywordType;
 import forge.game.cost.Cost;
 import forge.game.mana.ManaCostBeingPaid;
 import forge.game.player.Player;
 import forge.game.spellability.*;
 import forge.game.zone.ZoneType;
 import forge.util.TextUtil;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -368,7 +371,7 @@ public final class GameActionUtil {
         }
 
         if (source.hasKeyword("Conspire")) {
-            int amount = source.getAmountOfKeyword("Conspire");
+            int amount = source.getAmountOfKeyword(KeywordType.Conspire);
             for (int kwInstance = 1; kwInstance <= amount; kwInstance++) {
                 for (int i = 0; i < abilities.size(); i++) {
                     final SpellAbility newSA = abilities.get(i).copy();

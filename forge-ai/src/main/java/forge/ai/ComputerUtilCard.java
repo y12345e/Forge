@@ -463,9 +463,9 @@ public class ComputerUtilCard {
         }
     
         value += c.getKeywordMagnitude("Bushido") * 16;
-        value += c.getAmountOfKeyword("Flanking") * 15;
-        value += c.getAmountOfKeyword("Exalted") * 15;
-        value += c.getKeywordMagnitude("Annihilator") * 50;
+        value += c.getAmountOfKeyword(KeywordType.Flanking) * 15;
+        value += c.getAmountOfKeyword(KeywordType.Exalted) * 15;
+        value += c.getKeywordMagnitude(KeywordType.Annihilator) * 50;
     
     
         // Defensive Keywords
