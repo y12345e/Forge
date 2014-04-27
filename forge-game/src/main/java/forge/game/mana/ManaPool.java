@@ -109,8 +109,8 @@ public class ManaPool implements Iterable<Mana> {
         }
 
         int numRemoved = 0;
-        boolean keepGreenMana = isEndOfPhase && this.owner.hasKeyword("Green mana doesn't empty from your mana pool as steps and phases end.");
-        boolean convertToColorless = owner.hasKeyword("Convert unused mana to Colorless");
+        boolean keepGreenMana = isEndOfPhase && this.owner.hasKeyword(KeywordType.Green_mana_doesnt_empty_from_your_mana_pool_as_steps_and_phases_end);
+        boolean convertToColorless = owner.hasKeyword(KeywordType.Convert_unused_mana_to_Colorless);
 
         List<Byte> keys = Lists.newArrayList(floatingMana.keySet());
         if (keepGreenMana) {

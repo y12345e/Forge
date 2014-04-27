@@ -21,10 +21,7 @@ import com.google.common.base.Predicate;
 import forge.card.mana.ManaCost;
 import forge.game.Game;
 import forge.game.ability.AbilityFactory;
-import forge.game.card.Card;
-import forge.game.card.CardFactoryUtil;
-import forge.game.card.CardLists;
-import forge.game.card.CounterType;
+import forge.game.card.*;
 import forge.game.cost.Cost;
 import forge.game.player.Player;
 import forge.game.player.PlayerController.ManaPaymentPurpose;
@@ -88,13 +85,13 @@ public class Upkeep extends Phase {
         list = CardLists.filter(list, new Predicate<Card>() {
             @Override
             public boolean apply(final Card c) {
-                return c.hasStartOfKeyword("(Echo unpaid)");
+                return c.hasKeyword(KeywordType.Echo_unpaid);
             }
         });
 
         for (int i = 0; i < list.size(); i++) {
             final Card c = list.get(i);
-            if (c.hasStartOfKeyword("(Echo unpaid)")) {
+            if (c.hasKeyword(KeywordType.Echo_unpaid)) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append("Echo for ").append(c).append("\n");
                 String ref = "X".equals(c.getEchoCost()) ? " | References$ X" : "";
@@ -110,7 +107,7 @@ public class Upkeep extends Phase {
 
                 game.getStack().addSimultaneousStackEntry(sacAbility);
 
-                c.removeAllExtrinsicKeyword("(Echo unpaid)");
+                c.removeAllExtrinsicKeyword(KeywordType.Echo_unpaid);
             }
         }
     } // echo
@@ -127,7 +124,7 @@ public class Upkeep extends Phase {
         for (int i = 0; i < list.size(); i++) {
             final Card c = list.get(i);
             final Player controller = c.getController();
-            for (String ability : c.getKeyword()) {
+            for (KeywordInstance ability : c.getKeyword()) {
 
                 // sacrifice
                 if (ability.startsWith("At the beginning of your upkeep, sacrifice")) {
@@ -149,17 +146,17 @@ public class Upkeep extends Phase {
                 } // sacrifice
 
                 // Cumulative upkeep
-                if (ability.startsWith("Cumulative upkeep")) {
+                if (ability.getId() == KeywordType.Cumulative_Upkeep) {
                     
                     final StringBuilder sb = new StringBuilder();
-                    final String[] k = ability.split(":");
+                    final String k = ability.getMyCost().toString();
                     sb.append("Cumulative upkeep for " + c);
 
                     final Ability upkeepAbility = new Ability(c, ManaCost.ZERO) {
                         @Override
                         public void resolve() {
                             c.addCounter(CounterType.AGE, 1, true);
-                            String cost = CardFactoryUtil.multiplyCost(k[1], c.getCounters(CounterType.AGE));
+                            String cost = CardFactoryUtil.multiplyCost(k, c.getCounters(CounterType.AGE));
                             final Cost upkeepCost = new Cost(cost, true);
                             boolean isPaid = controller.getController().payManaOptional(c, upkeepCost, this, sb.toString(), ManaPaymentPurpose.CumulativeUpkeep);
                             final HashMap<String, Object> runParams = new HashMap<String, Object>();

@@ -21,6 +21,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
 import forge.util.Lang;
@@ -42,8 +43,8 @@ public class PlayerZone extends Zone {
         @Override
         public boolean apply(final Card c) {
    
-            if (c.hasStartOfKeyword("May be played by your opponent")
-                    || c.hasKeyword("Your opponent may look at this card.")) {
+            if (c.hasKeyword(KeywordType.May_be_played_by_your_opponent)
+                    || c.hasKeyword(KeywordType.Your_opponent_may_look_at_this_card)) {
                 return true;
             }
             return false;
@@ -53,11 +54,11 @@ public class PlayerZone extends Zone {
     private final class OwnCardsActivationFilter implements Predicate<Card> {
         @Override
         public boolean apply(final Card c) {
-            if (c.hasKeyword("You may look at this card.")) {
+            if (c.hasKeyword(KeywordType.You_may_look_at_this_card)) {
                 return true;
             }
    
-            if (c.isLand() && (c.hasKeyword("May be played") || c.hasKeyword("May be played without paying its mana cost"))) {
+            if (c.isLand() && (c.hasKeyword(KeywordType.May_be_played) || c.hasKeyword(KeywordType.May_be_played_without_paying_its_mana_cost))) {
                 return true;
             }
    
@@ -68,8 +69,8 @@ public class PlayerZone extends Zone {
                 }
    
                 if (sa.isSpell()
-                        && (c.hasKeyword("May be played") || c.hasKeyword("May be played without paying its mana cost")
-                                || (c.hasStartOfKeyword("Flashback") && PlayerZone.this.is(ZoneType.Graveyard)))
+                        && (c.hasKeyword(KeywordType.May_be_played) || c.hasKeyword(KeywordType.May_be_played_without_paying_its_mana_cost)
+                                || (c.hasKeyword(KeywordType.Flashback) && PlayerZone.this.is(ZoneType.Graveyard)))
                         && restrictZone.equals(ZoneType.Hand)) {
                     return true;
                 }

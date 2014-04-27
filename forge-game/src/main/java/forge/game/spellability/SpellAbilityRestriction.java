@@ -22,6 +22,7 @@ import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
 import forge.game.card.CardFactoryUtil;
 import forge.game.card.CardLists;
+import forge.game.card.KeywordType;
 import forge.game.phase.PhaseType;
 import forge.game.player.Player;
 import forge.game.zone.Zone;
@@ -207,10 +208,10 @@ public class SpellAbilityRestriction extends SpellAbilityVariables {
                     || !this.getZone().equals(ZoneType.Hand)) {
                 return false;
             }
-            if (c.hasKeyword("May be played") && activator.equals(c.getController())) {
+            if (c.hasKeyword(KeywordType.May_be_played) && activator.equals(c.getController())) {
                 return true;
             }
-            if (c.hasKeyword("May be played by your opponent") && !activator.equals(c.getController())) {
+            if (c.hasKeyword(KeywordType.May_be_played_by_your_opponent) && !activator.equals(c.getController())) {
                 return true;
             }
             return false;
@@ -285,7 +286,7 @@ public class SpellAbilityRestriction extends SpellAbilityVariables {
         if (activator.isOpponentOf(c.getController()) && this.isOpponentOnly()) {
             return true;
         }
-        if (sa.isSpell() && activator.isOpponentOf(c.getController()) && c.hasKeyword("May be played by your opponent")) {
+        if (sa.isSpell() && activator.isOpponentOf(c.getController()) && c.hasKeyword(KeywordType.May_be_played_by_your_opponent)) {
             return true;
         }
         

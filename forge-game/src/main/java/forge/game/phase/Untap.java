@@ -27,6 +27,7 @@ import forge.game.card.Card;
 import forge.game.card.CardLists;
 import forge.game.card.CardPredicates;
 import forge.game.card.CardPredicates.Presets;
+import forge.game.card.KeywordType;
 import forge.game.player.Player;
 import forge.game.player.PlayerController.BinaryChoiceType;
 import forge.game.spellability.SpellAbility;
@@ -80,9 +81,9 @@ public class Untap extends Phase {
      */
     public static boolean canUntap(final Card c) {
 
-        if (c.hasKeyword("CARDNAME doesn't untap during your untap step.")
-                || c.hasKeyword("This card doesn't untap during your next untap step.")
-                || c.hasKeyword("This card doesn't untap during your next two untap steps.")) {
+        if (c.hasKeyword(KeywordType.CARDNAME_doesnt_untap_during_your_untap_step)
+                || c.hasKeyword(KeywordType.This_card_doesnt_untap_during_your_next_untap_step)
+                || c.hasKeyword(KeywordType.This_card_doesnt_untap_during_your_next_two_untap_steps)) {
             return false;
         }
         return true;
@@ -196,17 +197,16 @@ public class Untap extends Phase {
         // Remove temporary keywords
         list = player.getCardsIn(ZoneType.Battlefield);
         for (final Card c : list) {
-            c.removeAllExtrinsicKeyword("This card doesn't untap during your next untap step.");
-            c.removeAllExtrinsicKeyword("HIDDEN This card doesn't untap during your next untap step.");
-            if (c.hasKeyword("This card doesn't untap during your next two untap steps.")) {
-                c.removeAllExtrinsicKeyword("HIDDEN This card doesn't untap during your next two untap steps.");
-                c.addHiddenExtrinsicKeyword("HIDDEN This card doesn't untap during your next untap step.");
+            c.removeAllExtrinsicKeyword(KeywordType.This_card_doesnt_untap_during_your_next_untap_step);
+            if (c.hasKeyword(KeywordType.This_card_doesnt_untap_during_your_next_two_untap_steps)) {
+                c.removeAllExtrinsicKeyword(KeywordType.This_card_doesnt_untap_during_your_next_two_untap_steps);
+                c.addExtrinsicKeyword(KeywordType.This_card_doesnt_untap_during_your_next_untap_step.getInstance(c,true,false));
             }
         }
     } // end doUntap
 
     private static void optionalUntap(final Card c) {
-        if (c.hasKeyword("You may choose not to untap CARDNAME during your untap step.")) {
+        if (c.hasKeyword(KeywordType.You_may_choose_not_to_untap_CARDNAME_during_your_untap_step)) {
             if (c.isTapped()) {
                 String prompt = "Untap " + c.toString() + "?";
                 boolean defaultChoice = true;
@@ -236,7 +236,7 @@ public class Untap extends Phase {
 
             @Override
             public boolean apply(final Card c) {
-                return ((c.isPhasedOut() && c.isDirectlyPhasedOut()) || c.hasKeyword("Phasing"));
+                return ((c.isPhasedOut() && c.isDirectlyPhasedOut()) || c.hasKeyword(KeywordType.Phasing));
             }
         });
 
@@ -247,7 +247,7 @@ public class Untap extends Phase {
         for (final Card c : list) {
             if (c.isPhasedOut()) {
                 c.phase();
-            } else if (c.hasKeyword("Phasing")) {
+            } else if (c.hasKeyword(KeywordType.Phasing)) {
                 // 702.23g If an object would simultaneously phase out directly
                 // and indirectly, it just phases out indirectly.
                 if (c.isAura()) {

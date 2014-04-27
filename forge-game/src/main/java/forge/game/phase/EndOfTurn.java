@@ -20,6 +20,7 @@ package forge.game.phase;
 import forge.card.mana.ManaCost;
 import forge.game.Game;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.player.GameLossReason;
 import forge.game.player.Player;
 import forge.game.spellability.Ability;
@@ -54,7 +55,7 @@ public class EndOfTurn extends Phase {
         game.getPhaseHandler().getPlayerTurn().setMustAttackEntity(null);
 
         Player activePlayer = game.getPhaseHandler().getPlayerTurn();
-        if (activePlayer.hasKeyword("At the beginning of this turn's end step, you lose the game.")) {
+        if (activePlayer.hasKeyword(KeywordType.At_the_beginning_of_this_turns_end_step_you_lose_the_game)) {
             final Card source = new Card(game.nextCardId());
             final SpellAbility change = new Ability(source, ManaCost.ZERO) {
                 @Override

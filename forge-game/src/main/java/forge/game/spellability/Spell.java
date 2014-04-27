@@ -19,6 +19,7 @@ package forge.game.spellability;
 
 import forge.game.Game;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.cost.Cost;
 import forge.game.cost.CostPayment;
 import forge.game.player.Player;
@@ -78,10 +79,10 @@ public abstract class Spell extends SpellAbility implements java.io.Serializable
             return false;
         }
 
-        if (!(card.isInstant() || activator.canCastSorcery() || card.hasKeyword("Flash")
+        if (!(card.isInstant() || activator.canCastSorcery() || card.hasKeyword(KeywordType.Flash)
                || this.getRestrictions().isInstantSpeed()
-               || activator.hasKeyword("You may cast nonland cards as though they had flash.")
-               || card.hasStartOfKeyword("You may cast CARDNAME as though it had flash."))) {
+               || activator.hasKeyword(KeywordType.You_may_cast_nonland_cards_as_though_they_had_flash)
+               || card.hasKeyword(KeywordType.You_may_cast_CARDNAME_any_time_you_could_cast_an_instant_if_you_pay_2_more_to_cast_it))) {
             return false;
         }
 
