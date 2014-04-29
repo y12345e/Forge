@@ -19,6 +19,7 @@ package forge.game.cost;
 
 import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
 
@@ -84,7 +85,7 @@ public class CostPayLife extends CostPart {
             return false;
         }
 
-        if (activator.hasKeyword("You can't pay life to cast spells or activate abilities.")) {
+        if (activator.hasKeyword(KeywordType.You_cant_pay_life_to_cast_spells_or_activate_abilities)) {
             return false;
         }
 

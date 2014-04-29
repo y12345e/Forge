@@ -18,6 +18,7 @@
 package forge.game.combat;
 
 import com.google.common.collect.Lists;
+
 import forge.card.CardType;
 import forge.card.MagicColor;
 import forge.card.mana.ManaCost;
@@ -29,6 +30,7 @@ import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
 import forge.game.card.CardFactoryUtil;
 import forge.game.card.CardLists;
+import forge.game.card.KeywordType;
 import forge.game.cost.Cost;
 import forge.game.phase.PhaseType;
 import forge.game.phase.Untap;
@@ -41,6 +43,7 @@ import forge.game.zone.ZoneType;
 import forge.util.Expressions;
 import forge.util.Lang;
 import forge.util.TextUtil;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -124,17 +127,17 @@ public class CombatUtil {
             return false;
         }
 
-        if (!nextTurn && blocker.isTapped() && !blocker.hasKeyword("CARDNAME can block as though it were untapped.")) {
+        if (!nextTurn && blocker.isTapped() && !blocker.hasKeyword(KeywordType.CARDNAME_can_block_as_though_it_were_untapped)) {
             return false;
         }
 
-        if (blocker.hasKeyword("CARDNAME can't block.") || blocker.hasKeyword("CARDNAME can't attack or block.")
+        if (blocker.hasKeyword(KeywordType.CARDNAME_cant_block) || blocker.hasKeyword(KeywordType.CARDNAME_cant_attack_or_block)
                 || blocker.isPhasedOut()) {
             return false;
         }
 
         final List<Card> list = blocker.getController().getCreaturesInPlay();
-        if (list.size() < 2 && blocker.hasKeyword("CARDNAME can't attack or block alone.")) {
+        if (list.size() < 2 && blocker.hasKeyword(KeywordType.CARDNAME_cant_attack_or_block_alone)) {
             return false;
         }
 
@@ -143,11 +146,11 @@ public class CombatUtil {
 
     public static boolean canBlockMoreCreatures(final Card blocker, final List<Card> blockedBy) {
         // TODO(sol) expand this for the additional blocking keyword
-        if (blockedBy.isEmpty() || blocker.hasKeyword("CARDNAME can block any number of creatures.")) {
+        if (blockedBy.isEmpty() || blocker.hasKeyword(KeywordType.CARDNAME_can_block_any_number_of_creatures)) {
             return true;
         }
-        int canBlockMore = blocker.getKeywordAmount("CARDNAME can block an additional creature.")
-                + blocker.getKeywordAmount("CARDNAME can block an additional ninety-nine creatures.") * 99;
+        int canBlockMore = blocker.getKeywordAmount(KeywordType.CARDNAME_can_block_an_additional_creature)
+                + blocker.getKeywordAmount(KeywordType.CARDNAME_can_block_an_additional_ninetyMnine_creatures) * 99;
         return canBlockMore >= blockedBy.size();
     }
 
@@ -197,7 +200,7 @@ public class CombatUtil {
             return true;
         }
 
-        if (attacker.hasKeyword("Unblockable")) {
+        if (attacker.hasKeyword(KeywordType.Unblockable)) {
             return false;
         }
 
@@ -212,7 +215,7 @@ public class CombatUtil {
 
     public static boolean isUnblockableFromLandwalk(final Card attacker, Player defendingPlayer) {
         //May be blocked as though it doesn't have landwalk. (Staff of the Ages)
-        if (attacker.hasKeyword("May be blocked as though it doesn't have landwalk.")) {
+        if (attacker.hasKeyword(KeywordType.May_be_blocked_as_though_it_doesnt_have_islandwalk)) {
             return false;
         }
 

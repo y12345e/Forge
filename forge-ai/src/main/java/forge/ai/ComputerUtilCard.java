@@ -411,22 +411,22 @@ public class ComputerUtilCard {
         value += c.getCMC() * 5;
     
         // Evasion keywords
-        if (c.hasKeyword("Flying")) {
+        if (c.hasKeyword(KeywordType.Flying)) {
             value += power * 10;
         }
-        if (c.hasKeyword("Horsemanship")) {
+        if (c.hasKeyword(KeywordType.Horsemanship)) {
             value += power * 10;
         }
-        if (c.hasKeyword("Unblockable")) {
+        if (c.hasKeyword(KeywordType.Unblockable)) {
             value += power * 10;
         } else {
-            if (c.hasKeyword("You may have CARDNAME assign its combat damage as though it weren't blocked.")) {
+            if (c.hasKeyword(KeywordType.You_may_have_CARDNAME_assign_its_combat_damage_as_though_it_werent_blocked)) {
                 value += power * 6;
             }
-            if (c.hasKeyword("Fear")) {
+            if (c.hasKeyword(KeywordType.Fear)) {
                 value += power * 6;
             }
-            if (c.hasKeyword("Intimidate")) {
+            if (c.hasKeyword(KeywordType.Intimidate)) {
                 value += power * 6;
             }
             if (c.hasStartOfKeyword("CantBeBlockedBy")) {
@@ -436,81 +436,81 @@ public class ComputerUtilCard {
     
         // Other good keywords
         if (power > 0) {
-            if (c.hasKeyword("Double Strike")) {
+            if (c.hasKeyword(KeywordType.Double_strike)) {
                 value += 10 + (power * 15);
-            } else if (c.hasKeyword("First Strike")) {
+            } else if (c.hasKeyword(KeywordType.First_strike)) {
                 value += 10 + (power * 5);
             }
-            if (c.hasKeyword("Deathtouch")) {
+            if (c.hasKeyword(KeywordType.Deathtouch)) {
                 value += 25;
             }
-            if (c.hasKeyword("Lifelink")) {
+            if (c.hasKeyword(KeywordType.Lifelink)) {
                 value += power * 10;
             }
-            if (power > 1 && c.hasKeyword("Trample")) {
+            if (power > 1 && c.hasKeyword(KeywordType.Trample)) {
                 value += (power - 1) * 5;
             }
-            if (c.hasKeyword("Vigilance")) {
+            if (c.hasKeyword(KeywordType.Vigilance)) {
                 value += (power * 5) + (toughness * 5);
             }
-            if (c.hasKeyword("Wither")) {
+            if (c.hasKeyword(KeywordType.Wither)) {
                 value += power * 10;
             }
-            if (c.hasKeyword("Infect")) {
+            if (c.hasKeyword(KeywordType.Infect)) {
                 value += power * 15;
             }
-            value += c.getKeywordMagnitude("Rampage");
+            value += c.getKeywordMagnitude(KeywordType.Rampage);
         }
     
-        value += c.getKeywordMagnitude("Bushido") * 16;
+        value += c.getKeywordMagnitude(KeywordType.Bushido) * 16;
         value += c.getAmountOfKeyword(KeywordType.Flanking) * 15;
         value += c.getAmountOfKeyword(KeywordType.Exalted) * 15;
         value += c.getKeywordMagnitude(KeywordType.Annihilator) * 50;
     
     
         // Defensive Keywords
-        if (c.hasKeyword("Reach") && !c.hasKeyword("Flying")) {
+        if (c.hasKeyword(KeywordType.Reach) && !c.hasKeyword(KeywordType.Flying)) {
             value += 5;
         }
-        if (c.hasKeyword("CARDNAME can block creatures with shadow as though they didn't have shadow.")) {
+        if (c.hasKeyword(KeywordType.CARDNAME_can_block_creatures_with_shadow_as_though_they_didnt_have_shadow)) {
             value += 3;
         }
     
         // Protection
-        if (c.hasKeyword("Indestructible")) {
+        if (c.hasKeyword(KeywordType.Indestructible)) {
             value += 70;
         }
-        if (c.hasKeyword("Prevent all damage that would be dealt to CARDNAME.")) {
+        if (c.hasKeyword(KeywordType.Prevent_all_damage_that_would_be_dealt_to_CARDNAME)) {
             value += 60;
-        } else if (c.hasKeyword("Prevent all combat damage that would be dealt to CARDNAME.")) {
+        } else if (c.hasKeyword(KeywordType.Prevent_all_combat_damage_that_would_be_dealt_to_CARDNAME)) {
             value += 50;
         }
-        if (c.hasKeyword("Hexproof")) {
+        if (c.hasKeyword(KeywordType.Hexproof)) {
             value += 35;
-        } else if (c.hasKeyword("Shroud")) {
+        } else if (c.hasKeyword(KeywordType.Shroud)) {
             value += 30;
         }
-        if (c.hasStartOfKeyword("Protection")) {
+        if (c.hasStartOfKeyword(KeywordType.Protection)) {
             value += 20;
         }
-        if (c.hasStartOfKeyword("PreventAllDamageBy")) {
+        if (c.hasStartOfKeyword(KeywordType.PreventAllDamageBy)) {
             value += 10;
         }
-        value += c.getKeywordMagnitude("Absorb") * 11;
+        value += c.getKeywordMagnitude(KeywordType.Absorb) * 11;
     
         // Bad keywords
-        if (c.hasKeyword("Defender") || c.hasKeyword("CARDNAME can't attack.")) {
+        if (c.hasKeyword(KeywordType.Defender) || c.hasKeyword(KeywordType.CARDNAME_cant_attack)) {
             value -= (power * 9) + 40;
         } else if (c.getSVar("SacrificeEndCombat").equals("True")) {
             value -= 40;
         }
-        if (c.hasKeyword("CARDNAME can't block.")) {
+        if (c.hasKeyword(KeywordType.CARDNAME_cant_block)) {
             value -= 10;
-        } else if (c.hasKeyword("CARDNAME attacks each turn if able.")) {
+        } else if (c.hasKeyword(KeywordType.CARDNAME_attacks_each_turn_if_able)) {
             value -= 10;
         } else if (c.hasStartOfKeyword("CARDNAME attacks specific player each combat if able")) {
             value -= 10;
-        } else if (c.hasKeyword("CARDNAME can block only creatures with flying.")) {
+        } else if (c.hasKeyword(KeywordType.CARDNAME_can_block_only_creatures_with_flying)) {
             value -= toughness * 5;
         }
     
@@ -518,10 +518,10 @@ public class ComputerUtilCard {
             value -= (toughness - 1) * 9;
         }
     
-        if (c.hasKeyword("CARDNAME can't attack or block.")) {
+        if (c.hasKeyword(KeywordType.CARDNAME_cant_attack_or_block)) {
             value = 50 + (c.getCMC() * 5); // reset everything - useless
         }
-        if (c.hasKeyword("CARDNAME doesn't untap during your untap step.")) {
+        if (c.hasKeyword(KeywordType.CARDNAME_doesnt_untap_during_your_untap_step)) {
             if (c.isTapped()) {
                 value = 50 + (c.getCMC() * 5); // reset everything - useless
             } else {
@@ -931,7 +931,7 @@ public class ComputerUtilCard {
             valueTempo *= 2;    //deal with annoying things
         }
         if (!destination.equals(ZoneType.Graveyard) &&  //TODO:boat-load of "when blah dies" triggers
-                c.hasKeyword("Persist") || c.hasKeyword("Undying") || c.hasKeyword("Modular")) {
+                c.hasKeyword(KeywordType.Persist) || c.hasKeyword(KeywordType.Undying) || c.hasKeyword(KeywordType.Modular)) {
             valueTempo *= 2;
         }
         if (destination.equals(ZoneType.Hand) && !c.isToken()) {

@@ -20,6 +20,7 @@ package forge.game.spellability;
 import forge.game.Game;
 import forge.game.GlobalRuleChange;
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.cost.Cost;
 import forge.game.cost.CostPayment;
 import forge.game.player.Player;
@@ -102,7 +103,7 @@ public abstract class AbilityActivated extends SpellAbility implements java.io.S
             }
         }
 
-        if (c.hasKeyword("CARDNAME's activated abilities can't be activated.") || this.isSuppressed()) {
+        if (c.hasKeyword(KeywordType.CARDNAMEs_activated_abilities_cant_be_activated) || this.isSuppressed()) {
             return false;
         }
 

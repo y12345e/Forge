@@ -9,6 +9,7 @@ import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
 import forge.game.card.CardLists;
 import forge.game.card.CounterType;
+import forge.game.card.KeywordType;
 import forge.game.combat.CombatUtil;
 import forge.game.cost.Cost;
 import forge.game.phase.PhaseType;
@@ -420,13 +421,13 @@ public class CountersPutAi extends SpellAbilityAi {
         if (mode == PlayerActionConfirmMode.Tribute) {
             // add counter if that opponent has a giant creature
             final List<Card> creats = player.getCreaturesInPlay();
-            final int tributeAmount = source.getKeywordMagnitude("Tribute");
-            final boolean isHaste = source.hasKeyword("Haste");
+            final int tributeAmount = source.getKeywordMagnitude(KeywordType.Tribute);
+            final boolean isHaste = source.hasKeyword(KeywordType.Haste);
             List<Card> threatening = CardLists.filter(creats, new Predicate<Card>() {
                 @Override
                 public boolean apply(Card c) {
                     return CombatUtil.canBlock(source, c, !isHaste) 
-                            && (c.getNetDefense() > source.getNetAttack() + tributeAmount || c.hasKeyword("DeathTouch"));
+                            && (c.getNetDefense() > source.getNetAttack() + tributeAmount || c.hasKeyword(KeywordType.Deathtouch));
                 }
             });
             if (!threatening.isEmpty()) {
@@ -443,7 +444,7 @@ public class CountersPutAi extends SpellAbilityAi {
                     List<Card> canBlock = CardLists.filter(creats, new Predicate<Card>() {
                         @Override
                         public boolean apply(Card c) {
-                            return CombatUtil.canBlock(source, c) && (c.getNetDefense() > source.getNetAttack() || c.hasKeyword("DeathTouch"));
+                            return CombatUtil.canBlock(source, c) && (c.getNetDefense() > source.getNetAttack() || c.hasKeyword(KeywordType.Deathtouch));
                         }
                     });
                     if (!canBlock.isEmpty()) {

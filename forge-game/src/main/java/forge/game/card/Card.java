@@ -1147,7 +1147,7 @@ public class Card extends GameEntity implements Comparable<Card> {
      * @return true, if successful
      */
     public final boolean canReceiveCounters(final CounterType type) {
-        if (this.hasKeyword(KeywordType.CARDNAME_cant_have_counters_put_on_it)) {
+        if (this.hasKeyword(KeywordType.CARDNAME_cant_have_counters_placed_on_it)) {
             return false;
         }
         if (this.isCreature() && type == CounterType.M1M1) {

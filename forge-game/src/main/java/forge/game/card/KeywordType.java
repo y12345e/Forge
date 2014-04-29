@@ -192,7 +192,7 @@ public enum KeywordType {
     CARDNAME_cant_be_the_target_of_blue_spells("CARDNAME can't be the target of blue spells.", null),
     CARDNAME_cant_be_the_target_of_red_spells_or_abilities_from_red_sources("CARDNAME can't be the target of red spells or abilities from red sources.", null),
     CARDNAME_cant_be_the_target_of_spells("CARDNAME can't be the target of spells.", null),
-    CARDNAME_cant_have_counters_put_on_it("CARDNAME can't have counters put on it.", null),
+    CARDNAME_cant_have_counters_placed_on_it("CARDNAME can't have counters placed on it.", null),
     CARDNAME_cant_have_more_than_seven_dream_counters_on_it("CARDNAME can't have more than seven dream counters on it.", null),
     CARDNAME_cant_have_or_gain("CARDNAME can't have or gain {string}.", null, KwParamType.String),
     CARDNAME_cant_phase_out("CARDNAME can't phase out.", null),

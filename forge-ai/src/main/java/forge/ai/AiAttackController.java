@@ -28,6 +28,7 @@ import forge.game.card.Card;
 import forge.game.card.CardFactory;
 import forge.game.card.CardLists;
 import forge.game.card.CounterType;
+import forge.game.card.KeywordType;
 import forge.game.combat.Combat;
 import forge.game.combat.CombatUtil;
 import forge.game.player.Player;
@@ -202,7 +203,7 @@ public class AiAttackController {
         if (ComputerUtilCombat.poisonIfUnblocked(attacker, opp) > 0) {
             return true;
         }
-        if (this.attackers.size() == 1 && attacker.hasKeyword("Exalted") && ComputerUtilCombat.predictDamageTo(opp, 1, attacker, true) > 0) {
+        if (this.attackers.size() == 1 && attacker.hasKeyword(KeywordType.Exalted) && ComputerUtilCombat.predictDamageTo(opp, 1, attacker, true) > 0) {
             return true;
         }
 
@@ -297,7 +298,7 @@ public class AiAttackController {
                 }
                 continue;
             }
-            if (c.hasKeyword("Vigilance")) {
+            if (c.hasKeyword(KeywordType.Vigilance)) {
                 vigilantes.add(c);
                 notNeededAsBlockers.remove(c); // they will be re-added later
                 if (canBlockAnAttacker(c, this.oppList)) {
@@ -444,14 +445,14 @@ public class AiAttackController {
 
         for (Card attacker : attackers) {
             if (!CombatUtil.canBeBlocked(attacker, this.blockers, null)
-                    || attacker.hasKeyword("You may have CARDNAME assign its combat damage as though it weren't blocked.")) {
+                    || attacker.hasKeyword(KeywordType.You_may_have_CARDNAME_assign_its_combat_damage_as_though_it_werent_blocked)) {
                 unblockedAttackers.add(attacker);
             }
         }
 
         for (Card blocker : this.blockers) {
-            if (blocker.hasKeyword("CARDNAME can block any number of creatures.")
-                    || blocker.hasKeyword("CARDNAME can block an additional ninety-nine creatures.")) {
+            if (blocker.hasKeyword(KeywordType.CARDNAME_can_block_any_number_of_creatures)
+                    || blocker.hasKeyword(KeywordType.CARDNAME_can_block_an_additional_ninetyMnine_creatures)) {
                 for (Card attacker : this.attackers) {
                     if (CombatUtil.canBlock(attacker, blocker)) {
                         remainingAttackers.remove(attacker);
@@ -466,7 +467,7 @@ public class AiAttackController {
             if (remainingAttackers.isEmpty()) {
                 break;
             }
-            if (blocker.hasKeyword("CARDNAME can block an additional creature.")) {
+            if (blocker.hasKeyword(KeywordType.CARDNAME_can_block_an_additional_creature)) {
                 remainingAttackers.remove(0);
                 if (remainingAttackers.isEmpty()) {
                     break;
@@ -619,7 +620,7 @@ public class AiAttackController {
                     exalted = true;
                     break;
                 }
-                if (c.hasKeyword("Exalted")) {
+                if (c.hasKeyword(KeywordType.Exalted)) {
                     exaltedCount++;
                     if (exaltedCount > 2) {
                         exalted = true;
@@ -702,7 +703,7 @@ public class AiAttackController {
         final int outNumber = computerForces - humanForces;
 
         for (Card blocker : this.blockers) {
-            if (blocker.hasKeyword("CARDNAME can block any number of creatures.")) {
+            if (blocker.hasKeyword(KeywordType.CARDNAME_can_block_any_number_of_creatures)) {
                 aiLifeToPlayerDamageRatio--;
             }
         }
@@ -900,7 +901,7 @@ public class AiAttackController {
     public final int countExaltedBonus(final Player player) {
         int bonus = 0;
         for (Card c : player.getCardsIn(ZoneType.Battlefield)) {
-            bonus += c.getKeywordAmount("Exalted");
+            bonus += c.getKeywordAmount(KeywordType.Exalted);
         }
 
         return bonus;
@@ -918,7 +919,7 @@ public class AiAttackController {
     public final int getAttack(final Card c) {
         int n = c.getNetCombatDamage();
 
-        if (c.hasKeyword("Double Strike")) {
+        if (c.hasKeyword(KeywordType.Double_strike)) {
             n *= 2;
         }
 
@@ -972,7 +973,7 @@ public class AiAttackController {
                     && CombatUtil.canBlock(attacker, defender)) {
                 numberOfPossibleBlockers += 1;
                 if (isWorthLessThanAllKillers && ComputerUtilCombat.canDestroyAttacker(ai, attacker, defender, combat, false)
-                        && !(attacker.hasKeyword("Undying") && attacker.getCounters(CounterType.P1P1) == 0)) {
+                        && !(attacker.hasKeyword(KeywordType.Undying) && attacker.getCounters(CounterType.P1P1) == 0)) {
                     canBeKilledByOne = true; // there is a single creature on
                                              // the battlefield that can kill
                                              // the creature

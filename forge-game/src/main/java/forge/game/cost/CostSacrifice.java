@@ -19,6 +19,7 @@ package forge.game.cost;
 
 import forge.game.card.Card;
 import forge.game.card.CardLists;
+import forge.game.card.KeywordType;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
 import forge.game.zone.ZoneType;
@@ -91,7 +92,7 @@ public class CostSacrifice extends CostPartWithList {
             typeList = CardLists.getValidCards(typeList, this.getType().split(";"), activator, source);
             final Integer amount = this.convertAmount();
 
-            if (activator.hasKeyword("You can't sacrifice creatures to cast spells or activate abilities.")) {
+            if (activator.hasKeyword(KeywordType.You_cant_sacrifice_creatures_to_cast_spells_or_activate_abilities)) {
                 typeList = CardLists.getNotType(typeList, "Creature");
             }
 
@@ -107,7 +108,7 @@ public class CostSacrifice extends CostPartWithList {
             if (!source.isInPlay()) {
                 return false;
             }
-            else if (source.isCreature() && activator.hasKeyword("You can't sacrifice creatures to cast spells or activate abilities.")) {
+            else if (source.isCreature() && activator.hasKeyword(KeywordType.You_cant_sacrifice_creatures_to_cast_spells_or_activate_abilities)) {
                 return false;
             }
         }

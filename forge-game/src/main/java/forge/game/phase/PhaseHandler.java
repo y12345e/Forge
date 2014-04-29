@@ -19,12 +19,14 @@ package forge.game.phase;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import forge.card.mana.ManaCost;
 import forge.game.*;
 import forge.game.ability.AbilityFactory;
 import forge.game.card.Card;
 import forge.game.card.CardFactoryUtil;
 import forge.game.card.CardLists;
+import forge.game.card.KeywordType;
 import forge.game.card.CardPredicates.Presets;
 import forge.game.combat.Combat;
 import forge.game.combat.CombatUtil;
@@ -40,6 +42,7 @@ import forge.game.zone.ZoneType;
 import forge.util.CollectionSuppliers;
 import forge.util.maps.HashMapOfLists;
 import forge.util.maps.MapOfLists;
+
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.*;
@@ -472,7 +475,7 @@ public class PhaseHandler implements java.io.Serializable {
         for (final Card c2 : combat.getAttackers()) {
             boolean canAttack = CombatUtil.checkPropagandaEffects(game, c2, combat);
             if (canAttack) {
-                if (!c2.hasKeyword("Vigilance") && !c2.hasKeyword("Attacking doesn't cause CARDNAME to tap.")) {
+                if (!c2.hasKeyword(KeywordType.Vigilance) && !c2.hasKeyword(KeywordType.Attacking_doesnt_cause_CARDNAME_to_tap)) {
                     c2.tap();
                 }
             }
@@ -495,7 +498,7 @@ public class PhaseHandler implements java.io.Serializable {
             final Player attackingPlayer = combat.getAttackingPlayer();
             final Card attacker = combat.getAttackers().get(0);
             for (Card card : attackingPlayer.getCardsIn(ZoneType.Battlefield)) {
-                int exaltedMagnitude = card.getKeywordAmount("Exalted");
+                int exaltedMagnitude = card.getKeywordAmount(KeywordType.Exalted);
 
                 for (int i = 0; i < exaltedMagnitude; i++) {
                     String abScript = String.format("AB$ Pump | Cost$ 0 | Defined$ CardUID_%d | NumAtt$ +1 | NumDef$ +1 | StackDescription$ Exalted for attacker {c:CardUID_%d} (Whenever a creature you control attacks alone, that creature gets +1/+1 until end of turn).", attacker.getUniqueNumber(), attacker.getUniqueNumber());

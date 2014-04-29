@@ -18,6 +18,7 @@
 package forge.game.cost;
 
 import forge.game.card.Card;
+import forge.game.card.KeywordType;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
 
@@ -56,7 +57,7 @@ public class CostTap extends CostPart {
     @Override
     public final boolean canPay(final SpellAbility ability) {
         final Card source = ability.getHostCard();
-        return source.isUntapped() && (!source.isSick() || source.hasKeyword("CARDNAME may activate abilities as though it has haste."));
+        return source.isUntapped() && (!source.isSick() || source.hasKeyword(KeywordType.CARDNAME_may_activate_abilities_as_though_it_has_haste));
     }
 
     @Override

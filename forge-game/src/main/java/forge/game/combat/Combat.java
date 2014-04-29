@@ -21,13 +21,16 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
 import forge.game.GameEntity;
 import forge.game.card.Card;
 import forge.game.card.CardLists;
 import forge.game.card.CardPredicates;
+import forge.game.card.KeywordType;
 import forge.game.player.Player;
 import forge.game.trigger.TriggerType;
 import forge.game.zone.ZoneType;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -480,7 +483,7 @@ public class Combat {
                 continue;
             }
 
-            boolean trampler = attacker.hasKeyword("Trample");
+            boolean trampler = attacker.hasKeyword(KeywordType.Trample);
             orderedBlockers = this.blockersOrderedForDamageAssignment.get(attacker);
             assignedDamage = true;
             // If the Attacker is unblocked, or it's a trampler and has 0 blockers, deal damage to defender
@@ -493,7 +496,7 @@ public class Combat {
                 Player assigningPlayer = this.getAttackingPlayer();
                 // Defensive Formation is very similar to Banding with Blockers
                 // It allows the defending player to assign damage instead of the attacking player
-                if (defender instanceof Player && defender.hasKeyword("You assign combat damage of each creature attacking you.")) {
+                if (defender instanceof Player && defender.hasKeyword(KeywordType.You_assign_combat_damage_of_each_creature_attacking_you)) {
                     assigningPlayer = (Player)defender;
                 } else if ( AttackingBand.isValidBand(orderedBlockers, true)){
                     assigningPlayer = orderedBlockers.get(0).getController();
