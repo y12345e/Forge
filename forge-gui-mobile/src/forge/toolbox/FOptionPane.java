@@ -2,7 +2,9 @@ package forge.toolbox;
 
 import com.badlogic.gdx.math.Vector2;
 
+import forge.Forge;
 import forge.assets.FSkinImage;
+import forge.screens.match.views.VPrompt;
 import forge.toolbox.FEvent.*;
 import forge.util.Callback;
 import forge.util.Utils;
@@ -13,7 +15,14 @@ public class FOptionPane extends FDialog {
     public static final FSkinImage WARNING_ICON = FSkinImage.WARNING;
     public static final FSkinImage ERROR_ICON = FSkinImage.ERROR;
 
-    private static float PADDING = 10;
+    public static float PADDING = 10;
+    public static final float GAP_BELOW_BUTTONS = PADDING * 0.5f;
+    public static final float BUTTON_HEIGHT = Utils.AVG_FINGER_HEIGHT * 0.75f;
+
+    public static float getMaxDisplayObjHeight() {
+        return Forge.getCurrentScreen().getHeight() - 2 * VPrompt.HEIGHT - FDialog.TITLE_HEIGHT - 
+               2 * PADDING - BUTTON_HEIGHT - GAP_BELOW_BUTTONS;
+    }
 
     public static void showMessageDialog(String message) {
         showMessageDialog(message, "Forge", INFORMATION_ICON);
@@ -179,11 +188,8 @@ public class FOptionPane extends FDialog {
     protected float layoutAndGetHeight(float width, float maxHeight) {
         float x = PADDING;
         float y = PADDING;
-        float gapAboveButtons = PADDING * 1.5f;
-        float gapBottom = PADDING;
-        float buttonHeight = Utils.AVG_FINGER_HEIGHT * 0.75f;
 
-        float maxPromptHeight = maxHeight - gapAboveButtons - gapBottom - buttonHeight;
+        float maxPromptHeight = maxHeight - PADDING - BUTTON_HEIGHT - GAP_BELOW_BUTTONS;
         if (displayObj != null) {
             maxPromptHeight -= displayObj.getHeight();
         }
@@ -211,12 +217,12 @@ public class FOptionPane extends FDialog {
 
         x = PADDING;
         if (promptHeight > 0) {
-            y += promptHeight + gapBottom;
+            y += promptHeight + PADDING;
         }
 
         if (displayObj != null) {
             displayObj.setBounds(x, y, width - 2 * x, displayObj.getHeight());
-            y += displayObj.getHeight() + gapBottom;
+            y += displayObj.getHeight() + PADDING;
         }
 
         //determine size for and position buttons
@@ -239,10 +245,10 @@ public class FOptionPane extends FDialog {
             dx = buttonWidth + gapBetween;
         }
         for (FButton btn : buttons) {
-            btn.setBounds(x, y, buttonWidth, buttonHeight);
+            btn.setBounds(x, y, buttonWidth, BUTTON_HEIGHT);
             x += dx;
         }
 
-        return y + buttonHeight + gapBottom / 2; //leave less gap below buttons
+        return y + BUTTON_HEIGHT + GAP_BELOW_BUTTONS;
     }
 }

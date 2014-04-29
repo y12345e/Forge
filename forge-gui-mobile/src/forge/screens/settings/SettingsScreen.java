@@ -121,6 +121,10 @@ public class SettingsScreen extends FScreen {
                 "Randomize Card Art",
                 "Generates cards with random art in generated limited mode card pools."),
                 4);
+        lstSettings.addItem(new BooleanSetting(FPref.UI_SCALE_LARGER,
+                "Scale Image Larger",
+                "Allows card pictures to be expanded larger than their original size."),
+                4);
         lstSettings.addItem(new BooleanSetting(FPref.UI_HIDE_REMINDER_TEXT,
                 "Hide Reminder Text",
                 "Hide reminder text in Card Detail pane."),
@@ -278,6 +282,12 @@ public class SettingsScreen extends FScreen {
 
         @Override
         public void drawValue(Graphics g, Setting value, FSkinFont font, FSkinColor color, boolean pressed, float x, float y, float w, float h) {
+            float offset = w * INSETS_FACTOR - FList.PADDING; //increase padding for settings items
+            x += offset;
+            y += offset;
+            w -= 2 * offset;
+            h -= 2 * offset;
+
             float totalHeight = h;
             h = font.getFont().getMultiLineBounds(value.label).height + 5;
 

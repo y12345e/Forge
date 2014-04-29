@@ -35,6 +35,7 @@ import forge.player.HumanPlay;
 import forge.properties.ForgePreferences;
 import forge.screens.match.ZoneAction;
 import forge.screens.match.views.VField;
+import forge.toolbox.MouseTriggerEvent;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -53,9 +54,12 @@ public class CField implements ICDoc {
     private final VField view;
     private boolean initializedAlready = false;
 
-    private final MouseListener madAvatar = new MouseAdapter() { @Override
+    private final MouseListener madAvatar = new MouseAdapter() {
+        @Override
         public void mousePressed(final MouseEvent e) {
-            CPrompt.SINGLETON_INSTANCE.getInputControl().selectPlayer(player, e); } };
+            CPrompt.SINGLETON_INSTANCE.getInputControl().selectPlayer(player, new MouseTriggerEvent(e));
+        }
+    };
 
     /**
      * Controls Swing components of a player's field instance.
@@ -100,19 +104,25 @@ public class CField implements ICDoc {
                 if (player.getLobbyPlayer() != CField.this.viewer) {
                     return;
                 }
+
+                CPrompt.SINGLETON_INSTANCE.getInputControl().selectCard(c, null);
+                // Temporarily commenting out the below to route, Flashback cards through the InputProxy
+                /*
                 final Game game = player.getGame();
                 // TODO: "can play" check needed!
 
                 // should I check for who owns these cards? Are there any abilities to be played from opponent's graveyard? 
                 final SpellAbility ab = player.getController().getAbilityToPlay(c.getAllPossibleAbilities(player, true));
                 if ( null != ab) {
-                    game.getAction().invoke(new Runnable(){ @Override public void run(){
-                        HumanPlay.playSpellAbility(player, ab);
+                    game.getAction().invoke(new Runnable(){ 
+                    	@Override public void run() {
+                    		HumanPlay.playSpellAbility(player, ab);
+                    		game.getStack().addAllTirggeredAbilitiesToStack();
                     }});
                 }
+                */
             }
         };
-
 
         Function<Byte, Void> manaAction = new Function<Byte, Void>() {
             public Void apply(Byte colorCode) {
@@ -126,7 +136,6 @@ public class CField implements ICDoc {
                 return null;
             }
         };
-
         
         view.getDetailsPanel().setupMouseActions(handAction, libraryAction, exileAction, graveAction, flashBackAction, manaAction);
         

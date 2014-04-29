@@ -8,6 +8,7 @@ import forge.game.Game;
 import forge.game.card.Card;
 import forge.game.card.CardLists;
 import forge.game.card.CardPredicates.Presets;
+import forge.game.card.CounterType;
 import forge.game.combat.Combat;
 import forge.game.phase.PhaseType;
 import forge.game.player.Player;
@@ -82,6 +83,20 @@ public class ChooseCardAi extends SpellAbilityAi {
                     }
                 });
                 if (choices.isEmpty()) {
+                    return false;
+                }
+            } else if (logic.equals("Ashiok")) {
+            	final int loyalty = host.getCounters(CounterType.LOYALTY) - 1;
+            	for (int i = loyalty; i >= 0; i--) {
+            		host.setSVar("ChosenX", "Number$" + i);
+            		choices = ai.getGame().getCardsIn(choiceZone);
+            		choices = CardLists.getValidCards(choices, sa.getParam("Choices"), host.getController(), host);
+                	if (!choices.isEmpty()) {
+                		return true;
+                    }
+            	}
+            	
+            	if (choices.isEmpty()) {
                     return false;
                 }
             }

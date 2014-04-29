@@ -49,11 +49,7 @@ public class FSkinColor {
     }
 
     public static FSkinColor getStandardColor(int r, int g, int b) {
-        return getStandardColor(r, g, b, 1);
-    }
-    public static FSkinColor getStandardColor(int r, int g, int b, float a) {
-        float div = 255f;
-        return getStandardColor(new Color((float)r / div, (float)g / div, (float)b / div, a));
+        return getStandardColor(fromRGB(r, g, b));
     }
     public static FSkinColor getStandardColor(final Color c0) {
         return new FSkinColor(c0, NO_BRIGHTNESS_DELTA, NO_STEP, NO_STEP, NO_ALPHA);
@@ -169,9 +165,9 @@ public class FSkinColor {
      * Returns opaque (non-alpha) stepped color.
      * Plus for lighter, minus for darker.
      *
-     * @param clr0 {@link java.awt.Color}
+     * @param clr0 {Color}
      * @param step int
-     * @return {@link java.awt.Color}
+     * @return {@link Color}
      */
     public static Color stepColor(Color clr0, int step) {
         float r = clr0.r * 255;

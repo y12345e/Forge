@@ -22,6 +22,7 @@ import forge.game.card.Card;
 import forge.screens.match.CMatchUI;
 import forge.screens.match.controllers.CPrompt;
 import forge.toolbox.FScrollPane;
+import forge.toolbox.MouseTriggerEvent;
 import forge.view.arcane.util.Animation;
 import forge.view.arcane.util.CardPanelMouseListener;
 
@@ -57,6 +58,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
 
     private final int landStackMax = 5;
     private final int tokenStackMax = 5;
+    private final int othersStackMax = 5;
 
     private final boolean mirror;
 
@@ -132,7 +134,6 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
         return allLands;
     }
 
-
     private final CardStackRow collectAllTokens() {
         final CardStackRow allTokens = new CardStackRow();
         outerLoop:
@@ -202,7 +203,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
         final CardStackRow tokens = collectAllTokens();
         final CardStackRow creatures = new CardStackRow(this.getCardPanels(), RowType.CreatureNonToken);
         final CardStackRow others = new CardStackRow(this.getCardPanels(), RowType.Other);
-
+        
         // should find an appropriate width of card
         int maxCardWidth = this.getCardWidthMax();
         setCardWidth(maxCardWidth);
@@ -265,7 +266,9 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
             for (int stackIndex = 0, stackCount = row.size(); stackIndex < stackCount; stackIndex++) {
                 final CardStack stack = row.get(stackIndex);
                 // Align others to the right.
-                if (RowType.Other.isGoodFor(stack.get(0).getCard())) {
+                if (RowType.Other.isGoodFor(stack.get(0).getCard()) || 
+                        (stack.get(0).getCard().isEnchantment() && !stack.get(0).getCard().isCreature() && !stack.get(0).getCard().isEnchanted() && !stack.get(0).getCard().isCloned() &&
+                        (!stack.get(0).getCard().isEnchantingCard() && ((Card) (stack.get(0).getCard().getEnchanting())).getController() == stack.get(0).getCard().getController()))) {
                     x = (this.playAreaWidth - PlayArea.GUTTER_X) + this.extraCardSpacingX;
                     for (int i = stackIndex, n = row.size(); i < n; i++) {
                         CardStack r = row.get(i);
@@ -371,7 +374,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
             final int stackWidth = stack.getWidth();
             //System.out.printf("Adding %s (+%dpx), current row is %dpx and has %s \n", stack, stackWidth, rowWidth, currentRow ); 
             // If the row is not empty and this stack doesn't fit, add the row.
-            if (rowWidth + stackWidth > this.playAreaWidth && !currentRow.isEmpty() ) {
+            if (rowWidth + stackWidth > this.playAreaWidth && !currentRow.isEmpty()) {
 
                 // Stop processing if the row is too wide or tall.
                 if (rowWidth > this.playAreaWidth || this.getRowsHeight(template) + sourceRow.getHeight() > this.playAreaHeight) {
@@ -421,7 +424,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
     private int planOthersRow(final List<CardStack> sourceRow, final int firstPile, final List<CardStackRow> template, final CardStackRow rowToFill) {
         int rowWidth = rowToFill.getWidth();
 
-        // System.out.println("This row has:" + rowToFill + "; want to add:" + sourceRow );
+        //System.out.println("This row has:" + rowToFill + "; want to add:" + sourceRow );
         for (int i = firstPile; i < sourceRow.size(); i++ ) {
             CardStack stack = sourceRow.get(i);
 
@@ -496,7 +499,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
     /** {@inheritDoc} */
     @Override
     public final void mouseLeftClicked(final CardPanel panel, final MouseEvent evt) {
-        CPrompt.SINGLETON_INSTANCE.getInputControl().selectCard(panel.getCard(), evt);
+        CPrompt.SINGLETON_INSTANCE.getInputControl().selectCard(panel.getCard(), new MouseTriggerEvent(evt));
         if ((panel.getTappedAngle() != 0) && (panel.getTappedAngle() != CardPanel.TAPPED_ANGLE)) {
             return;
         }
@@ -506,7 +509,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
     /** {@inheritDoc} */
     @Override
     public final void mouseRightClicked(final CardPanel panel, final MouseEvent evt) {
-        CPrompt.SINGLETON_INSTANCE.getInputControl().selectCard(panel.getCard(), evt);
+        CPrompt.SINGLETON_INSTANCE.getInputControl().selectCard(panel.getCard(), new MouseTriggerEvent(evt));
         super.mouseRightClicked(panel, evt);
     }
 
@@ -652,7 +655,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
             }
         }
     }
-
+    
     private class CardStackRow extends ArrayList<CardStack> {
         private static final long serialVersionUID = 716489891951011846L;
 
@@ -662,7 +665,11 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
 
         public CardStackRow(final List<CardPanel> cardPanels, final RowType type) {
             this();
-            this.addAll(cardPanels, type);
+            if (type == RowType.Other) {
+                this.addAllOthers(cardPanels, type);
+            } else {
+                this.addAll(cardPanels, type);
+            }
         }
 
         private void addAll(final List<CardPanel> cardPanels, final RowType type) {
@@ -673,6 +680,39 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
                 final CardStack stack = new CardStack();
                 stack.add(panel);
                 this.add(stack);
+            }
+        }
+        
+        /**
+         * This is an alternate method to addAll() that sorts "other" cards into stacks 
+         * based on sickness, cloning, counters, and cards attached to them. All cards
+         * that aren't equipped/enchanted/enchanting/equipping/etc that are otherwise 
+         * the same get stacked.
+         */
+        private void addAllOthers(final List<CardPanel> cardPanels, final RowType type) {
+            for (final CardPanel panel : cardPanels) {
+                if (!type.isGoodFor(panel.getCard()) || (panel.getAttachedToPanel() != null)) {
+                    continue;
+                }
+                boolean stackable = false;
+                for (CardStack s : this) {
+                    Card otherCard = s.get(0).getCard();
+                    Card thisCard = panel.getCard();
+                    if (otherCard.getName().equals(thisCard.getName()) && s.size() < othersStackMax) {
+                        if (panel.getAttachedPanels().isEmpty()
+                            && thisCard.getCounters().equals(otherCard.getCounters())
+                            && (thisCard.isSick() == otherCard.isSick())
+                            && (thisCard.isCloned() == otherCard.isCloned())) {
+                            s.add(panel);
+                            stackable = true;
+                        }
+                    }
+                }
+                if (!stackable) {
+                    final CardStack stack = new CardStack();
+                    stack.add(panel);
+                    this.add(stack);
+                }
             }
         }
 

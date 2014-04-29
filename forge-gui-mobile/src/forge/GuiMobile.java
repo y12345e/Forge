@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.badlogic.gdx.Gdx;
@@ -42,6 +43,7 @@ import forge.screens.match.views.VPhaseIndicator.PhaseLabel;
 import forge.screens.match.winlose.ViewWinLose;
 import forge.toolbox.FOptionPane;
 import forge.toolbox.GuiChoose;
+import forge.util.ITriggerEvent;
 import forge.util.ThreadUtil;
 import forge.util.WaitCallback;
 import forge.util.WaitRunnable;
@@ -220,7 +222,7 @@ public class GuiMobile implements IGuiBase {
     }
 
     @Override
-    public SpellAbility getAbilityToPlay(List<SpellAbility> abilities, Object triggerEvent) {
+    public SpellAbility getAbilityToPlay(List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
         if (abilities.isEmpty()) {
             return null;
         }
@@ -328,5 +330,15 @@ public class GuiMobile implements IGuiBase {
     @Override
     public File getSaveFile(File defaultFile) {
         return defaultFile; //TODO: Show dialog
+    }
+
+    @Override
+    public void copyToClipboard(String text) {
+        Forge.getClipboard().setContents(text);
+    }
+
+    @Override
+    public void browseToUrl(String url) throws Exception {
+        Gdx.net.openURI(url);
     }
 }

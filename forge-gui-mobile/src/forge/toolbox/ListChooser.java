@@ -62,11 +62,11 @@ import java.util.List;
  * @version $Id: ListChooser.java 25183 2014-03-14 23:09:45Z drdev $
  */
 public class ListChooser<T> extends FContainer {
-    private static final FSkinColor BACK_COLOR = FSkinColor.get(Colors.CLR_ZEBRA);
-    private static final FSkinColor ALT_ITEM_COLOR = BACK_COLOR.getContrastColor(-20);
-    private static final FSkinColor SEL_COLOR = FSkinColor.get(Colors.CLR_ACTIVE);
-    private static final FSkinColor BORDER_COLOR = FSkinColor.get(Colors.CLR_BORDERS);
-    private static final float ITEM_HEIGHT = Utils.AVG_FINGER_HEIGHT * 0.8f;
+    public static final FSkinColor BACK_COLOR = FSkinColor.get(Colors.CLR_ZEBRA);
+    public static final FSkinColor ALT_ITEM_COLOR = BACK_COLOR.getContrastColor(-20);
+    public static final FSkinColor SEL_COLOR = FSkinColor.get(Colors.CLR_ACTIVE);
+    public static final FSkinColor BORDER_COLOR = FSkinColor.get(Colors.CLR_BORDERS);
+    public static final float ITEM_HEIGHT = Utils.AVG_FINGER_HEIGHT * 0.75f;
 
     // Data and number of choices for the list
     private int minChoices, maxChoices;
@@ -132,7 +132,7 @@ public class ListChooser<T> extends FContainer {
         else {
             lstChoices.allowMultipleSelections = true;
         }
-        setHeight(ITEM_HEIGHT * Math.min(list.size(), 8)); //make tall enough to show 8 items without scrolling
+        setHeight(Math.min(ITEM_HEIGHT * list.size(), FOptionPane.getMaxDisplayObjHeight()));
 
         optionPane = new FOptionPane(null, title, null, this, options, minChoices < 0 ? 0 : -1, new Callback<Integer>() {
             @Override
@@ -220,7 +220,7 @@ public class ListChooser<T> extends FContainer {
 
                 @Override
                 public boolean tap(T value, float x, float y, int count) {
-                    int index = lstChoices.getIndexOf(value);
+                    Integer index = ChoiceList.this.getIndexOf(value);
                     if (allowMultipleSelections) {
                         if (selectedIndices.contains(index)) {
                             selectedIndices.remove(index);

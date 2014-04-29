@@ -1,4 +1,4 @@
-Forge Beta: 0#-##-2014 ver 1.5.16
+Forge Beta: 0#-##-2014 ver 1.5.18
 
 
 13### cards in total.
@@ -16,154 +16,23 @@ The default locations by operating system are:
 - Linux: <your home directory>/.cache/forge/pics/tokens/
 
 
-- New Journey into Nyx cards -
-We have added a branch to our SVN for the new cards that are currently being scripted. These cards are not yet available in this build of forge. Please be patient and they will soon become available.
+- Journey into Nyx cards -
+Forge now includes all of the new Journey into Nyx cards. It may take a few days/weeks before these new card pictures become available for downloading via the "Download LQ Card Pictures" button. The LQ set pictures tend to take a few more weeks/months to process before they become available for downloading via the "Download LQ Set Pictures" button. Please be patient. The Forge devs are not involved in maintaining the servers that house these pictures.
 
 
 ---------
 New Cards
 ---------
 
-Mindstorm Crown
-Harvest Mage
-Quarum Trench Gnomes
-Game of Chaos
 
 
----------------------------------
-New Journey into Nyx branch Cards
----------------------------------
 
-Ravenous Leucrocota
-Cyclops of Eternal Fury
-Hall of Triumph
-Iroas, God of Victory
-Sigiled Starfish
-Dawnbringer Charioteers and Scourge of Fleets
-Ajani's Presence
-Gnarled Scarhide
-Dakra Mystic
-Dictate of Kruphix
-Godsend
-Sage of Hours
-Kruphix, God of Horizons
-Temple of Epiphany
-Temple of Malady
-Eidolon of the Great Revel
-Mogis's Warhound
-Dictate of the Twin Gods
-Eidolon of Blossoms
-Satyr Hoplite
-Keranos, God of Storms
-Interpret the Signs
-Extinguish All Hope
-Dictate of Karametra
-Mana Confluence
-Doomwake Giant
-Squelching Leeches
-Worst Fears
-Athreos, God of Passage
-Hydra Broodmaster
-Forgeborn Oreads
-Spawn of Thraxes
-Spite of Mogis
-Ajani, Mentor of Heroes
-Nyx-Fleece Ram
-Pharika, God of Affliction
-Underworld Coinsmith
-Eidolon of Rhetoric
-Aegis of the Gods
-Kruphix's Insight
-Pheres-Band Warchief
-Dictate of Heliod
-Heroes' Bane
-Setessan Tactics
-Spirespine
-Godhunter Octopus
-Battlefield Thaumaturge
-Crystalline Nautilus
-Golden Hind
-Bearer of the Heavens
-Harness by Force
-Hypnotic Siren
-Desperate Stand
-Disciple of Deceit
-Font of Fertility
-Font of Fortunes
-Font of Ire
-Font of Return
-Font of Vigor
-Banishing Light
-Dictate of Erebos
-Master of the Feast
-Silence the Believers
-Bassara Tower Archer
-Desecration Plague
-Goldenhide Ox
-Humbler of Mortals
-Reviving Melody
-Satyr Grovedancer
-Aerial Formation
-Cloaked Siren
-Countermand
-Pin to the Earth
-Armory of Iroas
-Chariot of Victory
-Deserter's Quarters
-Gold-Forged Sentinel
-Fleetfeather Cockatrice
-Nyx Weaver
-Revel of the Fallen God
-Stormchaser Chimera
-Agent of Erebos
-Aspect of Gorgon
-Cast into Darkness
-Cruel Feeding
-Dreadbringer Lampads
-Feast of Dreams
-Felhide Petrifier
-Grim Guardian
-Colossal Heroics
-Consign to Dust
-Nature's Panoply
-Swarmborn Giant
-Market Festival
-Nessian Game Warden
-Oakheart Dryads
-Pheres-Band Thunderhoof
-Renowned Weaver
-Solidarity of Heroes
-Strength from the Fallen
-Gluttonous Cyclops
-Pensive Minotaur
-Rouse the Mob
-Wildfire Cerberus
-Akroan Line Breaker
-Blinding Flare
-Flamespeaker's Will
-Flurry of Horns
-Knowledge and Power
-Lightning Diadem
-Prophetic Flamespeaker
-Rollick of Abandon
-Sigiled Skink
-Starfall
-Twinflame
-Rotted Hulk
-Spiteful Blow
-Thoughtrender Lamia
-Tormented Thoughts
-Akroan Mastiff
-Armament of Nyx
-Deicide
-Eagle of the Watch
-Bloodcrazed Hoplite
-Brain Maggot
-Nightmarish End
-Nyx Infusion
-Pharika's Chosen
-Returned Reveler
-Ritual of the Returned
+---------------------------
+New Conspiracy branch Cards
+---------------------------
+
+Dack Fayden
+Magister of Worth
 
 
 ------------

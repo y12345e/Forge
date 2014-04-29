@@ -1,6 +1,14 @@
 package forge.itemmanager;
 
+import forge.Forge.Graphics;
+import forge.assets.FSkinColor;
+import forge.assets.FSkinFont;
+import forge.assets.FSkinImage;
+import forge.card.CardFaceSymbols;
+import forge.card.CardRenderer;
+import forge.card.ColorSet;
 import forge.deck.DeckProxy;
+import forge.deck.io.DeckPreferences;
 import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.itemmanager.filters.DeckColorFilter;
@@ -9,6 +17,7 @@ import forge.itemmanager.filters.DeckFormatFilter;
 import forge.itemmanager.filters.DeckSearchFilter;
 import forge.itemmanager.filters.DeckSetFilter;
 import forge.itemmanager.filters.ItemFilter;
+import forge.itemmanager.views.ItemListView.ItemRenderer;
 import forge.menu.FMenuItem;
 import forge.menu.FPopupMenu;
 import forge.menu.FSubMenu;
@@ -16,10 +25,14 @@ import forge.model.FModel;
 import forge.toolbox.FEvent;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.toolbox.FEvent.FEventType;
+import forge.toolbox.FList;
 import forge.toolbox.FOptionPane;
 import forge.util.Callback;
+import forge.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -233,5 +246,73 @@ public final class DeckManager extends ItemManager<DeckProxy> {
                         }
                     }
         });
+    }
+
+    private static final float IMAGE_SIZE = FSkinImage.MANA_W.getNearestHQHeight(Utils.AVG_FINGER_HEIGHT / 2);
+
+    @Override
+    public ItemRenderer<DeckProxy> getListItemRenderer() {
+        return new ItemRenderer<DeckProxy>() {
+            @Override
+            public float getItemHeight() {
+                return IMAGE_SIZE + 2 * FSkinFont.get(12).getFont().getLineHeight() + 4 * FList.PADDING;
+            }
+
+            @Override
+            public boolean tap(Entry<DeckProxy, Integer> value, float x, float y, int count) {
+                float bottomRight = IMAGE_SIZE + 2 * FList.PADDING;
+                if (x <= bottomRight && y <= bottomRight) {
+                    DeckPreferences prefs = DeckPreferences.getPrefs(value.getKey());
+                    prefs.setStarCount((prefs.getStarCount() + 1) % 2); //TODO: consider supporting more than 1 star
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void drawValue(Graphics g, Entry<DeckProxy, Integer> value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+                DeckProxy deck = value.getKey();
+
+                //draw favorite, name, and color on first line
+                g.drawImage(DeckPreferences.getPrefs(deck).getStarCount() > 0 ? FSkinImage.STAR_FILLED : FSkinImage.STAR_OUTINE, x, y, IMAGE_SIZE, IMAGE_SIZE);
+                x += IMAGE_SIZE + FList.PADDING;
+                ColorSet deckColor = deck.getColor();
+                float availableNameWidth = w - CardFaceSymbols.getWidth(deckColor, IMAGE_SIZE) - IMAGE_SIZE - 2 * FList.PADDING;
+                g.drawText(deck.getName(), font, foreColor, x, y, availableNameWidth, IMAGE_SIZE, false, HAlignment.LEFT, true);
+                x += availableNameWidth + FList.PADDING;
+                CardFaceSymbols.drawColorSet(g, deckColor, x, y, IMAGE_SIZE);
+
+                //draw path and main/side on second line
+                x = FList.PADDING;
+                y += IMAGE_SIZE + FList.PADDING;
+                font = FSkinFont.get(font.getSize() - 2);
+                float lineHeight = font.getFont().getLineHeight();
+
+                int mainSize = deck.getMainSize();
+                if (mainSize < 0) {
+                    mainSize = 0; //show main as 0 if empty
+                }
+                int sideSize = deck.getSideSize();
+                if (sideSize < 0) {
+                    sideSize = 0; //show sideboard as 0 if empty
+                }
+                String countStr = mainSize + " / " + sideSize;
+                float countWidth = font.getFont().getBounds(countStr).width;
+                if (!deck.getPath().isEmpty()) {
+                    g.drawText(deck.getPath().substring(1) + "/", font, foreColor, x, y, w - countWidth - FList.PADDING, lineHeight, false, HAlignment.LEFT, true);
+                }
+                g.drawText(countStr, font, foreColor, x, y, w, lineHeight, false, HAlignment.RIGHT, true);
+
+                //draw formats and set/highest rarity on third line
+                x = FList.PADDING;
+                y += lineHeight + FList.PADDING;
+                String set = deck.getEdition().getCode();
+                float setWidth = CardRenderer.getSetWidth(font, set);
+                float availableFormatWidth = w - setWidth - FList.PADDING;
+                g.drawText(deck.getFormatsString(), font, foreColor, x, y, availableFormatWidth, lineHeight, false, HAlignment.LEFT, true);
+                x += availableFormatWidth + FList.PADDING;
+                CardRenderer.drawSetLabel(g, font, set, deck.getHighestRarity(), x, y, setWidth + 1, lineHeight + 1); //provide a little more padding for set label
+            }
+        };
     }
 }

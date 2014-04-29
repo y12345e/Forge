@@ -27,6 +27,7 @@ import forge.item.InventoryItem;
 import forge.itemmanager.filters.ItemFilter;
 import forge.itemmanager.views.ImageView;
 import forge.itemmanager.views.ItemListView;
+import forge.itemmanager.views.ItemListView.ItemRenderer;
 import forge.itemmanager.views.ItemView;
 import forge.menu.FMenuItem;
 import forge.menu.FPopupMenu;
@@ -228,6 +229,8 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
         setHideFilters(config0.getHideFilters());
     }
 
+    public abstract ItemRenderer<T> getListItemRenderer();
+
     public void setViewIndex(int viewIndex) {
         if (viewIndex < 0 || viewIndex >= views.size()) { return; }
         ItemView<T> view = views.get(viewIndex);
@@ -268,7 +271,7 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
 
     @Override
     public void doLayout(float width, float height) {
-        LayoutHelper helper = new LayoutHelper(this, ItemFilter.PADDING, 1);
+        LayoutHelper helper = new LayoutHelper(this, ItemFilter.PADDING, 0);
         if (!hideFilters) {
             for (ItemFilter<? extends T> filter : orderedFilters) {
                 helper.fillLine(filter.getPanel(), ItemFilter.PANEL_HEIGHT);
@@ -277,7 +280,7 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
             helper.fillLine(mainSearchFilter.getPanel(), ItemFilter.PANEL_HEIGHT);
         }
         helper.newLine(ItemFilter.PADDING);
-        float fieldHeight = mainSearchFilter.getWidget().getHeight();
+        float fieldHeight = mainSearchFilter.getMainComponent().getHeight();
         helper.include(btnFilters, 61, fieldHeight);
         float captionWidth = lblCaption.getAutoSizeBounds().width;
         float ratioWidth = lblRatio.getAutoSizeBounds().width;
@@ -291,16 +294,16 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
         helper.include(lblCaption, captionWidth, fieldHeight);
         helper.offset(-helper.getGapX(), 0);
         helper.fillLine(lblRatio, fieldHeight, (viewButtonWidth + helper.getGapX()) * viewButtonCount - viewButtonCount + 1); //leave room for view buttons
-        helper.offset(0, -1);
+        helper.offset(0, -1); //shift buttons upward
         for (ItemView<T> view : views) {
             helper.include(view.getButton(), viewButtonWidth, fieldHeight);
             helper.offset(-1, 0);
         }
         helper.include(btnViewOptions, viewButtonWidth, fieldHeight);
-        helper.newLine(1);
+        helper.newLine(2);
         if (currentView.getPnlOptions().isVisible()) {
             helper.fillLine(currentView.getPnlOptions(), fieldHeight + 4);
-            helper.newLine(2);
+            helper.newLine(3);
         }
         helper.fill(currentView.getScroller());
     }

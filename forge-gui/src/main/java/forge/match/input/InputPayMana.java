@@ -18,18 +18,15 @@ import forge.game.spellability.AbilityManaPart;
 import forge.game.spellability.SpellAbility;
 import forge.player.HumanPlay;
 import forge.util.Evaluator;
+import forge.util.ITriggerEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/** 
- * TODO: Write javadoc for this type.
- *
- */
+
 public abstract class InputPayMana extends InputSyncronizedBase {
     private static final long serialVersionUID = -9133423708688480255L;
 
@@ -52,7 +49,7 @@ public abstract class InputPayMana extends InputSyncronizedBase {
     }
 
     @Override
-    protected void onCardSelected(final Card card, final MouseEvent triggerEvent) {
+    protected void onCardSelected(final Card card, final ITriggerEvent triggerEvent) {
         if (card.getManaAbility().isEmpty()) {
             flashIncorrectAction();
             return;
