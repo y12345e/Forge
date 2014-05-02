@@ -5884,7 +5884,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     if (list.isEmpty() || !this.sharesCreatureTypeWith(list.get(0))) {
                         return false;
                     }
-                } if (restriction.equals("Enchanted")) {
+                } else if (restriction.equals("Enchanted")) {
                     for (final SpellAbility sa : source.getCharacteristics().getSpellAbility()) {
                         final SpellAbility root = sa.getRootAbility();
                         Card c = source.getEnchantingCard();
@@ -5897,12 +5897,12 @@ public class Card extends GameEntity implements Comparable<Card> {
                             }
                         }
                     }
-                } if (restriction.equals("Equipped")) {
+                } else if (restriction.equals("Equipped")) {
                     if (source.isEquipping() && this.sharesCreatureTypeWith(source.getEquippingCard())) {
                         return true;
                     }
                     return false;
-                } if (restriction.equals("Remembered")) {
+                } else if (restriction.equals("Remembered")) {
                     for (final Object rem : source.getRemembered()) {
                         if (rem instanceof Card) {
                             final Card card = (Card) rem;
@@ -5912,7 +5912,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                         }
                     }
                     return false;
-                } if (restriction.equals("AllRemembered")) {
+                } else if (restriction.equals("AllRemembered")) {
                     for (final Object rem : source.getRemembered()) {
                         if (rem instanceof Card) {
                             final Card card = (Card) rem;

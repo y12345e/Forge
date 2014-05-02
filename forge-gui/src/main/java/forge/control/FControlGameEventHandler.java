@@ -4,7 +4,6 @@ import com.google.common.eventbus.Subscribe;
 
 import forge.FThreads;
 import forge.GuiBase;
-import forge.SGuiChoose;
 import forge.game.Game;
 import forge.game.card.Card;
 import forge.game.event.*;
@@ -12,8 +11,8 @@ import forge.game.player.Player;
 import forge.game.zone.PlayerZone;
 import forge.game.zone.Zone;
 import forge.game.zone.ZoneType;
-import forge.net.FServer;
 import forge.util.Lang;
+import forge.util.gui.SGuiChoose;
 import forge.util.maps.MapOfLists;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -254,7 +253,7 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
     @Override
     public Void visit(GameEventAttackersDeclared event) {
         // Skip redraw for GUI player?
-        if (event.player.getLobbyPlayer() == FServer.getLobby().getGuiPlayer()) {
+        if (event.player.getLobbyPlayer() == GuiBase.getInterface().getGuiPlayer()) {
             return null;
         }
 
