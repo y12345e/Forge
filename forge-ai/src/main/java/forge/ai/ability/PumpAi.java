@@ -2,6 +2,7 @@ package forge.ai.ability;
 
 import forge.ai.*;
 import forge.game.Game;
+import forge.game.GameObject;
 import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
@@ -94,9 +95,7 @@ public class PumpAi extends PumpAiBase {
                 return false;
             }
         } else if (!game.getStack().isEmpty() && !sa.isCurse()) {
-            if (!keywords.contains("Shroud") && !keywords.contains("Hexproof")) {
-                return false;
-            }
+            return pumpAgainstRemoval(ai, sa);
         }
 
         if (sa.hasParam("ActivationNumberSacrifice")) {
@@ -524,5 +523,41 @@ public class PumpAi extends PumpAiBase {
         //the spell in the first place if it would curse its own creature
         //and the pump isn't mandatory
         return true;
+    }
+    
+    boolean pumpAgainstRemoval(Player ai, SpellAbility sa) {
+        final List<GameObject> objects = ComputerUtil.predictThreatenedObjects(sa.getActivatingPlayer(), sa);
+        final List<Card> threatenedTargets = new ArrayList<Card>();
+        final TargetRestrictions tgt = sa.getTargetRestrictions();
+
+        if (tgt == null) {
+            // For pumps without targeting restrictions, just return immediately until this is fleshed out.
+            return false;
+        }
+
+        List<Card> targetables = CardLists.getValidCards(ai.getCardsIn(ZoneType.Battlefield), tgt.getValidTgts(), ai, sa.getHostCard());
+        targetables = CardLists.getTargetableCards(targetables, sa);
+        targetables = ComputerUtil.getSafeTargets(ai, sa, targetables);
+        for (final Card c : targetables) {
+            if (objects.contains(c)) {
+                threatenedTargets.add(c);
+            }
+        }
+        if (!threatenedTargets.isEmpty()) {
+            ComputerUtilCard.sortByEvaluateCreature(threatenedTargets);
+            for (Card c : threatenedTargets) {
+                sa.getTargets().add(c);
+                if (sa.getTargets().getNumTargeted() >= tgt.getMaxTargets(sa.getHostCard(), sa)) {
+                    break;
+                }
+            }
+            if (sa.getTargets().getNumTargeted() > tgt.getMaxTargets(sa.getHostCard(), sa)
+                    || sa.getTargets().getNumTargeted() < tgt.getMinTargets(sa.getHostCard(), sa)) {
+                sa.resetTargets();
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

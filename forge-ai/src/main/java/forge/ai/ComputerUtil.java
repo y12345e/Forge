@@ -550,7 +550,7 @@ public class ComputerUtil {
      */
     public static List<Card> chooseTapType(final Player ai, final String type, final Card activate, final boolean tap, final int amount) {
         List<Card> typeList =
-                CardLists.getValidCards(ai.getCardsIn(ZoneType.Battlefield), type.split(","), activate.getController(), activate);
+                CardLists.getValidCards(ai.getCardsIn(ZoneType.Battlefield), type.split(";"), activate.getController(), activate);
 
         // is this needed?
         typeList = CardLists.filter(typeList, Presets.UNTAPPED);
@@ -590,7 +590,7 @@ public class ComputerUtil {
      */
     public static List<Card> chooseUntapType(final Player ai, final String type, final Card activate, final boolean untap, final int amount) {
         List<Card> typeList =
-                CardLists.getValidCards(ai.getCardsIn(ZoneType.Battlefield), type.split(","), activate.getController(), activate);
+                CardLists.getValidCards(ai.getCardsIn(ZoneType.Battlefield), type.split(";"), activate.getController(), activate);
 
         // is this needed?
         typeList = CardLists.filter(typeList, Presets.TAPPED);
@@ -803,7 +803,7 @@ public class ComputerUtil {
                     }
 
                 }  catch (final Exception ex) {
-                    throw new RuntimeException(String.format("There is an error in the card code for %s:%n", c.getName(), ex.getMessage()), ex);
+                    throw new RuntimeException(String.format("There is an error in the card code for %s:%s", c.getName(), ex.getMessage()), ex);
                 } 
             }
         }
@@ -850,7 +850,7 @@ public class ComputerUtil {
                         }
                     }
                 } catch (final Exception ex) {
-                    throw new RuntimeException(String.format("There is an error in the card code for %s:%n", c.getName(), ex.getMessage()), ex);
+                    throw new RuntimeException(String.format("There is an error in the card code for %s:%s", c.getName(), ex.getMessage()), ex);
                 }
             }
         }
@@ -1301,6 +1301,21 @@ public class ComputerUtil {
         Iterable<? extends GameObject> objects = new ArrayList<GameObject>();
         final List<GameObject> threatened = new ArrayList<GameObject>();
         ApiType saviourApi = saviour == null ? null : saviour.getApi();
+        int defense = 0;
+        boolean grantIndestructible = false;
+        boolean grantShroud = false;
+        if (saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll) {
+            defense = saviour.hasParam("NumDef") ? 
+                    AbilityUtils.calculateAmount(saviour.getHostCard(), saviour.getParam("NumDef"), saviour) : 0;
+            final List<String> keywords = saviour.hasParam("KW") ? 
+                            Arrays.asList(saviour.getParam("KW").split(" & ")) : new ArrayList<String>();
+            if (keywords.contains("Indestructible")) {
+                grantIndestructible = true;
+            }
+            if (keywords.contains("Hexproof") || keywords.contains("Shroud")) {
+                grantShroud = true;
+            }
+        }
     
         if (topStack == null) {
             return objects;
@@ -1324,6 +1339,18 @@ public class ComputerUtil {
             }
         } else {
             objects = topStack.getTargets().getTargets();
+            if (tgt != null) {
+                final ArrayList<GameObject> canBeTargeted = new ArrayList<GameObject>();
+                for (Object o : objects) {
+                    if (o instanceof Card) {
+                        final Card c = (Card) o;
+                        if (c.canBeTargetedBy(topStack)) {
+                            canBeTargeted.add(c);
+                        }
+                    }
+                }
+                objects = canBeTargeted;
+            }
         }
 
         // Determine if Defined Objects are "threatened" will be destroyed
@@ -1353,11 +1380,12 @@ public class ComputerUtil {
                         continue;
                     }
 
-                    // give Shroud to targeted creatures
-                    if (saviourApi == ApiType.Pump && tgt == null && saviour.hasParam("KW")
-                            && (saviour.getParam("KW").endsWith("Shroud")
-                                    || saviour.getParam("KW").endsWith("Hexproof"))) {
-                        continue;
+                    if (saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll) {
+                        boolean canSave = ComputerUtilCombat.predictDamageTo(c, dmg - defense, source, false) < ComputerUtilCombat.getDamageToKill(c);
+                        if ((tgt == null && !grantIndestructible && !canSave)
+                                || (!grantIndestructible && !grantShroud && !canSave)) {
+                            continue;
+                        }
                     }
                     
                     // cannot protect against source
@@ -1370,7 +1398,7 @@ public class ComputerUtil {
                     if (saviourApi == ApiType.ChangeZone && (c.getOwner().isOpponentOf(aiPlayer) || c.isToken())) {
                         continue;
                     }
-
+                    
                     if (ComputerUtilCombat.predictDamageTo(c, dmg, source, false) >= ComputerUtilCombat.getDamageToKill(c)) {
                         threatened.add(c);
                     }
@@ -1387,10 +1415,48 @@ public class ComputerUtil {
                 }
             }
         }
+        // -Toughness Curse
+        else if ((threatApi == ApiType.Pump || threatApi == ApiType.PumpAll && topStack.isCurse())
+                && (saviourApi == ApiType.ChangeZone || saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll 
+                || saviourApi == ApiType.Protection || saviourApi == null)) {
+            final int dmg = -AbilityUtils.calculateAmount(topStack.getHostCard(),
+                    topStack.getParam("NumDef"), topStack);
+            for (final Object o : objects) {
+                if (o instanceof Card) {
+                    final Card c = (Card) o;
+                    final boolean canRemove = (c.getNetDefense() <= dmg)
+                            || (!c.hasKeyword("Indestructible") && c.getShield().isEmpty() && (dmg >= ComputerUtilCombat.getDamageToKill(c)));
+                    if (!canRemove) {
+                        continue;
+                    }
+                    if (saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll ) {
+                        final boolean cantSave = c.getNetDefense() + defense <= dmg
+                                || (!c.hasKeyword("Indestructible") && c.getShield().isEmpty() && !grantIndestructible 
+                                        && (dmg >= defense + ComputerUtilCombat.getDamageToKill(c)));
+                        if (cantSave && (tgt == null || !grantShroud)) {
+                            continue;
+                        }
+                    }
+                    if (saviourApi == ApiType.Protection) {
+                        if (tgt == null || (ProtectAi.toProtectFrom(source, saviour) == null)) {
+                            continue;
+                        }
+                    }
+
+                    // don't bounce or blink a permanent that the human
+                    // player owns or is a token
+                    if (saviourApi == ApiType.ChangeZone && (c.getOwner().isOpponentOf(aiPlayer) || c.isToken())) {
+                        continue;
+                    }
+                    threatened.add(c);
+                }
+            }
+        }
         // Destroy => regeneration/bounce/shroud
         else if ((threatApi == ApiType.Destroy || threatApi == ApiType.DestroyAll)
                 && (((saviourApi == ApiType.Regenerate || saviourApi == ApiType.RegenerateAll)
-                        && !topStack.hasParam("NoRegen")) || saviourApi == ApiType.ChangeZone || saviourApi == ApiType.Pump
+                        && !topStack.hasParam("NoRegen")) || saviourApi == ApiType.ChangeZone 
+                        || saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll
                         || saviourApi == ApiType.Protection || saviourApi == null)) {
             for (final Object o : objects) {
                 if (o instanceof Card) {
@@ -1405,11 +1471,11 @@ public class ComputerUtil {
                         continue;
                     }
 
-                    // give Shroud to targeted creatures
-                    if (saviourApi == ApiType.Pump && tgt == null && saviour.hasParam("KW")
-                            && (saviour.getParam("KW").endsWith("Shroud")
-                                    || saviour.getParam("KW").endsWith("Hexproof"))) {
-                        continue;
+                    if (saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll) {
+                        if ((tgt == null && !grantIndestructible)
+                                || (!grantShroud && !grantIndestructible)) {
+                            continue;
+                        }
                     }
                     if (saviourApi == ApiType.Protection) {
                         if (tgt == null || (ProtectAi.toProtectFrom(source, saviour) == null)) {
@@ -1433,7 +1499,7 @@ public class ComputerUtil {
         }
         // Exiling => bounce/shroud
         else if ((threatApi == ApiType.ChangeZone || threatApi == ApiType.ChangeZoneAll)
-                && (saviourApi == ApiType.ChangeZone || saviourApi == ApiType.Pump 
+                && (saviourApi == ApiType.ChangeZone || saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll
                 || saviourApi == ApiType.Protection || saviourApi == null)
                 && topStack.hasParam("Destination")
                 && topStack.getParam("Destination").equals("Exile")) {
@@ -1441,8 +1507,7 @@ public class ComputerUtil {
                 if (o instanceof Card) {
                     final Card c = (Card) o;
                     // give Shroud to targeted creatures
-                    if (saviourApi == ApiType.Pump && tgt == null && saviour.hasParam("KW")
-                            && (saviour.getParam("KW").endsWith("Shroud") || saviour.getParam("KW").endsWith("Hexproof"))) {
+                    if (saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll && tgt == null || !grantShroud) {
                         continue;
                     }
                     if (saviourApi == ApiType.Protection) {
@@ -1463,14 +1528,13 @@ public class ComputerUtil {
         }
         //GainControl
         else if (threatApi == ApiType.GainControl
-                && (saviourApi == ApiType.ChangeZone || saviourApi == ApiType.Pump || saviourApi == ApiType.Protection 
-                || saviourApi == null)) {
+                && (saviourApi == ApiType.ChangeZone || saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll 
+                || saviourApi == ApiType.Protection || saviourApi == null)) {
             for (final Object o : objects) {
                 if (o instanceof Card) {
                     final Card c = (Card) o;
                     // give Shroud to targeted creatures
-                    if (saviourApi == ApiType.Pump && tgt == null && saviour.hasParam("KW")
-                            && (saviour.getParam("KW").endsWith("Shroud") || saviour.getParam("KW").endsWith("Hexproof"))) {
+                    if (saviourApi == ApiType.Pump || saviourApi == ApiType.PumpAll && tgt == null || !grantShroud) {
                         continue;
                     }
                     if (saviourApi == ApiType.Protection) {

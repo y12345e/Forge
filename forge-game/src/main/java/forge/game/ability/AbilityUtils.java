@@ -167,14 +167,29 @@ public class AbilityUtils {
                     }
                 }
             }
-
+            // game.getCardState(Card c) is not working for LKI
             for (final Object o : hostCard.getRemembered()) {
                 if (o instanceof Card) {
                     cards.add(game.getCardState((Card) o));
                 }
             }
+        } else if (defined.equals("DirectRemembered")) {
+            if (hostCard.getRemembered().isEmpty()) {
+                final Card newCard = game.getCardState(hostCard);
+                for (final Object o : newCard.getRemembered()) {
+                    if (o instanceof Card) {
+                        cards.add((Card) o);
+                    }
+                }
+            }
+
+            for (final Object o : hostCard.getRemembered()) {
+                if (o instanceof Card) {
+                    cards.add((Card) o);
+                }
+            }
         } else if (defined.equals("DelayTriggerRemembered")) {
-            if (sa.isTrigger()) {
+            if (sa.getRootAbility().isTrigger()) {
                for (Object o : sa.getRootAbility().getTriggerRemembered()) {
                    if (o instanceof Card) {
                        cards.add(game.getCardState((Card) o));
