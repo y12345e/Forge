@@ -14,6 +14,7 @@ import forge.assets.FSkinFont;
 import forge.assets.FSkinColor.Colors;
 import forge.game.GameLogEntryType;
 import forge.model.FModel;
+import forge.properties.ForgePreferences;
 import forge.properties.ForgePreferences.FPref;
 import forge.screens.FScreen;
 import forge.toolbox.FGroupList;
@@ -100,8 +101,14 @@ public class SettingsScreen extends FScreen {
         //Advanced Settings
         lstSettings.addItem(new BooleanSetting(FPref.DEV_MODE_ENABLED,
                 "Developer Mode",
-                "Enables menu with functions for testing during development."),
-                3);
+                "Enables menu with functions for testing during development.") {
+                    @Override
+                    public void select() {
+                        super.select();
+                        //update DEV_MODE flag when preference changes
+                        ForgePreferences.DEV_MODE = FModel.getPreferences().getPrefBoolean(FPref.DEV_MODE_ENABLED);
+                    }
+                }, 3);
         lstSettings.addItem(new CustomSelectSetting(FPref.DEV_LOG_ENTRY_TYPE,
                 "Game Log Verbosity",
                 "Changes how much information is displayed in the game log. Sorted by least to most verbose.",
@@ -120,10 +127,6 @@ public class SettingsScreen extends FScreen {
         lstSettings.addItem(new BooleanSetting(FPref.UI_RANDOM_ART_IN_POOLS,
                 "Randomize Card Art",
                 "Generates cards with random art in generated limited mode card pools."),
-                4);
-        lstSettings.addItem(new BooleanSetting(FPref.UI_SCALE_LARGER,
-                "Scale Image Larger",
-                "Allows card pictures to be expanded larger than their original size."),
                 4);
         lstSettings.addItem(new BooleanSetting(FPref.UI_HIDE_REMINDER_TEXT,
                 "Hide Reminder Text",
@@ -243,11 +246,17 @@ public class SettingsScreen extends FScreen {
 
                     @Override
                     public void drawValue(Graphics g, String value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+                        float offset = w * INSETS_FACTOR - FList.PADDING; //increase padding for settings items
+                        x += offset;
+                        y += offset;
+                        w -= 2 * offset;
+                        h -= 2 * offset;
+
                         g.drawText(value, font, foreColor, x, y, w, h, false, HAlignment.LEFT, true);
 
-                        float radius = h / 5;
+                        float radius = h / 3;
                         x += w - radius;
-                        y = h / 2;
+                        y += h / 2;
                         g.drawCircle(1, DESC_COLOR, x, y, radius);
                         if (value.equals(currentValue)) {
                             g.fillCircle(foreColor, x, y, radius / 2);

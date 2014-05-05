@@ -1,5 +1,6 @@
 package forge.toolbox;
 
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector2;
 
 import forge.Forge;
@@ -130,8 +131,9 @@ public class FOptionPane extends FDialog {
     private final FDisplayObject displayObj;
     private final FButton[] buttons;
     private final Callback<Integer> callback;
+    private final int defaultOption;
 
-    public FOptionPane(String message, String title, FSkinImage icon, FDisplayObject displayObj0, String[] options, int defaultOption, final Callback<Integer> callback0) {
+    public FOptionPane(String message, String title, FSkinImage icon, FDisplayObject displayObj0, String[] options, int defaultOption0, final Callback<Integer> callback0) {
         super(title);
 
         if (icon != null) {
@@ -167,6 +169,7 @@ public class FOptionPane extends FDialog {
                 }
             }));
         }
+        defaultOption = defaultOption0;
     }
 
     public void setResult(final int option) {
@@ -207,7 +210,11 @@ public class FOptionPane extends FDialog {
         if (prompt != null) {
             float promptWidth = width - x - PADDING;
             prompt.setBounds(x, y, promptWidth, prompt.getPreferredHeight(promptWidth));
-            if (prompt.getHeight() > maxPromptHeight) {
+            if (prompt.getHeight() < promptHeight) {
+               //ensure prompt centered next to icon if less tall than icon
+                prompt.setTop(y + (promptHeight - prompt.getHeight()) / 2);
+            }
+            else if (prompt.getHeight() > maxPromptHeight) {
                 prompt.setHeight(maxPromptHeight);
             }
             if (prompt.getHeight() > promptHeight) {
@@ -250,5 +257,23 @@ public class FOptionPane extends FDialog {
         }
 
         return y + BUTTON_HEIGHT + GAP_BELOW_BUTTONS;
+    }
+
+    @Override
+    public boolean keyDown(int keyCode) {
+        switch (keyCode) {
+        case Keys.ENTER:
+        case Keys.SPACE:
+            if (isButtonEnabled(defaultOption)) {
+                setResult(defaultOption); //set result to default option on Enter/Space
+            }
+            return true;
+        case Keys.ESCAPE:
+            if (isButtonEnabled(buttons.length - 1)) {
+                setResult(buttons.length - 1); //set result to final option on Escape
+            }
+            return true;
+        }
+        return super.keyDown(keyCode);
     }
 }

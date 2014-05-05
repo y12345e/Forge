@@ -56,6 +56,7 @@ import forge.model.FModel;
 import forge.player.LobbyPlayerHuman;
 import forge.properties.ForgePreferences;
 import forge.properties.ForgePreferences.FPref;
+import forge.quest.QuestController;
 import forge.screens.match.views.VAssignDamage;
 import forge.screens.match.views.VCardDisplayArea.CardAreaPanel;
 import forge.screens.match.views.VPhaseIndicator;
@@ -78,7 +79,6 @@ public class FControl {
     private static List<Player> sortedPlayers;
     private static final EventBus uiEvents;
     private static boolean gameHasHumanPlayer;
-    private static boolean devMode;
     private static final MatchUiEventVisitor visitor = new MatchUiEventVisitor();
     private static final FControlGameEventHandler fcVisitor = new FControlGameEventHandler();
     private static final FControlGamePlayback playbackControl = new FControlGamePlayback();
@@ -115,19 +115,19 @@ public class FControl {
 
         game = match.createGame();
 
-        /*if (game.getRules().getGameType() == GameType.Quest) {
-            QuestController qc = Singletons.getModel().getQuest();
+        if (game.getRules().getGameType() == GameType.Quest) {
+            QuestController qc = FModel.getQuest();
             // Reset new list when the Match round starts, not when each game starts
             if (game.getMatch().getPlayedGames().isEmpty()) {
                 qc.getCards().resetNewList();
             }
             game.subscribeToEvents(qc); // this one listens to player's mulligans ATM
-        }*/
+        }
 
         inputQueue = new InputQueue();
         inputProxy = new InputProxy();
 
-        //game.subscribeToEvents(Singletons.getControl().getSoundSystem());
+        //game.subscribeToEvents(FControl.getSoundSystem());
 
         LobbyPlayer humanLobbyPlayer = game.getRegisteredPlayers().get(0).getLobbyPlayer(); //FServer.instance.getLobby().getGuiPlayer();
         // The UI controls should use these game data as models
@@ -222,13 +222,7 @@ public class FControl {
             playerPanels.add(new VPlayerPanel(p));
         }
 
-        view = new MatchScreen(game, localPlayer, playerPanels) {
-            @Override
-            public void onActivate() {
-                devMode = FModel.getPreferences().getPrefBoolean(FPref.DEV_MODE_ENABLED); //cache devMode for performance when match screen opened
-                super.onActivate();
-            }
-        };
+        view = new MatchScreen(game, localPlayer, playerPanels);
     }
 
     private static List<Player> shiftPlayersPlaceLocalFirst(final List<Player> players, LobbyPlayer localPlayer) {
@@ -302,7 +296,7 @@ public class FControl {
     }
 
     public static boolean mayShowCard(Card c) {
-        return game == null || !gameHasHumanPlayer || devMode || c.canBeShownTo(getCurrentPlayer());
+        return game == null || !gameHasHumanPlayer || ForgePreferences.DEV_MODE || c.canBeShownTo(getCurrentPlayer());
     }
 
     public static void alphaStrike() {
@@ -798,5 +792,4 @@ public class FControl {
     public final static LobbyPlayer getGuiPlayer() {
         return guiPlayer;
     }
-
 }

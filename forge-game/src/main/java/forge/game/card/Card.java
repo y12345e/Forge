@@ -56,10 +56,13 @@ import forge.game.zone.Zone;
 import forge.game.zone.ZoneType;
 import forge.item.IPaperCard;
 import forge.item.PaperCard;
+import forge.util.CollectionSuppliers;
 import forge.util.Expressions;
 import forge.util.Lang;
 import forge.util.MyRandom;
 import forge.util.TextUtil;
+import forge.util.maps.HashMapOfLists;
+import forge.util.maps.MapOfLists;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -120,6 +123,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     private Map<Long, CardKeywords> changedCardKeywords = new ConcurrentSkipListMap<Long, CardKeywords>();
 
     private final ArrayList<Object> rememberedObjects = new ArrayList<Object>();
+    private final MapOfLists<GameEntity, Object> rememberMap = new HashMapOfLists<GameEntity, Object>(CollectionSuppliers.<Object>arrayLists());
     private final ArrayList<Card> imprintedCards = new ArrayList<Card>();
     private final ArrayList<Card> encodedCards = new ArrayList<Card>();
     private final List<Card> devouredCards = new ArrayList<Card>();
@@ -515,6 +519,13 @@ public class Card extends GameEntity implements Comparable<Card> {
      */
     public final List<Card> getDevoured() {
         return this.devouredCards;
+    }
+
+    public final void addRememberMap(final GameEntity e, final List<Object> o) {
+        this.rememberMap.addAll(e, o);
+    }
+    public MapOfLists<GameEntity, Object> getRememberMap() {
+        return rememberMap;
     }
 
     /**
@@ -2542,6 +2553,36 @@ public class Card extends GameEntity implements Comparable<Card> {
     }
 
 
+    public final boolean canProduceSameManaTypeWith(final Card c) {
+        final List<SpellAbility> manaAb = this.getManaAbility();
+        if (manaAb.isEmpty()) {
+            return false;
+        }
+        Set<String> colors = new HashSet<String>();
+        for (final SpellAbility ab : c.getManaAbility()) {
+            if (ab.getApi() == ApiType.ManaReflected) {
+                colors.addAll(CardUtil.getReflectableManaColors(ab));
+            } else {
+                colors = CardUtil.canProduce(6, ab.getManaPart(), colors);
+            }
+        }
+
+        for (final SpellAbility mana : manaAb) {
+            for (String s : colors) {
+                if (mana.getApi() == ApiType.ManaReflected) {
+                    if (CardUtil.getReflectableManaColors(mana).contains(s)) {
+                        return true;
+                    }
+                } else {
+                    if (mana.getManaPart().canProduce(MagicColor.toShortString(s))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * <p>
      * clearFirstSpellAbility.
@@ -3736,6 +3777,14 @@ public class Card extends GameEntity implements Comparable<Card> {
      */
     public final int getBaseLoyalty() {
         return this.baseLoyalty;
+    }
+
+    public final int getCurrentLoyalty() {
+        int loyalty = getCounters(CounterType.LOYALTY);
+        if (loyalty == 0) {
+            loyalty = this.baseLoyalty;
+        }
+        return loyalty;
     }
 
     // values that are printed on card
@@ -5972,7 +6021,11 @@ public class Card extends GameEntity implements Comparable<Card> {
             if (!this.sharesPermanentTypeWith(source)) {
                 return false;
             }
-        }else if (property.startsWith("sharesNameWith")) {
+        } else if (property.equals("canProduceSameManaTypeWith")) {
+            if (!this.canProduceSameManaTypeWith(source)) {
+                return false;
+            }
+        } else if (property.startsWith("sharesNameWith")) {
             if (property.equals("sharesNameWith")) {
                 if (!this.getName().equals(source.getName())) {
                     return false;
@@ -6129,7 +6182,7 @@ public class Card extends GameEntity implements Comparable<Card> {
             final String[] res = restrictions.split("_");
             final ZoneType destination = ZoneType.smartValueOf(res[0]);
             ZoneType origin = null;
-            if (res[1].equals("from")) {
+            if (res.length > 1 && res[1].equals("from")) {
                 origin = ZoneType.smartValueOf(res[2]);
             }
             List<Card> list = CardUtil.getThisTurnEntered(destination,
@@ -6650,6 +6703,17 @@ public class Card extends GameEntity implements Comparable<Card> {
             if (!this.getCharacteristics().getManaCost().hasPhyrexian()) {
                 return false;
             }
+        } else if (property.startsWith("RememberMap")) {
+            System.out.println(source.getRememberMap());
+            for (SpellAbility sa : source.getSpellAbilities()) {
+                if (sa.getActivatingPlayer() == null) continue;
+                for (Player p : AbilityUtils.getDefinedPlayers(source, property.split("RememberMap_")[1], sa)) {
+                    if (source.getRememberMap().get(p).contains(this)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         } else if (property.equals("IsRemembered")) {
             if (!source.getRemembered().contains(this)) {
                 return false;

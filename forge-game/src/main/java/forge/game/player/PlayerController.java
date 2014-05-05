@@ -102,8 +102,9 @@ public abstract class PlayerController {
     // Triggers preliminary choice: ask, decline or play
     private Map<Integer, Boolean> triggersAlwaysAccept = new HashMap<Integer, Boolean>();
 
-    public final  boolean shouldAlwaysAcceptTrigger(Integer trigger) { return Boolean.TRUE.equals(triggersAlwaysAccept.get(trigger)); }
+    public final boolean shouldAlwaysAcceptTrigger(Integer trigger) { return Boolean.TRUE.equals(triggersAlwaysAccept.get(trigger)); }
     public final boolean shouldAlwaysDeclineTrigger(Integer trigger) { return Boolean.FALSE.equals(triggersAlwaysAccept.get(trigger)); }
+    public final boolean shouldAlwaysAskTrigger(Integer trigger) { return !triggersAlwaysAccept.containsKey(trigger); }
 
     public final void setShouldAlwaysAcceptTrigger(Integer trigger) { triggersAlwaysAccept.put(trigger, true); }
     public final void setShouldAlwaysDeclineTrigger(Integer trigger) { triggersAlwaysAccept.put(trigger, false); }
@@ -143,6 +144,7 @@ public abstract class PlayerController {
     public abstract SpellAbility chooseSingleSpellForEffect(List<SpellAbility> spells, SpellAbility sa, String title);
 
     public abstract boolean confirmAction(SpellAbility sa, PlayerActionConfirmMode mode, String message);
+    public abstract boolean confirmBidAction(SpellAbility sa, PlayerActionConfirmMode bidlife, String string, int bid, Player winner);
     public abstract boolean confirmStaticApplication(Card hostCard, GameEntity affected, String logic, String message);
     public abstract boolean confirmTrigger(SpellAbility sa, Trigger regtrig, Map<String, String> triggerParams, boolean isMandatory);
     public abstract boolean getWillPlayOnFirstTurn(boolean isFirstGame);
@@ -234,8 +236,6 @@ public abstract class PlayerController {
     public abstract String chooseCardName(SpellAbility sa, Predicate<PaperCard> cpp, String valid, String message);
 
     // better to have this odd method than those if playerType comparison in ChangeZone  
-    public abstract Card chooseSingleCardForZoneChange(ZoneType destination, List<ZoneType> origin, SpellAbility sa, List<Card> fetchList, String selectPrompt, boolean b, Player decider);
-
-    
+    public abstract Card chooseSingleCardForZoneChange(ZoneType destination, List<ZoneType> origin, SpellAbility sa, List<Card> fetchList, String selectPrompt, boolean b, Player decider);  
     
 }

@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.Input.Keys;
+
 import forge.LobbyPlayer;
 import forge.menu.FMenuBar;
+import forge.properties.ForgePreferences;
 import forge.screens.FScreen;
 import forge.screens.match.views.VAvatar;
 import forge.screens.match.views.VCombat;
@@ -17,6 +20,7 @@ import forge.screens.match.views.VPlayers;
 import forge.screens.match.views.VPrompt;
 import forge.screens.match.views.VStack;
 import forge.Forge.Graphics;
+import forge.Forge.KeyInputAdapter;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinTexture;
 import forge.assets.FSkinColor.Colors;
@@ -35,6 +39,7 @@ public class MatchScreen extends FScreen {
     private final VLog log;
     private final VCombat combat;
     private final VStack stack;
+    private final VDevMenu devMenu;
 
     private VPlayerPanel bottomPlayerPanel, topPlayerPanel;
 
@@ -66,14 +71,21 @@ public class MatchScreen extends FScreen {
         log = new VLog(game.getGameLog());
         combat = new VCombat();
         stack = new VStack(game.getStack(), localPlayer);
+        devMenu = new VDevMenu();
 
         menuBar = add(new FMenuBar());
         menuBar.addTab("Game", new VGameMenu());
         menuBar.addTab("Players (" + playerPanels.size() + ")", new VPlayers());
         menuBar.addTab("Log", log);
         menuBar.addTab("Combat", combat);
-        menuBar.addTab("Dev", new VDevMenu());
+        menuBar.addTab("Dev", devMenu);
         menuBar.addTab("Stack (0)", stack);
+    }
+
+    @Override
+    public void onActivate() {
+        //update dev menu visibility here so returning from Settings screen allows update
+        devMenu.getMenuTab().setVisible(ForgePreferences.DEV_MODE);
     }
 
     public VLog getLog() {
@@ -162,5 +174,47 @@ public class MatchScreen extends FScreen {
         topPlayerPanel.setBounds(0, startY, width, topPlayerPanelHeight);
         bottomPlayerPanel.setBounds(0, height - VPrompt.HEIGHT - bottomPlayerPanelHeight, width, bottomPlayerPanelHeight);
         prompt.setBounds(0, height - VPrompt.HEIGHT, width, VPrompt.HEIGHT);
+    }
+
+    @Override
+    public boolean keyDown(int keyCode) {
+        switch (keyCode) {
+        case Keys.ENTER:
+        case Keys.SPACE:
+            if (prompt.getBtnOk().trigger()) { //trigger OK on Enter or Space
+                return true;
+            }
+            return prompt.getBtnCancel().trigger(); //trigger Cancel if can't trigger OK
+        case Keys.ESCAPE:
+            if (InputSelectCard.hide()) { //hide card selection if one active on Escape
+                return true;
+            }
+            return prompt.getBtnCancel().trigger(); //otherwise trigger Cancel
+        case Keys.A: //alpha strike on Ctrl+A
+            if (KeyInputAdapter.isCtrlKeyDown()) {
+                FControl.alphaStrike();
+                return true;
+            }
+            break;
+        case Keys.E: //end turn on Ctrl+E
+            if (KeyInputAdapter.isCtrlKeyDown()) {
+                FControl.endCurrentTurn();
+                return true;
+            }
+            break;
+        case Keys.Q: //concede game on Ctrl+Q
+            if (KeyInputAdapter.isCtrlKeyDown()) {
+                FControl.concede();
+                return true;
+            }
+            break;
+        case Keys.Z: //undo on Ctrl+Z
+            if (KeyInputAdapter.isCtrlKeyDown()) {
+                FControl.undoLastAction();
+                return true;
+            }
+            break;
+        }
+        return super.keyDown(keyCode);
     }
 }

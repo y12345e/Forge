@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import forge.GuiBase;
+import forge.game.Game;
 import forge.game.GameEntity;
 import forge.game.card.Card;
 import forge.game.card.CounterType;
@@ -200,15 +201,12 @@ public class CardDetailUtil {
             if (ptText.length() > 0) {
                 ptText.insert(0, "P/T: ");
                 ptText.append(" - ").append("Loy: ");
-            } else {
+            }
+            else {
                 ptText.append("Loyalty: ");
             }
 
-            int loyalty = card.getCounters(CounterType.LOYALTY);
-            if (loyalty == 0) {
-                loyalty = card.getBaseLoyalty();
-            }
-            ptText.append(loyalty);
+            ptText.append(card.getCurrentLoyalty());
         }
         return ptText.toString();
     }
@@ -500,6 +498,61 @@ public class CardDetailUtil {
             String mustBlockThese = Lang.joinHomogenous(card.getMustBlockCards());
             area.append("Must block " + mustBlockThese);
         }
+
+        //show current storm count for storm cards
+        if (card.getKeyword().contains("Storm")) {
+            Game game = GuiBase.getInterface().getGame();
+            if (game != null) {
+                if (area.length() != 0) {
+                    area.append("\n\n");
+                }
+                area.append("Current Storm Count: " + game.getStack().getCardsCastThisTurn().size());
+            }
+        }
         return area.toString();
+    }
+
+    public static boolean isCardFlippable(Card card) {
+        return card.isDoubleFaced() || card.isFlipCard() || card.isFaceDown();
+    }
+
+    /**
+     * Card characteristic state machine.
+     * <p>
+     * Given a card and a state in terms of {@code CardCharacteristicName} this
+     * will determine whether there is a valid alternate {@code CardCharacteristicName}
+     * state for that card.
+     * 
+     * @param card the {@code Card}
+     * @param currentState not necessarily {@code card.getCurState()}
+     * @return the alternate {@code CardCharacteristicName} state or default if not applicable
+     */
+    public static CardCharacteristicName getAlternateState(final Card card, CardCharacteristicName currentState) {
+        // Default. Most cards will only ever have an "Original" state represented by a single image.
+        CardCharacteristicName alternateState = CardCharacteristicName.Original;
+
+        if (card.isDoubleFaced()) {
+            if (currentState == CardCharacteristicName.Original) {
+                alternateState = CardCharacteristicName.Transformed;
+            }
+        }
+        else if (card.isFlipCard()) {
+            if (currentState == CardCharacteristicName.Original) {
+                alternateState = CardCharacteristicName.Flipped;
+            }
+        }
+        else if (card.isFaceDown()) {
+            if (currentState == CardCharacteristicName.Original) {
+                alternateState = CardCharacteristicName.FaceDown;
+            }
+            else if (GuiBase.getInterface().mayShowCard(card)) {
+                alternateState = CardCharacteristicName.Original;
+            }
+            else {
+                alternateState = currentState;
+            }
+        }
+
+        return alternateState;
     }
 }

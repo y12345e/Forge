@@ -22,6 +22,7 @@ public enum SpellApiToAi {
         apiToClass.put(ApiType.Attach, AttachAi.class);
         apiToClass.put(ApiType.Balance, BalanceAi.class);
         apiToClass.put(ApiType.BecomesBlocked, BecomesBlockedAi.class);
+        apiToClass.put(ApiType.BidLife, BidLifeAi.class);
         apiToClass.put(ApiType.Bond, BondAi.class);
         apiToClass.put(ApiType.ChangeTargets, ChangeTargetsAi.class);
         apiToClass.put(ApiType.ChangeZone, ChangeZoneAi.class);
@@ -120,6 +121,7 @@ public enum SpellApiToAi {
         apiToClass.put(ApiType.SetState, SetStateAi.class);
         apiToClass.put(ApiType.Shuffle, ShuffleAi.class);
         apiToClass.put(ApiType.SkipTurn, SkipTurnAi.class);
+        apiToClass.put(ApiType.StoreMap, StoreMapAi.class);
         apiToClass.put(ApiType.StoreSVar, StoreSVarAi.class);
         apiToClass.put(ApiType.Tap, TapAi.class);
         apiToClass.put(ApiType.TapAll, TapAllAi.class);

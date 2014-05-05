@@ -123,6 +123,11 @@ public class FComboBox<E> extends FTextField {
     }
 
     @Override
+    public boolean startEdit() {
+        return false; //don't allow editing text
+    }
+
+    @Override
     public void draw(Graphics g) {
         super.draw(g);
 

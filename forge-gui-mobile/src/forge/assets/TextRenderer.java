@@ -8,6 +8,7 @@ import java.util.Map;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 
 import forge.Forge.Graphics;
 import forge.card.CardFaceSymbols;
@@ -101,6 +102,7 @@ public class TextRenderer {
         int lineNum = 0;
         String text = "";
         int inSymbolCount = 0;
+        int consecutiveSymbols = 0;
         boolean atReminderTextEnd = false;
         int inReminderTextCount = 0;
         for (int i = 0; i < fullText.length(); i++) {
@@ -117,7 +119,9 @@ public class TextRenderer {
                     addPiece(new TextPiece(text, inReminderTextCount > 0), lineNum, x, y, pieceWidth, lineHeight);
                     pieceWidth = 0;
                     text = "";
+                    consecutiveSymbols = 0;
                 }
+                lastSpaceIdx = -1;
                 x = 0;
                 y += lineHeight;
                 totalHeight += lineHeight;
@@ -137,6 +141,8 @@ public class TextRenderer {
                     x += pieceWidth;
                     pieceWidth = 0;
                     text = "";
+                    lastSpaceIdx = -1;
+                    consecutiveSymbols = 0;
                 }
                 inSymbolCount++;
                 continue; //skip '{' character
@@ -149,7 +155,6 @@ public class TextRenderer {
                             pieceWidth = lineHeight * CardFaceSymbols.FONT_SIZE_FACTOR;
                             if (x + pieceWidth > width) {
                                 if (wrap) {
-                                    x = 0;
                                     y += lineHeight;
                                     totalHeight += lineHeight;
                                     lineNum++;
@@ -161,24 +166,21 @@ public class TextRenderer {
                                         }
                                         needClip = true;
                                     }
-                                    //make previous consecutive symbols wrap too
-                                    int j;
-                                    for (j = pieces.size(); j >= 0; j--) {
-                                        Piece piece = pieces.get(j);
-                                        if (piece instanceof ImagePiece) {
+                                    if (consecutiveSymbols == 0) {
+                                        lineWidths.add(x);
+                                        x = 0;
+                                    }
+                                    else { //make previous consecutive symbols wrap too if needed
+                                        x = 0;
+                                        int startSymbolIdx = pieces.size() - consecutiveSymbols;
+                                        lineWidths.add(pieces.get(startSymbolIdx).x);
+                                        for (int j = startSymbolIdx; j < pieces.size(); j++) {
+                                            Piece piece = pieces.get(j);
                                             piece.x = x;
                                             piece.y += lineHeight;
                                             piece.lineNum++;
                                             x += piece.w;
                                         }
-                                        else { break; }
-                                    }
-                                    if (j >= 0) {
-                                        Piece piece = pieces.get(j);
-                                        lineWidths.add(piece.x + piece.w);
-                                    }
-                                    else {
-                                        lineWidths.add(0f);
                                     }
                                 }
                                 else if (font.getSize() > FSkinFont.MIN_FONT_SIZE) {
@@ -190,21 +192,28 @@ public class TextRenderer {
                                     needClip = true;
                                 }
                             }
-                            addPiece(new ImagePiece(symbol, inReminderTextCount > 0), lineNum, x, y - bitmapFont.getAscent() + (lineHeight - pieceWidth) / 2, pieceWidth, pieceWidth);
+                            addPiece(new SymbolPiece(symbol, inReminderTextCount > 0), lineNum, x, y - bitmapFont.getAscent() + (lineHeight - pieceWidth) / 2, pieceWidth, pieceWidth);
                             x += pieceWidth;
                             pieceWidth = 0;
                             text = "";
+                            lastSpaceIdx = -1;
+                            consecutiveSymbols++;
                             continue; //skip '}' character
                         }
                     }
                     text = "{" + text; //if not a symbol, render as text
-                    lastSpaceIdx++;
+                    if (lastSpaceIdx >= 0) {
+                        lastSpaceIdx++;
+                    }
                 }
                 break;
             case '(':
                 if (inSymbolCount > 0) {
                     inSymbolCount = 0;
                     text = "{" + text; //if not a symbol, render as text
+                    if (lastSpaceIdx >= 0) {
+                        lastSpaceIdx++;
+                    }
                 }
                 if (parseReminderText) {
                     if (inReminderTextCount == 0 && !text.isEmpty()) { //add current text if just entering reminder text
@@ -213,6 +222,7 @@ public class TextRenderer {
                         pieceWidth = 0;
                         text = "";
                         lastSpaceIdx = -1;
+                        consecutiveSymbols = 0;
                     }
                     inReminderTextCount++;
                 }
@@ -221,6 +231,9 @@ public class TextRenderer {
                 if (inSymbolCount > 0) {
                     inSymbolCount = 0;
                     text = "{" + text; //if not a symbol, render as text
+                    if (lastSpaceIdx >= 0) {
+                        lastSpaceIdx++;
+                    }
                 }
                 if (inReminderTextCount > 0) {
                     inReminderTextCount--;
@@ -244,20 +257,36 @@ public class TextRenderer {
             if (inSymbolCount == 0) {
                 pieceWidth = bitmapFont.getBounds(text).width;
                 if (x + pieceWidth > width) { //wrap or shrink if needed
-                    if (wrap && lastSpaceIdx >= 0) {
-                        String currentLineText = text.substring(0, lastSpaceIdx);
-                        if (!currentLineText.isEmpty()) {
-                            pieceWidth = bitmapFont.getBounds(text).width;
-                            addPiece(new TextPiece(currentLineText, inReminderTextCount > 0 || atReminderTextEnd), lineNum, x, y, pieceWidth, lineHeight);
+                    if (wrap && (lastSpaceIdx >= 0 || consecutiveSymbols > 0)) {
+                        if (lastSpaceIdx < 0) {
+                            //no space between symbols and end of line, wrap those symbols along with text
+                            x = 0;
+                            int startSymbolIdx = pieces.size() - consecutiveSymbols;
+                            lineWidths.add(pieces.get(startSymbolIdx).x);
+                            for (int j = startSymbolIdx; j < pieces.size(); j++) {
+                                Piece piece = pieces.get(j);
+                                piece.x = x;
+                                piece.y += lineHeight;
+                                piece.lineNum++;
+                                x += piece.w;
+                            }
                         }
                         else {
-                            pieceWidth = 0;
+                            String currentLineText = text.substring(0, lastSpaceIdx);
+                            if (!currentLineText.isEmpty()) {
+                                pieceWidth = bitmapFont.getBounds(text).width;
+                                addPiece(new TextPiece(currentLineText, inReminderTextCount > 0 || atReminderTextEnd), lineNum, x, y, pieceWidth, lineHeight);
+                                consecutiveSymbols = 0;
+                            }
+                            else {
+                                pieceWidth = 0;
+                            }
+                            lineWidths.add(x + pieceWidth);
+                            text = text.substring(lastSpaceIdx + 1);
+                            x = 0;
                         }
-                        lineWidths.add(x + pieceWidth);
-                        text = text.substring(lastSpaceIdx + 1);
                         lastSpaceIdx = -1;
                         pieceWidth = text.isEmpty() ? 0 : bitmapFont.getBounds(text).width;
-                        x = 0;
                         y += lineHeight;
                         totalHeight += lineHeight;
                         lineNum++;
@@ -285,6 +314,7 @@ public class TextRenderer {
                     pieceWidth = 0;
                     text = "";
                     lastSpaceIdx = -1;
+                    consecutiveSymbols = 0;
                 }
             }
         }
@@ -292,6 +322,7 @@ public class TextRenderer {
         lineWidths.add(x + pieceWidth);
         if (!text.isEmpty()) {
             addPiece(new TextPiece(text, inReminderTextCount > 0), lineNum, x, y, pieceWidth, lineHeight);
+            consecutiveSymbols = 0;
         }
     }
 
@@ -304,10 +335,7 @@ public class TextRenderer {
         pieces.add(piece);
     }
 
-    public void drawText(Graphics g, String text0, FSkinFont skinFont, FSkinColor skinColor, float x, float y, float w, float h, boolean wrap0, HAlignment horzAlignment, boolean centerVertically) {
-        drawText(g, text0, skinFont, skinColor.getColor(), x, y, w, h, wrap0, horzAlignment, centerVertically);
-    }
-    public void drawText(Graphics g, String text, FSkinFont skinFont, Color color, float x, float y, float w, float h, boolean wrap0, HAlignment horzAlignment, boolean centerVertically) {
+    private void setProps(String text, FSkinFont skinFont, float w, float h, boolean wrap0) {
         boolean needUpdate = false;
         if (!fullText.equals(text)) {
             fullText = text;
@@ -333,6 +361,35 @@ public class TextRenderer {
         if (needUpdate) {
             updatePieces(baseFont);
         }
+    }
+
+    private TextBounds getCurrentBounds() {
+        float maxWidth = 0;
+        for (Float lineWidth : lineWidths) {
+            if (lineWidth > maxWidth) {
+                maxWidth = lineWidth;
+            }
+        }
+        TextBounds bounds = new TextBounds();
+        bounds.width = maxWidth;
+        bounds.height = totalHeight;
+        return bounds;
+    }
+
+    public TextBounds getBounds(String text, FSkinFont skinFont) {
+        setProps(text, skinFont, Float.MAX_VALUE, Float.MAX_VALUE, false);
+        return getCurrentBounds();
+    }
+    public TextBounds getWrappedBounds(String text, FSkinFont skinFont, float maxWidth) {
+        setProps(text, skinFont, maxWidth, Float.MAX_VALUE, true);
+        return getCurrentBounds();
+    }
+
+    public void drawText(Graphics g, String text, FSkinFont skinFont, FSkinColor skinColor, float x, float y, float w, float h, boolean wrap0, HAlignment horzAlignment, boolean centerVertically) {
+        drawText(g, text, skinFont, skinColor.getColor(), x, y, w, h, wrap0, horzAlignment, centerVertically);
+    }
+    public void drawText(Graphics g, String text, FSkinFont skinFont, Color color, float x, float y, float w, float h, boolean wrap0, HAlignment horzAlignment, boolean centerVertically) {
+        setProps(text, skinFont, w, h, wrap0);
         if (needClip) { //prevent text flowing outside region if couldn't shrink it to fit
             g.startClip(x, y, w, h);
         }
@@ -388,10 +445,10 @@ public class TextRenderer {
         }
     }
 
-    private class ImagePiece extends Piece {
+    private class SymbolPiece extends Piece {
         private FSkinImage image;
 
-        private ImagePiece(FSkinImage image0, boolean inReminderText0) {
+        private SymbolPiece(FSkinImage image0, boolean inReminderText0) {
             super(inReminderText0);
             image = image0;
         }

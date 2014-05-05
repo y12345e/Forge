@@ -30,6 +30,7 @@ import forge.gui.framework.IVDoc;
 import forge.model.FModel;
 import forge.properties.ForgePreferences.FPref;
 import forge.screens.match.controllers.CPlayers;
+import forge.toolbox.FScrollPanel;
 import forge.toolbox.FSkin;
 import forge.toolbox.FSkin.SkinnedLabel;
 import net.miginfocom.swing.MigLayout;
@@ -53,10 +54,12 @@ public enum VPlayers implements IVDoc<CPlayers> {
     // Fields used with interface IVDoc
     private DragCell parentCell;
     private final DragTab tab = new DragTab("Players");
+    private final FScrollPanel scroller = new FScrollPanel(new MigLayout("insets 0, gap 0, wrap"), false,
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
     // Other fields
     private Map<Player, JLabel[]> infoLBLs;
-    private JLabel stormLabel;
 
     //========= Overridden methods
 
@@ -65,22 +68,18 @@ public enum VPlayers implements IVDoc<CPlayers> {
      */
     @Override
     public void populate() {
-        final JPanel pnl = parentCell.getBody();
-        pnl.setLayout(new MigLayout("insets 0, gap 0, wrap"));
-
+        scroller.removeAll();
         final String constraints = "w 97%!, gapleft 2%, gapbottom 1%";
-
         for (final Entry<Player, JLabel[]> p : infoLBLs.entrySet()) {
-            for(JLabel label : p.getValue() )
-                pnl.add(label, constraints);
+            for (JLabel label : p.getValue()) {
+                scroller.add(label, constraints);
+            }
         }
-
-        stormLabel = new InfoLabel();
-        pnl.add(stormLabel, constraints);
+        parentCell.getBody().setLayout(new MigLayout("insets 0, gap 0"));
+        parentCell.getBody().add(scroller, "w 100%, h 100%!");
     }
-    
-    public void init(final Iterable<Player> players) {
 
+    public void init(final Iterable<Player> players) {
         this.infoLBLs = new HashMap<Player, JLabel[]>();
         for (final Player p : players) {
             // Create and store labels detailing various non-critical player info.
@@ -95,7 +94,7 @@ public enum VPlayers implements IVDoc<CPlayers> {
             this.infoLBLs.put(p, new JLabel[] { name, life, hand, draw, prevention, keywords, antes, cmd });
 
             // Set border on bottom label, and larger font on player name
-            cmd.setBorder(new FSkin.MatteSkinBorder(0, 0, 1, 0, FSkin.getColor(FSkin.Colors.CLR_BORDERS)));
+            name.setBorder(new FSkin.MatteSkinBorder(1, 0, 0, 0, FSkin.getColor(FSkin.Colors.CLR_BORDERS)));
             name.setText(p.getName());
         }
     }
@@ -143,9 +142,10 @@ public enum VPlayers implements IVDoc<CPlayers> {
     //========== Observer update methods
 
     /** @param p0 {@link forge.game.player.Player} */
-    public void update() {
+    public void update(Game game) {
         // No need to update if this panel isn't showing
         if (parentCell == null || !this.equals(parentCell.getSelected())) { return; }
+        boolean isCommander = game.getRules().hasAppliedVariant(GameType.Commander);
 
         for(Entry<Player, JLabel[]> rr : infoLBLs.entrySet()) {
             Player p0 = rr.getKey();
@@ -172,19 +172,10 @@ public enum VPlayers implements IVDoc<CPlayers> {
                 }
                 temp[6].setText(sb.toString());
             }
-            if(p0.getGame().getRules().getGameType() == GameType.Commander) {
+            if (isCommander) {
                 temp[7].setText(CardFactoryUtil.getCommanderInfo(p0));
             }
         }
-    }
-
-    /**
-     * @param game  */
-    public void updateStormLabel(Game game) {
-        // No need to update if this panel isn't showing
-        if (!parentCell.getSelected().equals(this)) { return; }
-
-        stormLabel.setText("Storm count: " + game.getStack().getCardsCastThisTurn().size());
     }
 
     //========= Custom class handling

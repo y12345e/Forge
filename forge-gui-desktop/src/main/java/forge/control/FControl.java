@@ -52,6 +52,7 @@ import forge.screens.match.CMatchUI;
 import forge.screens.match.VMatchUI;
 import forge.screens.match.controllers.CDock;
 import forge.screens.match.controllers.CLog;
+import forge.screens.match.controllers.CPlayers;
 import forge.screens.match.controllers.CPrompt;
 import forge.screens.match.controllers.CStack;
 import forge.screens.match.views.VAntes;
@@ -471,6 +472,7 @@ public enum FControl implements KeyEventDispatcher {
         CMatchUI.SINGLETON_INSTANCE.initMatch(game.getRegisteredPlayers(), humanLobbyPlayer);
         CDock.SINGLETON_INSTANCE.setModel(game, humanLobbyPlayer);
         CStack.SINGLETON_INSTANCE.setModel(game.getStack(), humanLobbyPlayer);
+        CPlayers.SINGLETON_INSTANCE.setModel(game);
         CLog.SINGLETON_INSTANCE.setModel(game.getGameLog());
 
         actuateMatchPreferences();
@@ -639,9 +641,6 @@ public enum FControl implements KeyEventDispatcher {
     private void actuateMatchPreferences() {
         final ForgePreferences prefs = FModel.getPreferences();
         final List<VField> fieldViews = VMatchUI.SINGLETON_INSTANCE.getFieldViews();
-
-        ForgePreferences.DEV_MODE = prefs.getPrefBoolean(FPref.DEV_MODE_ENABLED);
-        ForgePreferences.UPLOAD_DRAFT = ForgePreferences.NET_CONN; // && prefs.getPrefBoolean(FPref.UI_UPLOAD_DRAFT);
 
         // AI field is at index [0]
         PhaseIndicator fvAi = fieldViews.get(1).getPhaseIndicator();

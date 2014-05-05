@@ -91,6 +91,7 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbCompactPrompt(), FPref.UI_COMPACT_PROMPT));
         lstControls.add(Pair.of(view.getCbHideReminderText(), FPref.UI_HIDE_REMINDER_TEXT));
         lstControls.add(Pair.of(view.getCbOpenPacksIndiv(), FPref.UI_OPEN_PACKS_INDIV));
+        lstControls.add(Pair.of(view.getCbStackCreatures(), FPref.UI_STACK_CREATURES));
 
         for(final Pair<JCheckBox, FPref> kv : lstControls) {
             kv.getKey().addItemListener(new ItemListener() {
@@ -160,7 +161,7 @@ public enum CSubmenuPreferences implements ICDoc {
         this.prefs = FModel.getPreferences();
 
         setPlayerNameButtonText();
-        view.getCbDevMode().setSelected(prefs.getPrefBoolean(FPref.DEV_MODE_ENABLED));
+        view.getCbDevMode().setSelected(ForgePreferences.DEV_MODE);
 
         for(Pair<JCheckBox, FPref> kv: lstControls) {
             kv.getKey().setSelected(prefs.getPrefBoolean(kv.getValue()));

@@ -3,7 +3,14 @@ package forge.toolbox;
 import forge.Forge.Graphics;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
+import forge.assets.ImageCache;
+import forge.assets.TextRenderer;
+import forge.card.CardRenderer;
+import forge.card.CardZoom;
+import forge.game.card.Card;
+import forge.game.spellability.SpellAbility;
 import forge.screens.match.views.VPrompt;
+import forge.screens.match.views.VStack;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.toolbox.FEvent.FEventType;
 import forge.util.Callback;
@@ -12,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 
 // An input box for handling the order of choices.
@@ -60,12 +68,13 @@ public class DualListBox<T> extends FDialog {
                 for (int index : sourceList.selectedIndices) {
                     selected.add(sourceList.getItemAt(index));
                 }
-                sourceList.selectedIndices.clear();
+                destList.selectedIndices.clear();
                 for (T item : selected) {
                     sourceList.removeItem(item);
                     destList.selectedIndices.add(destList.getCount());
                     destList.addItem(item);
                 }
+                sourceList.cleanUpSelections();
                 setButtonState();
             }
         };
@@ -79,18 +88,38 @@ public class DualListBox<T> extends FDialog {
                 for (int index : destList.selectedIndices) {
                     selected.add(destList.getItemAt(index));
                 }
-                destList.selectedIndices.clear();
+                sourceList.selectedIndices.clear();
                 for (T item : selected) {
                     destList.removeItem(item);
                     sourceList.selectedIndices.add(sourceList.getCount());
                     sourceList.addItem(item);
                 }
+                destList.cleanUpSelections();
                 setButtonState();
             }
         };
 
-        sourceList = add(new ChoiceList(sourceElements, onAdd));
-        destList = add(new ChoiceList(destElements, onRemove));
+        //determine renderer from item type
+        final ItemRenderer renderer;
+        T item = null;
+        if (sourceElements != null && sourceElements.size() > 0) {
+            item = sourceElements.get(0);
+        }
+        else if (destElements != null && destElements.size() > 0) {
+            item = destElements.get(0);
+        }
+        if (item instanceof Card) {
+            renderer = new CardItemRenderer();
+        }
+        else if (item instanceof SpellAbility) {
+            renderer = new SpellAbilityItemRenderer();
+        }
+        else {
+            renderer = new DefaultItemRenderer();
+        }
+
+        sourceList = add(new ChoiceList(sourceElements, renderer, onAdd));
+        destList = add(new ChoiceList(destElements, renderer, onRemove));
         if (sourceList.getCount() > 0) { //select first items by default if possible
             sourceList.selectedIndices.add(0);
         }
@@ -145,35 +174,33 @@ public class DualListBox<T> extends FDialog {
         width -= 2 * x;
         maxHeight -= 2 * (VPrompt.HEIGHT - FDialog.INSETS);
 
+        float gapBetweenButtons = FOptionPane.PADDING / 2;
         float buttonHeight = FOptionPane.BUTTON_HEIGHT;
         float labelHeight = selectOrder.getAutoSizeBounds().height;
         float listHeight = (maxHeight - 2 * labelHeight - buttonHeight - FOptionPane.PADDING - 2 * FDialog.INSETS) / 2;
+        float addButtonWidth = addAllButton.getAutoSizeBounds().width * 1.2f;
+        float addButtonHeight = listHeight / 2 - gapBetweenButtons;
+        float listWidth = width - addButtonWidth - gapBetweenButtons;
+
         selectOrder.setBounds(x, y, width, labelHeight);
         y += labelHeight;
-        sourceList.setBounds(x, y, width, listHeight);
+        sourceList.setBounds(x, y, listWidth, listHeight);
+        x += width - addButtonWidth;
+        addButton.setBounds(x, y, addButtonWidth, addButtonHeight);
+        addAllButton.setBounds(x, y + addButtonHeight + gapBetweenButtons, addButtonWidth, addButtonHeight);
         y += listHeight + FOptionPane.PADDING / 2;
-
-        float gapBetweenButtons = FOptionPane.PADDING / 2;
-        float buttonWidth = (width - 3 * gapBetweenButtons) / 4;
-        float dx = buttonWidth + gapBetweenButtons;
-        /*addButton.setBounds(x, y, buttonWidth, buttonHeight);
-        x += dx;
-        addAllButton.setBounds(x, y, buttonWidth, buttonHeight);
-        x += dx;
-        removeButton.setBounds(x, y, buttonWidth, buttonHeight);
-        x += dx;
-        removeAllButton.setBounds(x, y, buttonWidth, buttonHeight);*/
 
         x = FOptionPane.PADDING;
         orderedLabel.setBounds(x, y, width, labelHeight);
         y += labelHeight;
-        destList.setBounds(x, y, width, listHeight);
+        removeButton.setBounds(x, y, addButtonWidth, addButtonHeight);
+        removeAllButton.setBounds(x, y + addButtonHeight + gapBetweenButtons, addButtonWidth, addButtonHeight);
+        destList.setBounds(x + width - listWidth, y, listWidth, listHeight);
         y += listHeight + FOptionPane.PADDING;
-        
-        buttonWidth = (width - gapBetweenButtons) / 2;
-        dx = buttonWidth + gapBetweenButtons;
+
+        float buttonWidth = (width - gapBetweenButtons) / 2;
         okButton.setBounds(x, y, buttonWidth, buttonHeight);
-        x += dx;
+        x += buttonWidth + gapBetweenButtons;
         autoButton.setBounds(x, y, buttonWidth, buttonHeight);
 
         return maxHeight;
@@ -242,26 +269,108 @@ public class DualListBox<T> extends FDialog {
         okButton.setEnabled(targetReached);
     }
 
+    private abstract class ItemRenderer {
+        public abstract int getDefaultFontSize();
+        public abstract float getItemHeight();
+        public abstract boolean tap(T value, float x, float y, int count);
+        public abstract void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h);
+    }
+    private class DefaultItemRenderer extends ItemRenderer {
+        @Override
+        public int getDefaultFontSize() {
+            return 12;
+        }
+
+        @Override
+        public float getItemHeight() {
+            return ListChooser.DEFAULT_ITEM_HEIGHT;
+        }
+
+        @Override
+        public boolean tap(T value, float x, float y, int count) {
+            return false;
+        }
+
+        @Override
+        public void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+            g.drawText(value.toString(), font, foreColor, x, y, w, h, true, HAlignment.LEFT, true);
+        }
+    }
+    //special renderer for SpellAbilities
+    private class SpellAbilityItemRenderer extends ItemRenderer {
+        private final TextRenderer textRenderer = new TextRenderer(true);
+
+        @Override
+        public int getDefaultFontSize() {
+            return 12;
+        }
+
+        @Override
+        public float getItemHeight() {
+            return VStack.CARD_HEIGHT + 2 * FList.PADDING;
+        }
+
+        @Override
+        public boolean tap(T value, float x, float y, int count) {
+            if (x <= VStack.CARD_WIDTH + 2 * FList.PADDING) {
+                CardZoom.show(((SpellAbility)value).getHostCard());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+            SpellAbility spellAbility = (SpellAbility)value;
+            g.drawImage(ImageCache.getImage(spellAbility.getHostCard()), x, y, VStack.CARD_WIDTH, VStack.CARD_HEIGHT);
+            float dx = VStack.CARD_WIDTH + FList.PADDING;
+            x += dx;
+            w -= dx;
+            textRenderer.drawText(g, spellAbility.toString(), font, foreColor, x, y, w, h, true, HAlignment.LEFT, true);
+        }
+    }
+    //special renderer for cards
+    private class CardItemRenderer extends ItemRenderer {
+        @Override
+        public int getDefaultFontSize() {
+            return 14;
+        }
+
+        @Override
+        public float getItemHeight() {
+            return CardRenderer.getCardListItemHeight();
+        }
+
+        @Override
+        public boolean tap(T value, float x, float y, int count) {
+            return CardRenderer.cardListItemTap((Card)value, x, y, count);
+        }
+
+        @Override
+        public void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+            CardRenderer.drawCardListItem(g, font, foreColor, (Card)value, 0, x, y, w, h);
+        }
+    }
+
     private class ChoiceList extends FList<T> {
         private List<Integer> selectedIndices = new ArrayList<Integer>();
 
-        private ChoiceList(Collection<T> items, final FEventHandler dblTapCommand) {
+        private ChoiceList(Collection<T> items, final ItemRenderer renderer, final FEventHandler dblTapCommand) {
             super(items != null ? items : new ArrayList<T>()); //handle null without crashing
 
             setListItemRenderer(new ListItemRenderer<T>() {
                 @Override
                 public float getItemHeight() {
-                    return ListChooser.ITEM_HEIGHT;
+                    return renderer.getItemHeight();
                 }
 
                 @Override
                 public boolean tap(T value, float x, float y, int count) {
                     Integer index = ChoiceList.this.getIndexOf(value);
-                    if (selectedIndices.contains(index)) {
-                        selectedIndices.remove(index);
-                    }
-                    else {
-                        selectedIndices.add(index);
+                    selectedIndices.clear();
+                    selectedIndices.add(index);
+                    if (renderer.tap(value, x, y, count)) {
+                        return true; //don't activate if renderer handles tap
                     }
                     if (count == 2) {
                         dblTapCommand.handleEvent(new FEvent(ChoiceList.this, FEventType.ACTIVATE, index));
@@ -271,10 +380,24 @@ public class DualListBox<T> extends FDialog {
 
                 @Override
                 public void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
-                    g.drawText(value.toString(), font, foreColor, x, y, w, h, false, HAlignment.LEFT, true);
+                    renderer.drawValue(g, value, font, foreColor, pressed, x, y, w, h);
                 }
             });
-            setFontSize(12);
+            setFontSize(renderer.getDefaultFontSize());
+        }
+
+        //remove any selected indices outside item range
+        public void cleanUpSelections() {
+            int count = getCount();
+            for (int i = 0; i < selectedIndices.size(); i++) {
+                if (selectedIndices.get(i) >= count) {
+                    selectedIndices.remove(i);
+                    i--;
+                }
+            }
+            if (selectedIndices.isEmpty() && count > 0) {
+                selectedIndices.add(count - 1); //select last item if nothing remains selected
+            }
         }
 
         @Override
@@ -302,5 +425,24 @@ public class DualListBox<T> extends FDialog {
         protected boolean drawLineSeparators() {
             return false;
         }
+    }
+
+    @Override
+    public boolean keyDown(int keyCode) {
+        switch (keyCode) {
+        case Keys.ENTER:
+        case Keys.ESCAPE: //Enter and Escape should trigger either OK or Auto based on which is enabled
+            if (okButton.trigger()) {
+                return true;
+            }
+            return autoButton.trigger();
+        case Keys.SPACE: //Space should trigger OK button if enabled,
+            //otherwise it should trigger first enabled button (default container behavior)
+            if (okButton.trigger()) {
+                return true;
+            }
+            break;
+        }
+        return super.keyDown(keyCode);
     }
 }

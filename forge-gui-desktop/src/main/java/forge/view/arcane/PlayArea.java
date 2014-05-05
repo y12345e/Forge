@@ -19,6 +19,8 @@ package forge.view.arcane;
 
 import forge.FThreads;
 import forge.game.card.Card;
+import forge.model.FModel;
+import forge.properties.ForgePreferences.FPref;
 import forge.screens.match.CMatchUI;
 import forge.screens.match.controllers.CPrompt;
 import forge.toolbox.FScrollPane;
@@ -56,9 +58,10 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
     /** Constant <code>STACK_SPACING_Y=0.07f</code>. */
     private static final float STACK_SPACING_Y = 0.07f;
 
+    private final int creatureStackMax = 4;
     private final int landStackMax = 5;
     private final int tokenStackMax = 5;
-    private final int othersStackMax = 5;
+    private final int othersStackMax = 4;
 
     private final boolean mirror;
 
@@ -183,6 +186,58 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
         return allTokens;
     }
 
+    private final CardStackRow collectAllCreatures() {
+        final CardStackRow allCreatures = new CardStackRow();
+        outerLoop:
+        //
+        for (final CardPanel panel : this.getCardPanels()) {
+            if (!panel.getCard().isCreature() || panel.getCard().isToken()) {
+                continue;
+            }
+
+            int insertIndex = -1;
+
+            // Find tokens with the same name.
+            for (int i = 0, n = allCreatures.size(); i < n; i++) {
+                final CardStack stack = allCreatures.get(i);
+                final CardPanel firstPanel = stack.get(0);
+                if (firstPanel.getCard().getName().equals(panel.getCard().getName())) {
+                    if (!firstPanel.getAttachedPanels().isEmpty()) {
+                        // Put this token to the left of tokens with the same
+                        // name and attachments.
+                        insertIndex = i;
+                        break;
+                    }
+                    if (!panel.getAttachedPanels().isEmpty()
+                            || panel.getCard().isEnchanted()
+                            || panel.getCard().isCloned()
+                            || panel.getCard().isCopiedSpell()
+                            || !panel.getCard().getCounters().equals(firstPanel.getCard().getCounters())
+                            || (panel.getCard().isSick() != firstPanel.getCard().isSick())
+                            || (panel.getCard().getNetAttack() != firstPanel.getCard().getNetAttack())
+                            || (panel.getCard().getNetDefense() != firstPanel.getCard().getNetDefense())
+                            || (stack.size() == creatureStackMax)) {
+                        // If this token has attachments or the stack is full,
+                        // put it to the right.
+                        insertIndex = i + 1;
+                        continue;
+                    }
+                    // Add to stack.
+                    stack.add(0, panel);
+                    continue outerLoop;
+                }
+                if (insertIndex != -1) {
+                    break;
+                }
+            }
+
+            final CardStack stack = new CardStack();
+            stack.add(panel);
+            allCreatures.add(insertIndex == -1 ? allCreatures.size() : insertIndex, stack);
+        }
+        return allCreatures;
+    }
+
     @Override
     public final CardPanel addCard(final Card card) {
         final CardPanel placeholder = new CardPanel(card);
@@ -201,8 +256,16 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
 
         final CardStackRow lands = collectAllLands();
         final CardStackRow tokens = collectAllTokens();
-        final CardStackRow creatures = new CardStackRow(this.getCardPanels(), RowType.CreatureNonToken);
+        final CardStackRow creatures;
         final CardStackRow others = new CardStackRow(this.getCardPanels(), RowType.Other);
+        
+        final CardStackRow collectedCreatures = collectAllCreatures();
+
+        if (FModel.getPreferences().getPrefBoolean(FPref.UI_STACK_CREATURES) && !collectedCreatures.isEmpty()) {
+            creatures = collectedCreatures;
+        } else {
+            creatures = new CardStackRow(this.getCardPanels(), RowType.CreatureNonToken);
+        }
         
         // should find an appropriate width of card
         int maxCardWidth = this.getCardWidthMax();
@@ -266,9 +329,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
             for (int stackIndex = 0, stackCount = row.size(); stackIndex < stackCount; stackIndex++) {
                 final CardStack stack = row.get(stackIndex);
                 // Align others to the right.
-                if (RowType.Other.isGoodFor(stack.get(0).getCard()) || 
-                        (stack.get(0).getCard().isEnchantment() && !stack.get(0).getCard().isCreature() && !stack.get(0).getCard().isEnchanted() && !stack.get(0).getCard().isCloned() &&
-                        (!stack.get(0).getCard().isEnchantingCard() && ((Card) (stack.get(0).getCard().getEnchanting())).getController() == stack.get(0).getCard().getController()))) {
+                if (RowType.Other.isGoodFor(stack.get(0).getCard())) {
                     x = (this.playAreaWidth - PlayArea.GUTTER_X) + this.extraCardSpacingX;
                     for (int i = stackIndex, n = row.size(); i < n; i++) {
                         CardStack r = row.get(i);
@@ -382,7 +443,7 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
                         return false;
                 }
 
-                if ( insertIndex == -1)
+                if (insertIndex == -1)
                     template.add(currentRow);
                 else 
                     template.add(insertIndex, currentRow);
