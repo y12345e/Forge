@@ -162,6 +162,14 @@ public final class AbilityFactory {
             }
         }
 
+        if (api == ApiType.DelayedTrigger && mapParams.containsKey("Execute")) {
+            spellAbility.setSVar(mapParams.get("Execute"), hostCard.getSVar(mapParams.get("Execute")));
+        }
+
+        if (api == ApiType.RepeatEach) {
+            spellAbility.setSVar(mapParams.get("RepeatSubAbility"), hostCard.getSVar(mapParams.get("RepeatSubAbility")));
+        }
+
         if (mapParams.containsKey("PreventionSubAbility")) {
             spellAbility.setSVar(mapParams.get("PreventionSubAbility"), hostCard.getSVar(mapParams.get("PreventionSubAbility")));
         }
