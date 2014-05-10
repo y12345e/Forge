@@ -42,6 +42,7 @@ import forge.properties.ForgeProfileProperties;
 import forge.screens.match.FControl;
 import forge.screens.match.views.VPhaseIndicator.PhaseLabel;
 import forge.screens.match.winlose.ViewWinLose;
+import forge.sound.IAudioClip;
 import forge.toolbox.FOptionPane;
 import forge.toolbox.GuiChoose;
 import forge.util.ITriggerEvent;
@@ -51,6 +52,11 @@ import forge.util.WaitRunnable;
 import forge.util.gui.SGuiChoose;
 
 public class GuiMobile implements IGuiBase {
+    private final String assetsDir;
+    public GuiMobile(String assetsDir0) {
+        assetsDir = assetsDir0;
+    }
+
     @Override
     public void invokeInEdtLater(Runnable proc) {
         Gdx.app.postRunnable(proc);
@@ -78,10 +84,7 @@ public class GuiMobile implements IGuiBase {
 
     @Override
     public String getAssetsDir() {
-        if (Gdx.app.getType() == ApplicationType.Desktop) {
-            return "../forge-gui/";
-        }
-        return Gdx.files.getLocalStoragePath();
+        return assetsDir;
     }
 
     @Override
@@ -361,4 +364,14 @@ public class GuiMobile implements IGuiBase {
 	public LobbyPlayer getQuestPlayer() {
 		return getGuiPlayer();
 	}
+
+    @Override
+    public IAudioClip createAudioClip(String filename) {
+        return null; //TODO: Support audio clips
+    }
+
+    @Override
+    public void startAltSoundSystem(String filename, boolean isSynchronized) {
+        //TODO: Support alt sound system
+    }
 }
