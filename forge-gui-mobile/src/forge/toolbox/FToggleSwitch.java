@@ -8,14 +8,16 @@ import forge.assets.FSkinColor.Colors;
 import forge.assets.FSkinFont;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.toolbox.FEvent.FEventType;
+import forge.util.Utils;
 
 public class FToggleSwitch extends FDisplayObject {
     private static final FSkinColor ACTIVE_COLOR = FSkinColor.get(Colors.CLR_ACTIVE);
     private static final FSkinColor PRESSED_COLOR = ACTIVE_COLOR.stepColor(-30);
     private static final FSkinColor INACTIVE_COLOR = FSkinColor.get(Colors.CLR_INACTIVE);
     private static final FSkinColor FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
-    private static final float INSETS = 2;
-    private static final float PADDING = 3;
+    private static final float BORDER_THICKNESS = Utils.scaleMin(1);
+    private static final float INSETS = Utils.scaleMin(2);
+    private static final float PADDING = Utils.scaleMin(3);
 
     private FSkinFont font;
     private final String offText, onText;
@@ -127,13 +129,13 @@ public class FToggleSwitch extends FDisplayObject {
 
     @Override
     public void draw(Graphics g) {
-        float x = 1; //leave a pixel so border displays in full
-        float y = 1;
+        float x = BORDER_THICKNESS; //leave a pixel so border displays in full
+        float y = BORDER_THICKNESS;
         float w = getWidth() - 2 * x;
-        float h = getHeight() - 2 * x;
+        float h = getHeight() - 2 * y;
 
         g.fillRect(INACTIVE_COLOR, x, y, w, h);
-        g.drawRect(1, FORE_COLOR, x, y, w, h);
+        g.drawRect(BORDER_THICKNESS, FORE_COLOR, x, y, w, h);
 
         final String text;
         float switchWidth = w - h + PADDING;

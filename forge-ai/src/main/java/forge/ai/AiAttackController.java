@@ -1006,6 +1006,9 @@ public class AiAttackController {
                 }
             }
         }
+        if (AiBlockController.canBeBlockedProfitably(defendingOpponent, attacker)) {
+            canKillAllDangerous = false;
+        }
 
         // if the creature cannot block and can kill all opponents they might as
         // well attack, they do nothing staying back

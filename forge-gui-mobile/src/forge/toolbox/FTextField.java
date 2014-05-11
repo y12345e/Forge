@@ -11,10 +11,12 @@ import forge.assets.FSkinFont;
 import forge.assets.FSkinColor.Colors;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.toolbox.FEvent.FEventType;
+import forge.util.Utils;
 
 public class FTextField extends FDisplayObject {
     private static final int DEFAULT_FONT_SIZE = 14;
-    protected static final float PADDING = 5;
+    private static final float BORDER_THICKNESS = Utils.scaleX(1);
+    protected static final float PADDING = Utils.scaleX(5);
     protected static final FSkinColor FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
     protected static final FSkinColor BACK_COLOR = FSkinColor.get(Colors.CLR_THEME2);
     protected static final FSkinColor GHOST_TEXT_COLOR = FORE_COLOR.alphaColor(0.7f);
@@ -300,7 +302,7 @@ public class FTextField extends FDisplayObject {
             float selHeight = h - 2 * PADDING;
             if (selLength == 0) {
                 drawText(g, w, h); //draw text behind cursor
-                g.drawLine(1, FORE_COLOR, selLeft, selTop, selLeft, selTop + selHeight);
+                g.drawLine(BORDER_THICKNESS, FORE_COLOR, selLeft, selTop, selLeft, selTop + selHeight);
             }
             else if (selStart == 0 && selLength == text.length()) {
                 float selWidth = font.getFont().getBounds(text.substring(selStart, selStart + selLength)).width;
@@ -312,7 +314,7 @@ public class FTextField extends FDisplayObject {
             drawText(g, w, h);
         }
 
-        g.drawRect(1, FORE_COLOR, 1, 1, w - 2, h - 2); //allow smooth border to fully display within bounds
+        g.drawRect(BORDER_THICKNESS, FORE_COLOR, BORDER_THICKNESS, BORDER_THICKNESS, w - 2 * BORDER_THICKNESS, h - 2 * BORDER_THICKNESS); //allow smooth border to fully display within bounds
     }
 
     private void drawText(Graphics g, float w, float h) {
