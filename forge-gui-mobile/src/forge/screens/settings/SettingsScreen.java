@@ -25,11 +25,13 @@ public class SettingsScreen extends FScreen {
     public static final float INSETS_FACTOR = 0.025f;
     public static final FSkinFont DESC_FONT = FSkinFont.get(11);
     public static final FSkinColor DESC_COLOR = FSkinColor.get(Colors.CLR_TEXT).alphaColor(0.5f);
+    private static final float SETTING_HEIGHT = Utils.AVG_FINGER_HEIGHT + Utils.scaleY(12);
+    private static final float SETTING_PADDING = Utils.scaleY(5);
 
     private final FGroupList<Setting> lstSettings = add(new FGroupList<Setting>());
 
     public SettingsScreen() {
-        super(true, "Settings", false);
+        super(true, "Settings");
         lstSettings.setListItemRenderer(new SettingRenderer());
 
         lstSettings.addGroup("General Settings");
@@ -145,6 +147,11 @@ public class SettingsScreen extends FScreen {
     }
 
     @Override
+    public void showMenu() {
+        Forge.back(); //hide settings screen when menu button pressed
+    }
+
+    @Override
     protected void doLayout(float startY, float width, float height) {
         lstSettings.setBounds(0, startY, width, height - startY);
     }
@@ -179,15 +186,17 @@ public class SettingsScreen extends FScreen {
         public void drawPrefValue(Graphics g, FSkinFont font, FSkinColor color, float x, float y, float w, float h) {
             x += w - h;
             w = h;
-            g.drawRect(1, DESC_COLOR, x, y, w, h);
+            g.drawRect(Utils.scaleMin(1), DESC_COLOR, x, y, w, h);
             if (FModel.getPreferences().getPrefBoolean(pref)) {
                 //draw check mark
-                x += 3;
-                y++;
-                w -= 6;
-                h -= 3;
-                g.drawLine(2, color, x, y + h / 2, x + w / 2, y + h);
-                g.drawLine(2, color, x + w / 2, y + h, x + w, y);
+                float padX = Utils.scaleX(3);
+                float thickness = Utils.scaleMin(2);
+                x += padX;
+                y += Utils.scaleY(1);
+                w -= 2 * padX;
+                h -= Utils.scaleY(3);
+                g.drawLine(thickness, color, x, y + h / 2, x + w / 2, y + h);
+                g.drawLine(thickness, color, x + w / 2, y + h, x + w, y);
             }
         }
     }
@@ -232,7 +241,7 @@ public class SettingsScreen extends FScreen {
             private final String currentValue = FModel.getPreferences().getPref(pref);
 
             private CustomSelectScreen() {
-                super(true, "Select " + label.substring(0, label.length() - 1), false);
+                super(true, "Select " + label.substring(0, label.length() - 1));
                 lstOptions = add(new FList<String>(options));
                 lstOptions.setListItemRenderer(new FList.DefaultListItemRenderer<String>() {
                     @Override
@@ -280,7 +289,7 @@ public class SettingsScreen extends FScreen {
     private class SettingRenderer extends FList.ListItemRenderer<Setting> {
         @Override
         public float getItemHeight() {
-            return Utils.AVG_FINGER_HEIGHT + 12;
+            return SETTING_HEIGHT;
         }
 
         @Override
@@ -298,11 +307,11 @@ public class SettingsScreen extends FScreen {
             h -= 2 * offset;
 
             float totalHeight = h;
-            h = font.getFont().getMultiLineBounds(value.label).height + 5;
+            h = font.getFont().getMultiLineBounds(value.label).height + SETTING_PADDING;
 
             g.drawText(value.label, font, color, x, y, w, h, false, HAlignment.LEFT, false);
             value.drawPrefValue(g, font, color, x, y, w, h);
-            h += 5;
+            h += SETTING_PADDING;
             g.drawText(value.description, DESC_FONT, DESC_COLOR, x, y + h, w, totalHeight - h + w * INSETS_FACTOR, true, HAlignment.LEFT, false);            
         }
     }

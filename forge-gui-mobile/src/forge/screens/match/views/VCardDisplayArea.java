@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import forge.FThreads;
+import forge.card.CardZoom;
 import forge.game.card.Card;
-import forge.screens.match.InputSelectCard;
+import forge.screens.match.FControl;
 import forge.toolbox.FCardPanel;
+import forge.util.ThreadUtil;
 
 public abstract class VCardDisplayArea extends VDisplayArea {
     private static final float CARD_STACK_OFFSET = 0.2f;
@@ -167,19 +169,20 @@ public abstract class VCardDisplayArea extends VDisplayArea {
         }
 
         @Override
-        public boolean press(float x, float y) {
-            InputSelectCard.selectCard(this);
+        public boolean tap(float x, float y, int count) {
+            ThreadUtil.invokeInGameThread(new Runnable() { //must invoke in game thread in case a dialog needs to be shown
+                @Override
+                public void run() {
+                    FControl.getInputProxy().selectCard(getCard(), null);
+                }
+            });
             return true;
         }
 
         @Override
-        public boolean pan(float x, float y, float deltaX, float deltaY) {
-            return InputSelectCard.handlePan(this, x, y, false);
-        }
-
-        @Override
-        public boolean panStop(float x, float y) {
-            return InputSelectCard.handlePan(this, x, y, true);
+        public boolean longPress(float x, float y) {
+            CardZoom.show(getCard());
+            return true;
         }
     }
 }

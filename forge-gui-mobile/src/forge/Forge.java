@@ -20,7 +20,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Clipboard;
 
@@ -38,6 +37,7 @@ import forge.toolbox.FContainer;
 import forge.toolbox.FDisplayObject;
 import forge.toolbox.FGestureAdapter;
 import forge.toolbox.FOverlay;
+import forge.util.Utils;
 
 public class Forge implements ApplicationListener {
     private static Forge game;
@@ -96,6 +96,8 @@ public class Forge implements ApplicationListener {
         FSkin.loadFull(splashScreen);
 
         Gdx.input.setInputProcessor(new MainInputProcessor());
+        Gdx.input.setCatchBackKey(true);
+        Gdx.input.setCatchMenuKey(true);
         openScreen(new HomeScreen());
         splashScreen = null;
     }
@@ -106,7 +108,10 @@ public class Forge implements ApplicationListener {
 
     public static void showMenu() {
         if (currentScreen == null) { return; }
-        currentScreen.showMenu();
+        endKeyInput(); //end key input before menu shown
+        if (FOverlay.getTopOverlay() == null) { //don't show menu if overlay open
+            currentScreen.showMenu();
+        }
     }
 
     public static void back() {
@@ -233,13 +238,14 @@ public class Forge implements ApplicationListener {
         Gdx.input.setOnscreenKeyboardVisible(true);
     }
 
-    public static void endKeyInput() {
-        if (keyInputAdapter == null) { return; }
+    public static boolean endKeyInput() {
+        if (keyInputAdapter == null) { return false; }
         keyInputAdapter.onInputEnd();
         keyInputAdapter = null;
         MainInputProcessor.keyTyped = false;
         MainInputProcessor.lastKeyTyped = '\0';
         Gdx.input.setOnscreenKeyboardVisible(false);
+        return true;
     }
 
     public static abstract class KeyInputAdapter {
@@ -270,6 +276,10 @@ public class Forge implements ApplicationListener {
 
         @Override
         public boolean keyDown(int keyCode) {
+            if (keyCode == Keys.MENU) {
+                showMenu();
+                return true;
+            }
             if (keyInputAdapter == null) {
                 //if no active key input adapter, give current screen or overlay a chance to handle key
                 FContainer container = FOverlay.getTopOverlay();
@@ -308,8 +318,7 @@ public class Forge implements ApplicationListener {
             return false;
         }
 
-        @Override
-        public boolean touchDown(int x, int y, int pointer, int button) {
+        private void updatePotentialListeners(int x, int y) {
             potentialListeners.clear();
             if (currentScreen != null) { //base potential listeners on object containing touch down point
                 FOverlay overlay = FOverlay.getTopOverlay();
@@ -319,12 +328,16 @@ public class Forge implements ApplicationListener {
                 else {
                     currentScreen.buildTouchListeners(x, y, potentialListeners);
                 }
+            }
+        }
 
-                if (keyInputAdapter != null) {
-                    if (!keyInputAdapter.allowTouchInput() || !potentialListeners.contains(keyInputAdapter.getOwner())) {
-                        endKeyInput(); //end key input and suppress touch event if needed
-                        potentialListeners.clear();
-                    }
+        @Override
+        public boolean touchDown(int x, int y, int pointer, int button) {
+            updatePotentialListeners(x, y);
+            if (keyInputAdapter != null) {
+                if (!keyInputAdapter.allowTouchInput() || !potentialListeners.contains(keyInputAdapter.getOwner())) {
+                    endKeyInput(); //end key input and suppress touch event if needed
+                    potentialListeners.clear();
                 }
             }
             return super.touchDown(x, y, pointer, button);
@@ -443,10 +456,10 @@ public class Forge implements ApplicationListener {
         }
 
         @Override
-        public boolean zoom(float initialDistance, float distance) {
+        public boolean zoom(float x, float y, float amount) {
             try {
                 for (FDisplayObject listener : potentialListeners) {
-                    if (listener.zoom(initialDistance, distance)) {
+                    if (listener.zoom(listener.screenToLocalX(x), listener.screenToLocalY(y), amount)) {
                         return true;
                     }
                 }
@@ -458,20 +471,35 @@ public class Forge implements ApplicationListener {
             }
         }
 
+        //mouseMoved and scrolled events for desktop version
+        private int mouseMovedX, mouseMovedY;
+
         @Override
-        public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-            try {
-                for (FDisplayObject listener : potentialListeners) {
-                    if (listener.pinch(initialPointer1, initialPointer2, pointer1, pointer2)) {
-                        return true;
-                    }
-                }
-                return false;
+        public boolean mouseMoved(int x, int y) {
+            mouseMovedX = x;
+            mouseMovedY = y;
+            return true;
+        }
+
+        @Override
+        public boolean scrolled(int amount) {
+            updatePotentialListeners(mouseMovedX, mouseMovedY);
+
+            if (KeyInputAdapter.isCtrlKeyDown()) { //zoom in or out based on amount
+                return zoom(mouseMovedX, mouseMovedY, -Utils.AVG_FINGER_WIDTH * amount);
             }
-            catch (Exception ex) {
-                BugReporter.reportException(ex);
-                return true;
+
+            boolean handled;
+            if (KeyInputAdapter.isShiftKeyDown()) {
+                handled = pan(mouseMovedX, mouseMovedY, -Utils.AVG_FINGER_WIDTH * amount, 0);
             }
+            else {
+                handled = pan(mouseMovedX, mouseMovedY, 0, -Utils.AVG_FINGER_HEIGHT * amount);
+            }
+            if (panStop(mouseMovedX, mouseMovedY)) {
+                handled = true;
+            }
+            return handled;
         }
     }
 

@@ -1154,12 +1154,10 @@ forge-gui-mobile/src/forge/screens/draft/DraftScreen.java -text
 forge-gui-mobile/src/forge/screens/guantlet/GuantletScreen.java -text
 forge-gui-mobile/src/forge/screens/home/HomeScreen.java -text
 forge-gui-mobile/src/forge/screens/match/FControl.java -text
-forge-gui-mobile/src/forge/screens/match/InputSelectCard.java -text
 forge-gui-mobile/src/forge/screens/match/MatchScreen.java -text
 forge-gui-mobile/src/forge/screens/match/views/VAssignDamage.java -text
 forge-gui-mobile/src/forge/screens/match/views/VAvatar.java -text
 forge-gui-mobile/src/forge/screens/match/views/VCardDisplayArea.java -text
-forge-gui-mobile/src/forge/screens/match/views/VCombat.java -text
 forge-gui-mobile/src/forge/screens/match/views/VDevMenu.java -text
 forge-gui-mobile/src/forge/screens/match/views/VDisplayArea.java -text
 forge-gui-mobile/src/forge/screens/match/views/VField.java -text
@@ -6303,6 +6301,7 @@ forge-gui/res/cardsfolder/g/guard_dogs.txt -text
 forge-gui/res/cardsfolder/g/guard_duty.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/g/guard_gomazoa.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/g/guardian_angel.txt -text
+forge-gui/res/cardsfolder/g/guardian_beast.txt -text
 forge-gui/res/cardsfolder/g/guardian_idol.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/g/guardian_lions.txt -text
 forge-gui/res/cardsfolder/g/guardian_of_cloverdell.txt svneol=native#text/plain

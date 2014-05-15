@@ -83,7 +83,7 @@ public class CardRenderer {
 
     public static void drawDetails(Graphics g, Card card, float width, float height) {
         float x = FDialog.INSETS;
-        float y = x;
+        float y = FDialog.INSETS;
         float w = width - 2 * x;
         float h = height - 2 * y;
 
@@ -99,7 +99,7 @@ public class CardRenderer {
             x += (oldWidth - w) / 2;
         }
 
-        boolean canShow = !card.isFaceDown() && FControl.mayShowCard(card);
+        boolean canShow = !card.isFaceDown() && (FControl.mayShowCard(card) || FDialog.isDialogOpen()); //support showing if card revealed in dialog
 
         float blackBorderThickness = w * 0.021f;
         g.fillRect(Color.BLACK, x, y, w, h);
@@ -130,29 +130,26 @@ public class CardRenderer {
         x += outerBorderThickness;
         y += outerBorderThickness;
         w -= 2 * outerBorderThickness;
-        h =  Math.max(MANA_SYMBOL_SIZE + 2 * MANA_COST_PADDING, 2 * NAME_FONT.getFont().getCapHeight()) + 2 * TYPE_FONT.getFont().getCapHeight() + 2;
+        float cardNameBoxHeight = Math.max(MANA_SYMBOL_SIZE + 2 * MANA_COST_PADDING, 2 * NAME_FONT.getFont().getCapHeight()) + 2 * TYPE_FONT.getFont().getCapHeight() + 2;
 
         //draw name/type box
         Color nameBoxColor1 = FSkinColor.tintColor(Color.WHITE, color1, NAME_BOX_TINT);
         Color nameBoxColor2 = color2 == null ? null : FSkinColor.tintColor(Color.WHITE, color2, NAME_BOX_TINT);
-        drawCardNameBox(g, card, nameBoxColor1, nameBoxColor2, x, y, w, h);
-
-        float ptBoxHeight = 2 * PT_FONT.getFont().getCapHeight();
+        drawCardNameBox(g, card, nameBoxColor1, nameBoxColor2, x, y, w, cardNameBoxHeight);
 
         float innerBorderThickness = outerBorderThickness / 2;
-        y += h + innerBorderThickness;
-        h = height - FDialog.INSETS - blackBorderThickness - ptBoxHeight - 2 * innerBorderThickness - y; 
+        float ptBoxHeight = 2 * PT_FONT.getFont().getCapHeight();
+        float textBoxHeight = h - cardNameBoxHeight - ptBoxHeight - outerBorderThickness - 3 * innerBorderThickness; 
 
+        y += cardNameBoxHeight + innerBorderThickness;
         Color textBoxColor1 = FSkinColor.tintColor(Color.WHITE, color1, TEXT_BOX_TINT);
         Color textBoxColor2 = color2 == null ? null : FSkinColor.tintColor(Color.WHITE, color2, TEXT_BOX_TINT);
-        drawCardTextBox(g, card, canShow, textBoxColor1, textBoxColor2, x, y, w, h);
+        drawCardTextBox(g, card, canShow, textBoxColor1, textBoxColor2, x, y, w, textBoxHeight);
 
-        y += h + innerBorderThickness;
-        h = ptBoxHeight;
-
+        y += textBoxHeight + innerBorderThickness;
         Color ptColor1 = FSkinColor.tintColor(Color.WHITE, color1, PT_BOX_TINT);
         Color ptColor2 = color2 == null ? null : FSkinColor.tintColor(Color.WHITE, color2, PT_BOX_TINT);
-        drawCardIdAndPtBox(g, card, idForeColor, ptColor1, ptColor2, x, y, w, h);
+        drawCardIdAndPtBox(g, card, idForeColor, ptColor1, ptColor2, x, y, w, ptBoxHeight);
     }
 
     public static float getCardListItemHeight() {

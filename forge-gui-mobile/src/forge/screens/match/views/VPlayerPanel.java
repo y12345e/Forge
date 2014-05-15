@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 
 import forge.Forge.Graphics;
@@ -18,12 +19,15 @@ import forge.screens.match.FControl;
 import forge.screens.match.MatchScreen;
 import forge.toolbox.FContainer;
 import forge.toolbox.FDisplayObject;
+import forge.util.Utils;
 
 public class VPlayerPanel extends FContainer {
     private static final FSkinFont LIFE_FONT = FSkinFont.get(18);
     private static final FSkinFont INFO_FONT = FSkinFont.get(12);
     private static final FSkinColor INFO_FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
     private static final FSkinColor DISPLAY_AREA_BACK_COLOR = FSkinColor.get(Colors.CLR_INACTIVE).alphaColor(0.5f);
+    private static final float INFO_TAB_PADDING_X = Utils.scaleX(2);
+    private static final float INFO_TAB_PADDING_Y = Utils.scaleY(2);
 
     private final Player player;
     private final VPhaseIndicator phaseIndicator;
@@ -140,7 +144,9 @@ public class VPlayerPanel extends FContainer {
     protected void doLayout(float width, float height) {
         //layout for bottom panel by default
         float x = VAvatar.WIDTH;
-        phaseIndicator.setBounds(x, height - VPhaseIndicator.HEIGHT, width - VAvatar.WIDTH, VPhaseIndicator.HEIGHT);
+        float w = width - VAvatar.WIDTH;
+        float h = phaseIndicator.getPreferredHeight(w);
+        phaseIndicator.setBounds(x, height - h, w, h);
 
         float y = height - VAvatar.HEIGHT;
         float displayAreaHeight = y / 3;
@@ -153,7 +159,7 @@ public class VPlayerPanel extends FContainer {
         avatar.setPosition(0, y);
 
         float lifeLabelWidth = LIFE_FONT.getFont().getBounds("99").width * 1.2f; //make just wide enough for 2-digit life totals
-        float infoLabelHeight = VAvatar.HEIGHT - VPhaseIndicator.HEIGHT;
+        float infoLabelHeight = VAvatar.HEIGHT - phaseIndicator.getHeight();
         lblLife.setBounds(x, y, lifeLabelWidth, infoLabelHeight);
         x += lifeLabelWidth;
 
@@ -190,13 +196,25 @@ public class VPlayerPanel extends FContainer {
     }
 
     private class LifeLabel extends FDisplayObject {
-        private String life = "20";
+        private int life = 20;
+        private String lifeStr = String.valueOf(life);
 
         private LifeLabel() {
         }
 
         private void update() {
-            life = String.valueOf(player.getLife());
+            int delta = player.getLife() - life;
+            if (delta == 0) { return; }
+
+            if (delta < 0) {
+                //TODO: Show animation on avatar for life loss
+                if (player.getLobbyPlayer() == FControl.getGuiPlayer()) {
+                    //when gui player loses life, vibrate device for a length of time based on amount of life lost
+                    Gdx.input.vibrate(Math.min(delta * -100, 2000)); //never vibrate more than two seconds regardless of life lost
+                }
+            }
+            life = player.getLife();
+            lifeStr = String.valueOf(life);
         }
 
         @Override
@@ -207,7 +225,7 @@ public class VPlayerPanel extends FContainer {
 
         @Override
         public void draw(Graphics g) {
-            g.drawText(life, LIFE_FONT, INFO_FORE_COLOR, 0, 0, getWidth(), getHeight(), false, HAlignment.CENTER, true);
+            g.drawText(lifeStr, LIFE_FONT, INFO_FORE_COLOR, 0, 0, getWidth(), getHeight(), false, HAlignment.CENTER, true);
         }
     }
 
@@ -240,8 +258,6 @@ public class VPlayerPanel extends FContainer {
         @Override
         public void draw(Graphics g) {
             float x, y, w, h;
-            float paddingX = 2;
-            float paddingY = 2;
 
             if (selectedTab == this) {
                 y = 0;
@@ -249,33 +265,54 @@ public class VPlayerPanel extends FContainer {
                 h = getHeight();
                 float yAcross;
                 if (isFlipped()) {
-                    y += paddingY;
+                    y += INFO_TAB_PADDING_Y;
                     yAcross = y;
                     y--;
                     h++;
                 }
                 else {
-                    h -= paddingY;
+                    h -= INFO_TAB_PADDING_Y;
                     yAcross = h;
                     y--;
                     h += 2;
                 }
-                g.fillRect(DISPLAY_AREA_BACK_COLOR, 0, isFlipped() ? paddingY : 0, w, getHeight() - paddingY);
-                g.startClip(-1, y, w + 2, h); //use clip to ensure all corners connect
+                g.fillRect(DISPLAY_AREA_BACK_COLOR, 0, isFlipped() ? INFO_TAB_PADDING_Y : 0, w, getHeight() - INFO_TAB_PADDING_Y);
+                g.startClip(-1, y, w + 2, yAcross - y); //use clip to ensure all corners connect
                 g.drawLine(1, MatchScreen.BORDER_COLOR, 0, yAcross, w, yAcross);
                 g.drawLine(1, MatchScreen.BORDER_COLOR, 0, y, 0, h);
                 g.drawLine(1, MatchScreen.BORDER_COLOR, w, y, w, h);
                 g.endClip();
             }
 
-            h = Math.round(getHeight() * 0.7f / 20f) * 20f; //round to nearest 20 so images look ok
-            w = h;
-            x = paddingX;
-            y = (getHeight() - h) / 2;
-            g.drawImage(icon, x, y, w, h);
+            //show image left of text if wider than tall
+            if (getWidth() > getHeight()) {
+                float maxImageWidth = getWidth() - INFO_FONT.getFont().getBounds("0").width - 3 * INFO_TAB_PADDING_X;
+                w = icon.getNearestHQWidth(maxImageWidth);
+                if (w > maxImageWidth) {
+                    w /= 2;
+                }
+                h = icon.getHeight() * w / icon.getWidth();
+                x = INFO_TAB_PADDING_X + (maxImageWidth - w) / 2;
+                y = (getHeight() - h) / 2;
+                g.drawImage(icon, x, y, w, h);
 
-            x += w * 1.1f;
-            g.drawText(value, INFO_FONT, INFO_FORE_COLOR, x, 0, getWidth() - x + 1, getHeight(), false, HAlignment.LEFT, true);
+                x += w + INFO_TAB_PADDING_X;
+                g.drawText(value, INFO_FONT, INFO_FORE_COLOR, x, 0, getWidth() - x + 1, getHeight(), false, HAlignment.LEFT, true);
+            }
+            else { //show image above text if taller than wide
+                float maxImageWidth = getWidth() - 2 * INFO_TAB_PADDING_X;
+                w = icon.getNearestHQWidth(maxImageWidth);
+                if (w > maxImageWidth) {
+                    w /= 2;
+                }
+                h = icon.getHeight() * w / icon.getWidth();
+                x = (getWidth() - w) / 2;
+                y = INFO_TAB_PADDING_Y;
+                g.drawImage(icon, x, y, w, h);
+
+                y += h + INFO_TAB_PADDING_Y;
+                g.drawText(value, INFO_FONT, INFO_FORE_COLOR, 0, y, getWidth(), getHeight() - y + 1, false, HAlignment.CENTER, false);
+            }
         }
     }
 }

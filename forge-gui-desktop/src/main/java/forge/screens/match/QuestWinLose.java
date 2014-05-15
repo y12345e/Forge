@@ -509,9 +509,10 @@ public class QuestWinLose extends ControlWinLose {
      */
     private void awardWinStreakBonus() {
         
-        int currentStreak = qData.getAchievements().getWinStreakCurrent() + 1;
+        int currentStreak = (qData.getAchievements().getWinStreakCurrent() + 1) % 50;
 
         final List<PaperCard> cardsWon = new ArrayList<>();
+        List<PaperCard> cardsToAdd;
         String typeWon = "";
         
         switch (currentStreak) {
@@ -528,22 +529,40 @@ public class QuestWinLose extends ControlWinLose {
                 typeWon = "rare";
                 break;
             case 10:
-                cardsWon.addAll(qData.getCards().addRandomMythicRare(1));
-                typeWon = "mythic rare";
+                cardsToAdd = qData.getCards().addRandomMythicRare(1);
+                if (cardsToAdd != null) {
+                    cardsWon.addAll(cardsToAdd);
+                    typeWon = "mythic rare";
+                } else {
+                    cardsWon.addAll(qData.getCards().addRandomRareNotMythic(5));
+                    typeWon = "rare";
+                }
                 break;
             case 25:
-                cardsWon.addAll(qData.getCards().addRandomMythicRare(5));
-                typeWon = "mythic rare";
+                cardsToAdd = qData.getCards().addRandomMythicRare(5);
+                if (cardsToAdd != null) {
+                    cardsWon.addAll(cardsToAdd);
+                    typeWon = "mythic rare";
+                } else {
+                    cardsWon.addAll(qData.getCards().addRandomRareNotMythic(15));
+                    typeWon = "rare";
+                }
                 break;
-            case 50:
-                cardsWon.addAll(qData.getCards().addRandomMythicRare(10));
-                typeWon = "mythic rare";
+            case 0: //The 50th win in the streak is 0, since (50 % 50 == 0)
+                cardsToAdd = qData.getCards().addRandomMythicRare(10);
+                if (cardsToAdd != null) {
+                    cardsWon.addAll(cardsToAdd);
+                    typeWon = "mythic rare";
+                } else {
+                    cardsWon.addAll(qData.getCards().addRandomRareNotMythic(25));
+                    typeWon = "rare";
+                }
                 break;
             default:
                 return;
         }
         
-        this.lblTemp1 = new TitleLabel("You have achieved a " + currentStreak + " win streak and won " + cardsWon.size() + " " + typeWon + " card" + ((cardsWon.size() != 1) ? "s" : "") + "!");
+        this.lblTemp1 = new TitleLabel("You have achieved a " + (currentStreak == 0 ? "50" : currentStreak) + " win streak and won " + cardsWon.size() + " " + typeWon + " card" + ((cardsWon.size() != 1) ? "s" : "") + "!");
         final QuestWinLoseCardViewer cv = new QuestWinLoseCardViewer(cardsWon);
 
         this.view.getPnlCustom().add(this.lblTemp1, QuestWinLose.CONSTRAINTS_TITLE);

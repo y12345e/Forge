@@ -226,7 +226,7 @@ public abstract class FScrollPane extends FContainer {
             activeFlingAnimation.physicsObj.getVelocity().set(velocityX, velocityY);
             activeFlingAnimation.physicsObj.setDecel(FLING_DECEL, FLING_DECEL);
         }
-        return true;
+        return false; //don't prevent outer scroll panes from working
     }
 
     @Override
@@ -253,7 +253,7 @@ public abstract class FScrollPane extends FContainer {
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
         setScrollPositions(scrollLeft - deltaX, scrollTop - deltaY);
-        return true;
+        return false; //don't prevent outer scroll panes from working
     }
 
     @Override

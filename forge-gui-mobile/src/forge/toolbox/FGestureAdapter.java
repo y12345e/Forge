@@ -19,8 +19,7 @@ public abstract class FGestureAdapter extends InputAdapter {
     public abstract boolean fling(float velocityX, float velocityY);
     public abstract boolean pan(float x, float y, float deltaX, float deltaY);
     public abstract boolean panStop(float x, float y);
-    public abstract boolean zoom(float initialDistance, float distance);
-    public abstract boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2);
+    public abstract boolean zoom(float x, float y, float amount);
 
     private float tapSquareSize, pressDelay, longPressDelay, quickTapDelay, lastTapX, lastTapY, tapSquareCenterX, tapSquareCenterY;
     private long tapCountInterval, flingDelay, lastTapTime, gestureStartTime;
@@ -28,10 +27,11 @@ public abstract class FGestureAdapter extends InputAdapter {
     private boolean inTapSquare, pressed, longPressed, longPressHandled, quickTapped, pinching, panning;
 
     private final VelocityTracker tracker = new VelocityTracker();
-    Vector2 pointer1 = new Vector2();
+    private final Vector2 pointer1 = new Vector2();
     private final Vector2 pointer2 = new Vector2();
-    private final Vector2 initialPointer1 = new Vector2();
-    private final Vector2 initialPointer2 = new Vector2();
+    private final Vector2 prevPointer1 = new Vector2();
+    private final Vector2 prevPointer2 = new Vector2();
+    private final Vector2 focalPoint = new Vector2();
 
     private final Task pressTask = new Task() {
         @Override
@@ -39,6 +39,7 @@ public abstract class FGestureAdapter extends InputAdapter {
             if (!pressed) {
                 pressed = true;
                 press(pointer1.x, pointer1.y);
+                Gdx.graphics.requestRendering();
             }
         }
     };
@@ -48,6 +49,7 @@ public abstract class FGestureAdapter extends InputAdapter {
             if (!longPressed) {
                 longPressed = true;
                 if (longPress(pointer1.x, pointer1.y)) {
+                    Gdx.input.vibrate(25); //perform a quick vibrate to signify a successful long press
                     endPress(pointer1.x, pointer1.y); //end press immediately if long press handled
                     longPressHandled = true;
                 }
@@ -61,12 +63,13 @@ public abstract class FGestureAdapter extends InputAdapter {
                 quickTapped = false;
                 endPress(lastTapX, lastTapY);
                 tap(lastTapX, lastTapY, tapCount);
+                Gdx.graphics.requestRendering();
             }
         }
     };
 
     public FGestureAdapter() {
-        this(Utils.AVG_FINGER_WIDTH / 4f, DOUBLE_TAP_INTERVAL, 0.05f, 1.1f, 0.025f, 0.15f);
+        this(Utils.AVG_FINGER_WIDTH / 2f, DOUBLE_TAP_INTERVAL, 0.05f, 0.5f, 0.025f, 0.15f);
     }
 
     /** @param tapSquareSize0 half width in pixels of the square around an initial touch event
@@ -103,8 +106,9 @@ public abstract class FGestureAdapter extends InputAdapter {
                 // Start pinch.
                 inTapSquare = false;
                 pinching = true;
-                initialPointer1.set(pointer1);
-                initialPointer2.set(pointer2);
+                prevPointer1.set(pointer1);
+                prevPointer2.set(pointer2);
+                focalPoint.set(Utils.getMidpoint(pointer1, pointer2));
                 endPress(x, y);
             }
             else {
@@ -121,8 +125,9 @@ public abstract class FGestureAdapter extends InputAdapter {
             pointer2.set(x, y);
             inTapSquare = false;
             pinching = true;
-            initialPointer1.set(pointer1);
-            initialPointer2.set(pointer2);
+            prevPointer1.set(pointer1);
+            prevPointer2.set(pointer2);
+            focalPoint.set(Utils.getMidpoint(pointer1, pointer2));
             endPress(pointer1.x, pointer1.y);
         }
         return true;
@@ -136,16 +141,17 @@ public abstract class FGestureAdapter extends InputAdapter {
         if (pointer > 1) { return false; }
 
         if (pointer == 0) {
+            prevPointer1.set(pointer1);
             pointer1.set(x, y);
         }
         else {
+            prevPointer2.set(pointer2);
             pointer2.set(x, y);
         }
 
         // handle pinch zoom
         if (pinching) {
-            boolean result = pinch(initialPointer1, initialPointer2, pointer1, pointer2);
-            return zoom(initialPointer1.dst(initialPointer2), pointer1.dst(pointer2)) || result;
+            return zoom(focalPoint.x, focalPoint.y, pointer1.dst(pointer2) - prevPointer1.dst(prevPointer2));
         }
 
         // update tracker
