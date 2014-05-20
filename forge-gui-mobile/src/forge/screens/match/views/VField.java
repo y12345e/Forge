@@ -102,9 +102,12 @@ public class VField extends FContainer {
                     card.getName().equals(c.getName()) &&
                     card.getCounters().equals(card.getCounters())) {
                 CardAreaPanel cPanel = CardAreaPanel.get(c);
+                while (cPanel.getNextPanelInStack() != null) {
+                    cPanel = cPanel.getNextPanelInStack();
+                }
                 CardAreaPanel cardPanel = CardAreaPanel.get(card);
-                cPanel.getAttachedPanels().add(cardPanel);
-                cardPanel.setAttachedToPanel(cPanel);
+                cPanel.setNextPanelInStack(cardPanel);
+                cardPanel.setPrevPanelInStack(cPanel);
                 return true;
             }
         }
@@ -171,6 +174,14 @@ public class VField extends FContainer {
         toPanel.setCard(toPanel.getCard());
     }
 
+    public FieldRow getRow1() {
+        return row1;
+    }
+
+    public FieldRow getRow2() {
+        return row2;
+    }
+
     @Override
     public void clear() {
         row1.clear(); //clear rows instead of removing the rows
@@ -193,7 +204,7 @@ public class VField extends FContainer {
         row2.setBounds(0, y2, width, cardSize);
     }
 
-    private class FieldRow extends VCardDisplayArea {
+    public class FieldRow extends VCardDisplayArea {
         private FieldRow() {
             setVisible(true); //make visible by default unlike other display areas
         }

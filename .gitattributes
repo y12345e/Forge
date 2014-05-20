@@ -141,6 +141,7 @@ forge-ai/src/main/java/forge/ai/ability/TwoPilesAi.java -text
 forge-ai/src/main/java/forge/ai/ability/UnattachAllAi.java -text
 forge-ai/src/main/java/forge/ai/ability/UntapAi.java -text
 forge-ai/src/main/java/forge/ai/ability/UntapAllAi.java -text
+forge-ai/src/main/java/forge/ai/ability/VoteAi.java -text
 forge-ai/src/main/java/forge/ai/ability/ZoneExchangeAi.java -text
 forge-core/.classpath -text
 forge-core/.project -text
@@ -14436,6 +14437,7 @@ forge-gui/res/cardsfolder/w/wall_of_razors.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/w/wall_of_resistance.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/w/wall_of_reverence.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/w/wall_of_roots.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/w/wall_of_shadows.txt -text
 forge-gui/res/cardsfolder/w/wall_of_shards.txt -text
 forge-gui/res/cardsfolder/w/wall_of_shields.txt -text
 forge-gui/res/cardsfolder/w/wall_of_souls.txt svneol=native#text/plain
@@ -15284,6 +15286,7 @@ forge-gui/res/quest/duels/Boromir[!!-~]2.dck -text
 forge-gui/res/quest/duels/Boromir[!!-~]3.dck -text
 forge-gui/res/quest/duels/Boromir[!!-~]4.dck -text
 forge-gui/res/quest/duels/Bridge[!!-~]Troll[!!-~]3.dck -text
+forge-gui/res/quest/duels/Brother[!!-~]Voodoo[!!-~]2.dck -text
 forge-gui/res/quest/duels/Buffy[!!-~]1.dck -text
 forge-gui/res/quest/duels/Buffy[!!-~]2.dck -text
 forge-gui/res/quest/duels/Buffy[!!-~]3.dck -text

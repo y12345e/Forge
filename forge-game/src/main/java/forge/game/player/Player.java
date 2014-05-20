@@ -2475,14 +2475,12 @@ public class Player extends GameEntity implements Comparable<Player> {
         } else if (property.startsWith("withMost")) {
             if (property.substring(8).equals("Life")) {
                 int highestLife = this.getLife(); // Negative base just in case a few Lich's are running around
-                Player healthiest = this;
                 for (final Player p : game.getPlayers()) {
                     if (p.getLife() > highestLife) {
                         highestLife = p.getLife();
-                        healthiest = p;
                     }
                 }
-                if (!this.equals(healthiest)) {
+                if (this.getLife() != highestLife) {
                     return false;
                 }
             }
@@ -2821,6 +2819,16 @@ public class Player extends GameEntity implements Comparable<Player> {
                 return keywordInstance.getId() == KeywordType.TokenDoubler;
             }
         })); // pow(a,0) = 1; pow(a,1) = a
+    }
+
+    public final int getAmountOfKeyword(final String k) {
+        int count = 0;
+        for (String kw : this.getKeywords()) {
+            if (kw.equals(k)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public void onCleanupPhase() {
