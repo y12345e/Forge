@@ -7,9 +7,9 @@ import forge.LobbyPlayer;
 import forge.Forge.Graphics;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
-import forge.assets.ImageCache;
 import forge.assets.TextRenderer;
 import forge.card.CardDetailUtil;
+import forge.card.CardRenderer;
 import forge.card.CardZoom;
 import forge.card.CardDetailUtil.DetailColors;
 import forge.game.card.Card;
@@ -86,7 +86,7 @@ public class VStack extends FDropDown {
         float width = totalWidth - 2 * PADDING;
 
         if (stack.isEmpty()) { //show label if stack empty
-            FLabel label = add(new FLabel.Builder().text("[Empty]").fontSize(FONT.getSize()).align(HAlignment.CENTER).build());
+            FLabel label = add(new FLabel.Builder().text("[Empty]").font(FONT).align(HAlignment.CENTER).build());
 
             height = Math.round(label.getAutoSizeBounds().height) + 2 * PADDING;
             label.setBounds(x, y, width, height);
@@ -208,10 +208,12 @@ public class VStack extends FDropDown {
             float x = padding;
             float y = padding;
 
-            g.drawImage(ImageCache.getImage(stackInstance.getSourceCard()), x, y, cardWidth, cardHeight);
+            CardRenderer.drawCardWithOverlays(g, stackInstance.getSourceCard(), x, y, cardWidth, cardHeight);
 
             x += cardWidth + padding;
-            textRenderer.drawText(g, text, FONT, foreColor, x, y, w - x - padding, h - y - padding, true, HAlignment.LEFT, true);
+            w -= x + padding;
+            h -= y + padding;
+            textRenderer.drawText(g, text, FONT, foreColor, x, y, w, h, y, h, true, HAlignment.LEFT, true);
 
             if (!isTop) {
                 g.resetAlphaComposite();

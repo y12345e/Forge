@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import forge.FThreads;
+import forge.Forge.Graphics;
 import forge.card.CardZoom;
 import forge.game.card.Card;
 import forge.screens.match.FControl;
@@ -129,12 +130,19 @@ public abstract class VCardDisplayArea extends VDisplayArea {
         return new ScrollBounds(x, visibleHeight);
     }
 
+    @Override
+    protected void startClip(Graphics g) {
+        //prevent clipping top and bottom
+        float h = getHeight();
+        g.startClip(0, -h, getWidth(), 3 * h);
+    }
+
     public static class CardAreaPanel extends FCardPanel {
         private static final Map<Integer, CardAreaPanel> allCardPanels = new HashMap<Integer, CardAreaPanel>();
 
         public static CardAreaPanel get(Card card0) {
             CardAreaPanel cardPanel = allCardPanels.get(card0.getUniqueNumber());
-            if (cardPanel == null) {
+            if (cardPanel == null || cardPanel.getCard() != card0) { //replace card panel if card copied
                 cardPanel = new CardAreaPanel(card0);
                 allCardPanels.put(card0.getUniqueNumber(), cardPanel);
             }
@@ -208,16 +216,19 @@ public abstract class VCardDisplayArea extends VDisplayArea {
 
         @Override
         public boolean tap(float x, float y, int count) {
-            ThreadUtil.invokeInGameThread(new Runnable() { //must invoke in game thread in case a dialog needs to be shown
-                @Override
-                public void run() {
-                    if (!selectCard()) {
-                        //if no cards in stack can be selected, just show zoom/details for card
-                        CardZoom.show(getCard());
+            if (renderedCardContains(x, y)) {
+                ThreadUtil.invokeInGameThread(new Runnable() { //must invoke in game thread in case a dialog needs to be shown
+                    @Override
+                    public void run() {
+                        if (!selectCard()) {
+                            //if no cards in stack can be selected, just show zoom/details for card
+                            CardZoom.show(getCard());
+                        }
                     }
-                }
-            });
-            return true;
+                });
+                return true;
+            }
+            return false;
         }
 
         public boolean selectCard() {
@@ -239,8 +250,11 @@ public abstract class VCardDisplayArea extends VDisplayArea {
 
         @Override
         public boolean longPress(float x, float y) {
-            CardZoom.show(getCard());
-            return true;
+            if (renderedCardContains(x, y)) {
+                CardZoom.show(getCard());
+                return true;
+            }
+            return false;
         }
     }
 }

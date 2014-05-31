@@ -5,12 +5,14 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import forge.Forge;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinColor.Colors;
+import forge.assets.FSkinFont;
 import forge.game.Game;
 import forge.game.GameLog;
 import forge.game.GameLogEntry;
 import forge.game.GameLogEntryType;
 import forge.game.GameOutcome;
 import forge.game.player.Player;
+import forge.menu.FMagnifyView;
 import forge.model.FModel;
 import forge.toolbox.FButton;
 import forge.toolbox.FContainer;
@@ -38,9 +40,9 @@ public class ViewWinLose extends FOverlay {
         super(FSkinColor.get(Colors.CLR_OVERLAY).alphaColor(0.75f));
 
         game = game0;
-        
-        lblTitle = add(new FLabel.Builder().fontSize(30).align(HAlignment.CENTER).build());
-        lblStats = add(new FLabel.Builder().fontSize(26).align(HAlignment.CENTER).build());
+
+        lblTitle = add(new FLabel.Builder().font(FSkinFont.get(30)).align(HAlignment.CENTER).build());
+        lblStats = add(new FLabel.Builder().font(FSkinFont.get(26)).align(HAlignment.CENTER).build());
         pnlOutcomes = add(new OutcomesPanel());
         pnlCustom = new FPanel();
 
@@ -73,16 +75,24 @@ public class ViewWinLose extends FOverlay {
         }
 
         btnContinue.setText("Next Game");
-        btnContinue.setFontSize(22);
+        btnContinue.setFont(FSkinFont.get(22));
         btnRestart.setText("Start New Match");
-        btnRestart.setFontSize(22);
+        btnRestart.setFont(btnContinue.getFont());
         btnQuit.setText("Quit Match");
-        btnQuit.setFontSize(22);
+        btnQuit.setFont(btnContinue.getFont());
         btnContinue.setEnabled(!game0.getMatch().isMatchOver());
 
-        lblLog = add(new FLabel.Builder().text("Game Log").align(HAlignment.CENTER).fontSize(18).build());
-        txtLog = add(new FTextArea(game.getGameLog().getLogText(null).replace("[COMPUTER]", "[AI]")));
-        txtLog.setFontSize(14);
+        lblLog = add(new FLabel.Builder().text("Game Log").align(HAlignment.CENTER).font(FSkinFont.get(18)).build());
+        txtLog = add(new FTextArea(game.getGameLog().getLogText(null).replace("[COMPUTER]", "[AI]")) {
+            @Override
+            public boolean tap(float x, float y, int count) {
+                if (txtLog.getMaxScrollTop() > 0) {
+                    FMagnifyView.show(txtLog, txtLog.getText(), FTextArea.FORE_COLOR, ViewWinLose.this.getBackColor(), txtLog.getFont(), true);
+                }
+                return true;
+            }
+        });
+        txtLog.setFontSize(12);
 
         btnCopyLog = add(new FLabel.ButtonBuilder().text("Copy to clipboard").command(new FEventHandler() {
             @Override
@@ -132,7 +142,7 @@ public class ViewWinLose extends FOverlay {
     private void showGameOutcomeSummary() {
         GameLog log = game.getGameLog();
         for (GameLogEntry o : log.getLogEntriesExact(GameLogEntryType.GAME_OUTCOME)) {
-            pnlOutcomes.add(new FLabel.Builder().text(o.message).fontSize(14).build());
+            pnlOutcomes.add(new FLabel.Builder().text(o.message).font(FSkinFont.get(14)).build());
         }
     }
 

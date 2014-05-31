@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -12,7 +11,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,9 +18,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Clipboard;
 
+import forge.assets.AssetsDownloader;
 import forge.assets.FSkin;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
@@ -30,17 +30,25 @@ import forge.assets.FImage;
 import forge.error.BugReporter;
 import forge.error.ExceptionHandler;
 import forge.model.FModel;
+import forge.properties.ForgeConstants;
+import forge.properties.ForgePreferences;
+import forge.properties.ForgePreferences.FPref;
 import forge.screens.FScreen;
 import forge.screens.SplashScreen;
 import forge.screens.home.HomeScreen;
+import forge.screens.match.FControl;
 import forge.toolbox.FContainer;
 import forge.toolbox.FDisplayObject;
 import forge.toolbox.FGestureAdapter;
+import forge.toolbox.FOptionPane;
 import forge.toolbox.FOverlay;
+import forge.util.Callback;
+import forge.util.FileUtil;
 import forge.util.Utils;
 
 public class Forge implements ApplicationListener {
-    private static Forge game;
+    public static final String CURRENT_VERSION = "1.5.19.004";
+
     private static Clipboard clipboard;
     private static int screenWidth;
     private static int screenHeight;
@@ -52,10 +60,9 @@ public class Forge implements ApplicationListener {
     private static final Stack<FScreen> screens = new Stack<FScreen>();
 
     public Forge(Clipboard clipboard0, String assetDir0) {
-        if (game != null) {
+        if (GuiBase.getInterface() != null) {
             throw new RuntimeException("Cannot initialize Forge more than once");
         }
-        game = this;
         clipboard = clipboard0;
         GuiBase.setInterface(new GuiMobile(assetDir0));
     }
@@ -72,13 +79,28 @@ public class Forge implements ApplicationListener {
 
         splashScreen = new SplashScreen();
 
+        String skinName;
+        if (FileUtil.doesFileExist(ForgeConstants.MAIN_PREFS_FILE)) {
+            skinName = new ForgePreferences().getPref(FPref.UI_SKIN);
+        }
+        else {
+            skinName = "default"; //use default skin if preferences file doesn't exist yet
+        }
+        FSkin.loadLight(skinName, splashScreen);
+
         //load model on background thread (using progress bar to report progress)
-        new Thread(new Runnable() {
+        FThreads.invokeInBackgroundThread(new Runnable() {
             @Override
             public void run() {
+                //see if app or assets need updating
+                AssetsDownloader.checkForUpdates(splashScreen);
+
                 FModel.initialize(splashScreen.getProgressBar());
 
-                splashScreen.getProgressBar().setDescription("Opening main window...");
+                splashScreen.getProgressBar().setDescription("Loading fonts...");
+                FSkinFont.preloadAll();
+
+                splashScreen.getProgressBar().setDescription("Finishing startup...");
 
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
@@ -87,7 +109,7 @@ public class Forge implements ApplicationListener {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private void afterDbLoaded() {
@@ -115,12 +137,26 @@ public class Forge implements ApplicationListener {
     }
 
     public static void back() {
-        if (screens.size() < 2) { return; } //don't allow going back from initial screen
+        if (screens.size() < 2) {
+            exit(); //prompt to exit if attempting to go back from home screen
+            return;
+        }
         if (!currentScreen.onClose(true)) {
             return;
         }
         screens.pop();
         setCurrentScreen(screens.lastElement());
+    }
+
+    public static void exit() {
+        FOptionPane.showConfirmDialog("Are you sure you wish to exit Forge?", "Exit Forge", "Exit", "Cancel", new Callback<Boolean>() {
+            @Override
+            public void run(Boolean result) {
+                if (result) {
+                    Gdx.app.exit();
+                }
+            }
+        });
     }
 
     public static void openScreen(FScreen screen0) {
@@ -157,7 +193,7 @@ public class Forge implements ApplicationListener {
             Animation.advanceAll();
     
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the screen.
-    
+
             FContainer screen = currentScreen;
             if (screen == null) {
                 screen = splashScreen;
@@ -201,6 +237,7 @@ public class Forge implements ApplicationListener {
 
     @Override
     public void pause() {
+        FControl.pause();
     }
 
     @Override
@@ -223,10 +260,9 @@ public class Forge implements ApplicationListener {
         shapeRenderer.dispose();
     }
 
-    //special utility method to help with debugging
-    public static void debugPrint(String message) {
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
-        Gdx.app.debug("Forge", message);
+    //log message to Forge.log file
+    public static void log(String message) {
+        System.out.println(message);
     }
 
     public static void startKeyInput(KeyInputAdapter adapter) {
@@ -267,6 +303,18 @@ public class Forge implements ApplicationListener {
         public static boolean isAltKeyDown() {
             return Gdx.input.isKeyPressed(Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Keys.ALT_RIGHT);
         }
+        public static boolean isModifierKey(int keyCode) {
+            switch (keyCode) {
+            case Keys.CONTROL_LEFT:
+            case Keys.CONTROL_RIGHT:
+            case Keys.SHIFT_LEFT:
+            case Keys.SHIFT_RIGHT:
+            case Keys.ALT_LEFT:
+            case Keys.ALT_RIGHT:
+                return true;
+            }
+            return false;
+        }
     }
 
     private static class MainInputProcessor extends FGestureAdapter {
@@ -281,6 +329,9 @@ public class Forge implements ApplicationListener {
                 return true;
             }
             if (keyInputAdapter == null) {
+                if (KeyInputAdapter.isModifierKey(keyCode)) {
+                    return false; //don't process modifiers keys for unknown adapter
+                }
                 //if no active key input adapter, give current screen or overlay a chance to handle key
                 FContainer container = FOverlay.getTopOverlay();
                 if (container == null) {
@@ -544,11 +595,13 @@ public class Forge implements ApplicationListener {
 
     public static class Graphics {
         private Rectangle bounds;
+        private Rectangle visibleBounds;
         private int failedClipCount;
         private float alphaComposite = 1;
 
         private Graphics() {
             bounds = new Rectangle(0, 0, screenWidth, screenHeight);
+            visibleBounds = new Rectangle(bounds);
         }
 
         public void startClip() {
@@ -579,8 +632,14 @@ public class Forge implements ApplicationListener {
             bounds = new Rectangle(parentBounds.x + displayObj.getLeft(), parentBounds.y + displayObj.getTop(), displayObj.getWidth(), displayObj.getHeight());
             displayObj.setScreenPosition(bounds.x, bounds.y);
 
-            if (bounds.overlaps(parentBounds)) { //avoid drawing object if it's not within visible region
+            Rectangle intersection = Utils.getIntersection(bounds, visibleBounds);
+            if (intersection != null) { //avoid drawing object if it's not within visible region
+                final Rectangle backup = visibleBounds;
+                visibleBounds = intersection;
+
                 displayObj.draw(this);
+
+                visibleBounds = backup;
             }
 
             bounds = parentBounds;
@@ -606,10 +665,10 @@ public class Forge implements ApplicationListener {
                 Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
             }
 
-            shapeRenderer.begin(ShapeType.Line);
+            startShape(ShapeType.Line);
             shapeRenderer.setColor(color);
             shapeRenderer.line(adjustX(x1), adjustY(y1, 0), adjustX(x2), adjustY(y2, 0));
-            shapeRenderer.end();
+            endShape();
 
             if (needSmoothing) {
                 Gdx.gl.glDisable(GL10.GL_LINE_SMOOTH);
@@ -647,7 +706,7 @@ public class Forge implements ApplicationListener {
             w = Math.round(w - 1);
             h = Math.round(h - 1);
 
-            shapeRenderer.begin(ShapeType.Line);
+            startShape(ShapeType.Line);
             shapeRenderer.setColor(color);
 
             x = adjustX(x);
@@ -660,7 +719,7 @@ public class Forge implements ApplicationListener {
             shapeRenderer.line(x2, y2, x2, y);
             shapeRenderer.line(x2 + 1, y, x, y); //+1 prevents corner not being filled
 
-            shapeRenderer.end();
+            endShape();
 
             if (cornerRadius > 0) {
                 Gdx.gl.glDisable(GL10.GL_LINE_SMOOTH);
@@ -690,10 +749,10 @@ public class Forge implements ApplicationListener {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH); //must be smooth to ensure edges aren't missed
 
-            shapeRenderer.begin(ShapeType.Line);
+            startShape(ShapeType.Line);
             shapeRenderer.setColor(color);
             shapeRenderer.rect(adjustX(x), adjustY(y, h), w, h);
-            shapeRenderer.end();
+            endShape();
 
             Gdx.gl.glDisable(GL10.GL_LINE_SMOOTH);
             Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -717,10 +776,10 @@ public class Forge implements ApplicationListener {
                 Gdx.gl.glEnable(GL20.GL_BLEND);
             }
 
-            shapeRenderer.begin(ShapeType.Filled);
+            startShape(ShapeType.Filled);
             shapeRenderer.setColor(color);
             shapeRenderer.rect(adjustX(x), adjustY(y, h), w, h);
-            shapeRenderer.end();
+            endShape();
 
             if (color.a < 1) {
                 Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -744,10 +803,10 @@ public class Forge implements ApplicationListener {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
 
-            shapeRenderer.begin(ShapeType.Line);
+            startShape(ShapeType.Line);
             shapeRenderer.setColor(color);
             shapeRenderer.circle(adjustX(x), adjustY(y, 0), radius);
-            shapeRenderer.end();
+            endShape();
 
             Gdx.gl.glDisable(GL10.GL_LINE_SMOOTH);
             Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -771,10 +830,10 @@ public class Forge implements ApplicationListener {
                 Gdx.gl.glEnable(GL20.GL_BLEND);
             }
 
-            shapeRenderer.begin(ShapeType.Filled);
+            startShape(ShapeType.Filled);
             shapeRenderer.setColor(color);
             shapeRenderer.circle(adjustX(x), adjustY(y, 0), radius); //TODO: Make smoother
-            shapeRenderer.end();
+            endShape();
 
             if (color.a < 1) {
                 Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -796,10 +855,10 @@ public class Forge implements ApplicationListener {
                 Gdx.gl.glEnable(GL20.GL_BLEND);
             }
 
-            shapeRenderer.begin(ShapeType.Filled);
+            startShape(ShapeType.Filled);
             shapeRenderer.setColor(color);
             shapeRenderer.triangle(adjustX(x1), adjustY(y1, 0), adjustX(x2), adjustY(y2, 0), adjustX(x3), adjustY(y3, 0));
-            shapeRenderer.end();
+            endShape();
 
             if (color.a < 1) {
                 Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -834,15 +893,27 @@ public class Forge implements ApplicationListener {
             Color bottomLeftColor = vertical ? color2 : color1;
             Color bottomRightColor = color2;
 
-            shapeRenderer.begin(ShapeType.Filled);
+            startShape(ShapeType.Filled);
             shapeRenderer.rect(adjustX(x), adjustY(y, h), w, h, bottomLeftColor, bottomRightColor, topRightColor, topLeftColor);
-            shapeRenderer.end();
+            endShape();
 
             if (needBlending) {
                 Gdx.gl.glDisable(GL20.GL_BLEND);
             }
 
             batch.begin();
+        }
+
+        private void startShape(ShapeType shapeType) {
+            if (isTransformed) {
+                //must copy matrix before starting shape if transformed
+                shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
+            }
+            shapeRenderer.begin(shapeType);
+        }
+
+        private void endShape() {
+            shapeRenderer.end();
         }
 
         public void setAlphaComposite(float alphaComposite0) {
@@ -877,14 +948,35 @@ public class Forge implements ApplicationListener {
             endClip();
         }
 
+        private boolean isTransformed;
+
+        public void setRotateTransform(float originX, float originY, float rotation) {
+            batch.end();
+            float dx = adjustX(originX);
+            float dy = adjustY(originY, 0);
+            batch.getTransformMatrix().translate(dx, dy, 0);
+            batch.getTransformMatrix().rotate(Vector3.Z, rotation);
+            batch.getTransformMatrix().translate(-dx, -dy, 0);
+            batch.begin();
+            isTransformed = true;
+        }
+
+        public void clearTransform() {
+            batch.end();
+            batch.getTransformMatrix().idt();
+            shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
+            batch.begin();
+            isTransformed = false;
+        }
+
         public void drawRotatedImage(Texture image, float x, float y, float w, float h, float originX, float originY, float rotation) {
             batch.draw(image, adjustX(x), adjustY(y, h), originX - x, h - (originY - y), w, h, 1, 1, rotation, 0, 0, image.getWidth(), image.getHeight(), false, false);
         }
 
-        public void drawText(String text, FSkinFont skinFont, FSkinColor skinColor, float x, float y, float w, float h, boolean wrap, HAlignment horzAlignment, boolean centerVertically) {
-            drawText(text, skinFont, skinColor.getColor(), x, y, w, h, wrap, horzAlignment, centerVertically);
+        public void drawText(String text, FSkinFont font, FSkinColor skinColor, float x, float y, float w, float h, boolean wrap, HAlignment horzAlignment, boolean centerVertically) {
+            drawText(text, font, skinColor.getColor(), x, y, w, h, wrap, horzAlignment, centerVertically);
         }
-        public void drawText(String text, FSkinFont skinFont, Color color, float x, float y, float w, float h, boolean wrap, HAlignment horzAlignment, boolean centerVertically) {
+        public void drawText(String text, FSkinFont font, Color color, float x, float y, float w, float h, boolean wrap, HAlignment horzAlignment, boolean centerVertically) {
             if (alphaComposite < 1) {
                 color = FSkinColor.alphaColor(color, color.a * alphaComposite);
             }
@@ -892,26 +984,24 @@ public class Forge implements ApplicationListener {
                 Gdx.gl.glEnable(GL20.GL_BLEND);
             }
 
-            TextBounds bounds;
-            int fontSize = skinFont.getSize();
-            BitmapFont font = skinFont.getFont();
+            TextBounds textBounds;
             if (wrap) {
-                bounds = font.getWrappedBounds(text, w);
+                textBounds = font.getWrappedBounds(text, w);
             }
             else {
-                bounds = font.getMultiLineBounds(text);
+                textBounds = font.getMultiLineBounds(text);
             }
             
             boolean needClip = false;
 
-            while (bounds.width > w || bounds.height > h) {
-                if (fontSize > FSkinFont.MIN_FONT_SIZE) { //shrink font to fit if possible
-                    font = FSkinFont.get(--fontSize).getFont();
+            while (textBounds.width > w || textBounds.height > h) {
+                if (font.canShrink()) { //shrink font to fit if possible
+                    font = font.shrink();
                     if (wrap) {
-                        bounds = font.getWrappedBounds(text, w);
+                        textBounds = font.getWrappedBounds(text, w);
                     }
                     else {
-                        bounds = font.getMultiLineBounds(text);
+                        textBounds = font.getMultiLineBounds(text);
                     }
                 }
                 else {
@@ -924,18 +1014,12 @@ public class Forge implements ApplicationListener {
                 startClip(x, y, w, h);
             }
 
-            float textHeight = bounds.height;
+            float textHeight = textBounds.height;
             if (h > textHeight && centerVertically) {
                 y += (h - textHeight) / 2;
             }
-            font.setColor(color);
 
-            if (wrap) {
-                font.drawWrapped(batch, text, adjustX(x), adjustY(y, 0), w, horzAlignment);
-            }
-            else {
-                font.drawMultiLine(batch, text, adjustX(x), adjustY(y, 0), w, horzAlignment);
-            }
+            font.draw(batch, text, color, adjustX(x), adjustY(y, 0), w, wrap, horzAlignment);
 
             if (needClip) {
                 endClip();
@@ -944,6 +1028,17 @@ public class Forge implements ApplicationListener {
             if (color.a < 1) {
                 Gdx.gl.glDisable(GL20.GL_BLEND);
             }
+        }
+
+        //use nifty trick with multiple text renders to draw outlined text
+        public void drawOutlinedText(String text, FSkinFont skinFont, Color textColor, Color outlineColor, float x, float y, float w, float h, boolean wrap, HAlignment horzAlignment, boolean centerVertically) {
+            drawText(text, skinFont, outlineColor, x - 1, y, w, h, wrap, horzAlignment, centerVertically);
+            drawText(text, skinFont, outlineColor, x, y - 1, w, h, wrap, horzAlignment, centerVertically);
+            drawText(text, skinFont, outlineColor, x - 1, y - 1, w, h, wrap, horzAlignment, centerVertically);
+            drawText(text, skinFont, outlineColor, x + 1, y, w, h, wrap, horzAlignment, centerVertically);
+            drawText(text, skinFont, outlineColor, x, y + 1, w, h, wrap, horzAlignment, centerVertically);
+            drawText(text, skinFont, outlineColor, x + 1, y + 1, w, h, wrap, horzAlignment, centerVertically);
+            drawText(text, skinFont, textColor, x, y, w, h, wrap, horzAlignment, centerVertically);
         }
 
         private float adjustX(float x) {

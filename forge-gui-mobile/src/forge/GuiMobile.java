@@ -17,6 +17,7 @@ import forge.assets.FSkin;
 import forge.assets.FSkinProp;
 import forge.assets.FTextureImage;
 import forge.assets.ISkinImage;
+import forge.assets.ImageCache;
 import forge.deck.Deck;
 import forge.deck.FDeckViewer;
 import forge.error.BugReportDialog;
@@ -197,7 +198,6 @@ public class GuiMobile implements IGuiBase {
     public void updateTurn(final GameEventTurnBegan event, final Game game) {
         //VField nextField = FControl.getFieldViewFor(event.turnOwner);
         //SDisplayUtil.showTab(nextField);
-        FControl.getView().getPrompt().updateText(game);
     }
 
     @Override
@@ -373,5 +373,10 @@ public class GuiMobile implements IGuiBase {
     @Override
     public void startAltSoundSystem(String filename, boolean isSynchronized) {
         //TODO: Support alt sound system
+    }
+
+    @Override
+    public void clearImageCache() {
+        ImageCache.clear();
     }
 }

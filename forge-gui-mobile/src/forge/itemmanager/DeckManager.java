@@ -255,7 +255,11 @@ public final class DeckManager extends ItemManager<DeckProxy> {
         return new ItemRenderer<DeckProxy>() {
             @Override
             public float getItemHeight() {
-                return IMAGE_SIZE + 2 * FSkinFont.get(12).getFont().getLineHeight() + 4 * FList.PADDING;
+                if (DeckManager.this.getConfig().getCols().size() == 1) {
+                    //if just string column, use normal list item height
+                    return Utils.AVG_FINGER_HEIGHT;
+                }
+                return IMAGE_SIZE + 2 * FSkinFont.get(12).getLineHeight() + 4 * FList.PADDING;
             }
 
             @Override
@@ -273,6 +277,12 @@ public final class DeckManager extends ItemManager<DeckProxy> {
             public void drawValue(Graphics g, Entry<DeckProxy, Integer> value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
                 DeckProxy deck = value.getKey();
 
+                if (DeckManager.this.getConfig().getCols().size() == 1) {
+                    //if just string column, just draw deck string value
+                    g.drawText(deck.toString(), font, foreColor, x, y, w, h, false, HAlignment.LEFT, true);
+                    return;
+                }
+
                 //draw favorite, name, and color on first line
                 g.drawImage(DeckPreferences.getPrefs(deck).getStarCount() > 0 ? FSkinImage.STAR_FILLED : FSkinImage.STAR_OUTINE, x, y, IMAGE_SIZE, IMAGE_SIZE);
                 x += IMAGE_SIZE + FList.PADDING;
@@ -285,8 +295,8 @@ public final class DeckManager extends ItemManager<DeckProxy> {
                 //draw path and main/side on second line
                 x = FList.PADDING;
                 y += IMAGE_SIZE + FList.PADDING;
-                font = FSkinFont.get(font.getSize() - 2);
-                float lineHeight = font.getFont().getLineHeight();
+                font = font.shrink().shrink();
+                float lineHeight = font.getLineHeight();
 
                 int mainSize = deck.getMainSize();
                 if (mainSize < 0) {
@@ -297,7 +307,7 @@ public final class DeckManager extends ItemManager<DeckProxy> {
                     sideSize = 0; //show sideboard as 0 if empty
                 }
                 String countStr = mainSize + " / " + sideSize;
-                float countWidth = font.getFont().getBounds(countStr).width;
+                float countWidth = font.getBounds(countStr).width;
                 if (!deck.getPath().isEmpty()) {
                     g.drawText(deck.getPath().substring(1) + "/", font, foreColor, x, y, w - countWidth - FList.PADDING, lineHeight, false, HAlignment.LEFT, true);
                 }

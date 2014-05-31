@@ -81,6 +81,19 @@ public enum CSubmenuDuels implements ICDoc {
                 quest.save();
             }
         });
+
+        view.getBtnRandomOpponent().setCommand(new UiCommand() {
+            @Override
+            public void run() { 
+                if (SSubmenuQuestUtil.canStartGame()) {
+                    FModel.getQuest().getDuelsManager().randomizeOpponents();
+                    final List<QuestEventDuel> duels = FModel.getQuest().getDuelsManager().generateDuels();
+                    SSubmenuQuestUtil.setEvent(duels.get((int) (Math.random() * duels.size())));
+                    SSubmenuQuestUtil.startGame();
+                }
+            }
+        });
+        
     }
 
     private final KeyAdapter _startOnEnter = new KeyAdapter() {

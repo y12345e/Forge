@@ -17,54 +17,56 @@ import forge.toolbox.FEvent;
 import forge.toolbox.FEvent.FEventHandler;
 
 public class HomeScreen extends FScreen {
-    private static final float LOGO_SIZE_FACTOR = 0.7f;
-    private static final float INSETS_FACTOR = 0.025f;
+    public static final float LOGO_SIZE_FACTOR = 0.7f;
+    public static final float INSETS_FACTOR = 0.025f;
     private static final float GAP_Y_FACTOR = 0.01f;
     private final ArrayList<FButton> buttons = new ArrayList<FButton>();
-    
+
     public HomeScreen() {
-        super(false, null);
+        super((Header)null);
 
         addButton("Constructed", new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 Forge.openScreen(new ConstructedScreen());
             }
-        });
+        }, true);
         addButton("Draft", new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 Forge.openScreen(new DraftScreen());
             }
-        });
+        }, false);
         addButton("Sealed", new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 Forge.openScreen(new SealedScreen());
             }
-        });
+        }, false);
         addButton("Quest", new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 Forge.openScreen(new QuestScreen());
             }
-        });
+        }, false);
         addButton("Guantlet", new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 Forge.openScreen(new GuantletScreen());
             }
-        });
+        }, false);
         addButton("Settings", new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 Forge.openScreen(new SettingsScreen());
             }
-        });
+        }, true);
     }
 
-    private void addButton(String caption, FEventHandler command) {
-        buttons.add(add(new FButton(caption, command)));
+    private void addButton(String caption, FEventHandler command, boolean enabled) {
+        FButton button = add(new FButton(caption, command));
+        button.setEnabled(enabled);
+        buttons.add(button);
     }
 
     @Override

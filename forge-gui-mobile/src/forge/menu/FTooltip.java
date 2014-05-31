@@ -17,8 +17,9 @@ public class FTooltip extends FDropDown {
     private static final FSkinColor FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
     private static final float PADDING = Utils.scaleMin(5);
 
-    FDisplayObject owner;
-    float x, y;
+    private FDisplayObject owner;
+    private float x, y;
+    private final String text;
 
     public void show(FDisplayObject owner0, float x0, float y0) {
         owner = owner0;
@@ -44,8 +45,6 @@ public class FTooltip extends FDropDown {
         setBounds(Math.round(x), Math.round(y), Math.round(paneSize.getWidth()), Math.round(paneSize.getHeight()));
     }
 
-    private final String text;
-
     public FTooltip(String text0) {
         text = text0;
     }
@@ -62,7 +61,7 @@ public class FTooltip extends FDropDown {
 
     @Override
     protected ScrollBounds updateAndGetPaneSize(float maxWidth, float maxVisibleHeight) {
-        TextBounds bounds = FONT.getFont().getWrappedBounds(text, maxWidth - 2 * PADDING);
+        TextBounds bounds = FONT.getWrappedBounds(text, maxWidth - 2 * PADDING);
         return new ScrollBounds(maxWidth, bounds.height + 2 * PADDING);
     }
 

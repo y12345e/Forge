@@ -3,16 +3,18 @@ package forge.screens.match.views;
 import org.apache.commons.lang3.StringUtils;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 
 import forge.Forge.Graphics;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
 import forge.assets.FSkinColor.Colors;
 import forge.assets.TextRenderer;
-import forge.game.Game;
+import forge.menu.FMagnifyView;
 import forge.toolbox.FButton;
 import forge.toolbox.FButton.Corner;
 import forge.toolbox.FContainer;
+import forge.toolbox.FDisplayObject;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.util.Utils;
 
@@ -25,11 +27,14 @@ public class VPrompt extends FContainer {
     private static final FSkinColor FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
     private static final FSkinFont FONT = FSkinFont.get(14);
 
-    private final TextRenderer renderer = new TextRenderer();
     private final FButton btnOk, btnCancel;
+    private final MessageLabel lblMessage;
     private String message;
 
     public VPrompt(String okText, String cancelText, FEventHandler okCommand, FEventHandler cancelCommand) {
+        lblMessage = add(new MessageLabel());
+        lblMessage.setLeft(BTN_WIDTH);
+        lblMessage.setHeight(HEIGHT);
         btnOk = add(new FButton(okText, okCommand));
         btnCancel = add(new FButton(cancelText, cancelCommand));
         btnOk.setSize(BTN_WIDTH, HEIGHT);
@@ -58,30 +63,41 @@ public class VPrompt extends FContainer {
         //SDisplayUtil.remind(view);
     }
 
-    public void updateText(Game game) {
-        //FThreads.assertExecutedByEdt(true);
-        //final Match match = game.getMatch();
-        //final GameRules rules = game.getRules();
-        //final String text = String.format("T:%d G:%d/%d [%s]", game.getPhaseHandler().getTurn(), match.getPlayedGames().size() + 1, rules.getGamesPerMatch(), rules.getGameType());
-        //view.getLblGames().setText(text);
-        //view.getLblGames().setToolTipText(String.format("%s: Game #%d of %d, turn %d", rules.getGameType(), match.getPlayedGames().size() + 1, rules.getGamesPerMatch(), game.getPhaseHandler().getTurn()));
-    }
-
     @Override
     protected void doLayout(float width, float height) {
-        btnCancel.setLeft(width - BTN_WIDTH);
+        lblMessage.setWidth(width - 2 * BTN_WIDTH);
+        btnCancel.setLeft(lblMessage.getRight());
     }
 
     @Override
     protected void drawBackground(Graphics g) {
-        float w = getWidth();
-        float h = getHeight();
+        g.fillRect(BACK_COLOR, 0, 0, getWidth(), getHeight());
+    }
+    
+    private class MessageLabel extends FDisplayObject {
+        private final TextRenderer renderer = new TextRenderer();
 
-        g.fillRect(BACK_COLOR, 0, 0, w, h);
-        if (!StringUtils.isEmpty(message)) {
-            float x = BTN_WIDTH + PADDING;
-            float y = PADDING;
-            renderer.drawText(g, message, FONT, FORE_COLOR, x, y, w - 2 * x, h - 2 * y, true, HAlignment.CENTER, true);
+        @Override
+        public boolean tap(float x, float y, int count) {
+            //if not enough room for prompt at given size, show magnify view
+            float maxWidth = getWidth() - 2 * PADDING;
+            float maxHeight = getHeight() - 2 * PADDING;
+            TextBounds textBounds = renderer.getWrappedBounds(message, FONT, maxWidth);
+            if (textBounds.height > maxHeight) {
+                FMagnifyView.show(this, message, FORE_COLOR, BACK_COLOR, FONT, false);
+            }
+            return true;
+        }
+
+        @Override
+        public void draw(Graphics g) {
+            if (!StringUtils.isEmpty(message)) {
+                float x = PADDING;
+                float y = PADDING;
+                float w = getWidth() - 2 * PADDING;
+                float h = getHeight() - 2 * PADDING;
+                renderer.drawText(g, message, FONT, FORE_COLOR, x, y, w, h, y, h, true, HAlignment.CENTER, true);
+            }
         }
     }
 }

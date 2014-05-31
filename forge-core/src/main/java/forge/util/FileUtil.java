@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -64,6 +65,31 @@ public final class FileUtil {
     public static boolean doesFileExist(final String filename) {
         final File f = new File(filename);
         return f.exists();
+    }
+
+    /**
+     * <p>
+     * ensureDirectoryExists.
+     * </p>
+     * 
+     * @param dir
+     *            a {@link java.lang.String} object.
+     * @return a boolean.
+     */
+    public static boolean ensureDirectoryExists(final String path) {
+        File dir = new File(path);
+        return (dir.exists() && dir.isDirectory()) || dir.mkdirs();
+    }
+
+    public static boolean deleteDirectory(File dir) {
+        if (dir.isDirectory()) {
+            for (String filename : dir.list()) {
+                if (!deleteDirectory(new File(dir, filename))) {
+                    return false; 
+                } 
+            }
+        }
+        return dir.delete();
     }
 
     /**
@@ -117,7 +143,11 @@ public final class FileUtil {
     } // writeAllDecks()
 
     public static String readFileToString(String filename) {
-    	return TextUtil.join(readFile(filename), "\n");
+    	return readFileToString(new File(filename));
+    }
+
+    public static String readFileToString(File file) {
+        return TextUtil.join(readFile(file), "\n");
     }
 
     public static List<String> readFile(final String filename) {
@@ -207,5 +237,24 @@ public final class FileUtil {
         }
 
         return list;
+    }
+
+    public static String readFileToString(final URL url) {
+        return TextUtil.join(readFile(url), "\n");
+    }
+
+    public static List<String> readFile(final URL url) {
+        List<String> lines = new ArrayList<String>();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                lines.add(line);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lines;
     }
 }

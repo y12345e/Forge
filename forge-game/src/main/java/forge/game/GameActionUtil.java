@@ -17,6 +17,7 @@
  */
 package forge.game;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -483,9 +484,9 @@ public final class GameActionUtil {
      */
     private static boolean hasUrzaLands(final Player p) {
         final List<Card> landsControlled = p.getCardsIn(ZoneType.Battlefield);
-        return Iterables.any(landsControlled, CardPredicates.nameEquals("Urza's Mine"))
-                && Iterables.any(landsControlled, CardPredicates.nameEquals("Urza's Tower"))
-                && Iterables.any(landsControlled, CardPredicates.nameEquals("Urza's Power Plant"));
+        return Iterables.any(landsControlled, Predicates.and(CardPredicates.isType("Urza's"), CardPredicates.isType("Mine")))
+                && Iterables.any(landsControlled, Predicates.and(CardPredicates.isType("Urza's"), CardPredicates.isType("Power-Plant")))
+                && Iterables.any(landsControlled, Predicates.and(CardPredicates.isType("Urza's"), CardPredicates.isType("Tower")));
     }
 
     /**

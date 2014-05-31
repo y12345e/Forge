@@ -46,7 +46,6 @@ import forge.toolbox.FTextField;
 import forge.util.Aggregates;
 import forge.util.Callback;
 import forge.util.Lang;
-import forge.util.MyRandom;
 import forge.util.NameGenerator;
 import forge.util.Utils;
 import forge.util.storage.IStorage;
@@ -55,18 +54,19 @@ public class ConstructedScreen extends LaunchScreen {
     private static final FSkinColor PLAYER_BORDER_COLOR = FSkinColor.get(Colors.CLR_BORDERS).alphaColor(0.8f);
     private static final ForgePreferences prefs = FModel.getPreferences();
     private static final float PADDING = Utils.scaleMin(5);
-    private static final int MAX_PLAYERS = 8;
-    private static final int VARIANTS_FONT_SIZE = 12;
+    private static final int MAX_PLAYERS = 2; //8; //TODO: Support multiplayer
+    private static final FSkinFont VARIANTS_FONT = FSkinFont.get(12);
+    private static final FSkinFont LABEL_FONT = FSkinFont.get(14);
 
     // General variables
-    private final FLabel lblPlayers = new FLabel.Builder().text("Players:").fontSize(VARIANTS_FONT_SIZE).build();
-    private final FComboBox<Integer> cmbPlayerCount;
+    private final FLabel lblPlayers = new FLabel.Builder().text("Players:").font(VARIANTS_FONT).build();
+    private final FComboBox<Integer> cbPlayerCount;
     private List<Integer> teams = new ArrayList<Integer>(MAX_PLAYERS);
     private List<Integer> archenemyTeams = new ArrayList<Integer>(MAX_PLAYERS);
 
     // Variants frame and variables
-    private final FLabel lblVariants = new FLabel.Builder().text("Variants:").fontSize(VARIANTS_FONT_SIZE).build();
-    private final FComboBox<Object> cmbVariants;
+    private final FLabel lblVariants = new FLabel.Builder().text("Variants:").font(VARIANTS_FONT).build();
+    private final FComboBox<Object> cbVariants;
     private final Set<GameType> appliedVariants = new TreeSet<GameType>();
 
     private final List<PlayerPanel> playerPanels = new ArrayList<PlayerPanel>(MAX_PLAYERS);
@@ -102,13 +102,13 @@ public class ConstructedScreen extends LaunchScreen {
         super("Constructed");
 
         add(lblPlayers);
-        cmbPlayerCount = add(new FComboBox<Integer>());
-        cmbPlayerCount.setFontSize(VARIANTS_FONT_SIZE);
+        cbPlayerCount = add(new FComboBox<Integer>());
+        cbPlayerCount.setFont(VARIANTS_FONT);
         for (int i = 2; i <= MAX_PLAYERS; i++) {
-            cmbPlayerCount.addItem(i);
+            cbPlayerCount.addItem(i);
         }
-        cmbPlayerCount.setSelectedItem(2);
-        cmbPlayerCount.setChangedHandler(new FEventHandler() {
+        cbPlayerCount.setSelectedItem(2);
+        cbPlayerCount.setChangedHandler(new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
                 int numPlayers = getNumPlayers();
@@ -120,29 +120,29 @@ public class ConstructedScreen extends LaunchScreen {
         });
 
         add(lblVariants);
-        cmbVariants = add(new FComboBox<Object>());
-        cmbVariants.setFontSize(VARIANTS_FONT_SIZE);
-        cmbVariants.addItem("(None)");
-        cmbVariants.addItem(GameType.Vanguard);
-        cmbVariants.addItem(GameType.Commander);
-        cmbVariants.addItem(GameType.Planechase);
-        cmbVariants.addItem(GameType.Archenemy);
-        cmbVariants.addItem(GameType.ArchenemyRumble);
-        cmbVariants.addItem("More....");
-        cmbVariants.setChangedHandler(new FEventHandler() {
+        cbVariants = add(new FComboBox<Object>());
+        cbVariants.setFont(VARIANTS_FONT);
+        cbVariants.addItem("(None)");
+        cbVariants.addItem(GameType.Vanguard);
+        cbVariants.addItem(GameType.Commander);
+        cbVariants.addItem(GameType.Planechase);
+        cbVariants.addItem(GameType.Archenemy);
+        cbVariants.addItem(GameType.ArchenemyRumble);
+        cbVariants.addItem("More....");
+        cbVariants.setChangedHandler(new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
-                if (cmbVariants.getSelectedIndex() <= 0) {
+                if (cbVariants.getSelectedIndex() <= 0) {
                     appliedVariants.clear();
                     updateLayoutForVariants();
                 }
-                else if (cmbVariants.getSelectedIndex() == cmbVariants.getItemCount() - 1) {
+                else if (cbVariants.getSelectedIndex() == cbVariants.getItemCount() - 1) {
                     Forge.openScreen(new MultiVariantSelect());
                     updateVariantSelection();
                 }
                 else {
                     appliedVariants.clear();
-                    appliedVariants.add((GameType)cmbVariants.getSelectedItem());
+                    appliedVariants.add((GameType)cbVariants.getSelectedItem());
                     updateLayoutForVariants();
                 }
             }
@@ -163,25 +163,31 @@ public class ConstructedScreen extends LaunchScreen {
         }
 
         add(playersScroll);
-
+        
         getDeckChooser(0).initialize(FPref.CONSTRUCTED_P1_DECK_STATE, DeckType.PRECONSTRUCTED_DECK);
         getDeckChooser(1).initialize(FPref.CONSTRUCTED_P2_DECK_STATE, DeckType.COLOR_DECK);
-        getDeckChooser(2).initialize(FPref.CONSTRUCTED_P3_DECK_STATE, DeckType.COLOR_DECK);
+        /*getDeckChooser(2).initialize(FPref.CONSTRUCTED_P3_DECK_STATE, DeckType.COLOR_DECK);
         getDeckChooser(3).initialize(FPref.CONSTRUCTED_P4_DECK_STATE, DeckType.COLOR_DECK);
         getDeckChooser(4).initialize(FPref.CONSTRUCTED_P5_DECK_STATE, DeckType.COLOR_DECK);
         getDeckChooser(5).initialize(FPref.CONSTRUCTED_P6_DECK_STATE, DeckType.COLOR_DECK);
         getDeckChooser(6).initialize(FPref.CONSTRUCTED_P7_DECK_STATE, DeckType.COLOR_DECK);
-        getDeckChooser(7).initialize(FPref.CONSTRUCTED_P8_DECK_STATE, DeckType.COLOR_DECK);
+        getDeckChooser(7).initialize(FPref.CONSTRUCTED_P8_DECK_STATE, DeckType.COLOR_DECK);*/ //TODO: Support multiplayer and improve performance of loading this screen by using background thread
 
         updatePlayersFromPrefs();
+
+        //disable player count and variants for now until they work properly
+        lblPlayers.setEnabled(false);
+        cbPlayerCount.setEnabled(false);
+        lblVariants.setEnabled(false);
+        cbVariants.setEnabled(false);
     }
 
     private void updateVariantSelection() {
         if (appliedVariants.isEmpty()) {
-            cmbVariants.setSelectedIndex(0);
+            cbVariants.setSelectedIndex(0);
         }
         else if (appliedVariants.size() == 1) {
-            cmbVariants.setSelectedItem(appliedVariants.iterator().next());
+            cbVariants.setSelectedItem(appliedVariants.iterator().next());
         }
         else {
             String text = "";
@@ -191,7 +197,7 @@ public class ConstructedScreen extends LaunchScreen {
                 }
                 text += variantType.toString();
             }
-            cmbVariants.setText(text);
+            cbVariants.setText(text);
         }
     }
 
@@ -206,16 +212,16 @@ public class ConstructedScreen extends LaunchScreen {
     protected void doLayoutAboveBtnStart(float startY, float width, float height) {
         float x = PADDING;
         float y = startY + PADDING;
-        float fieldHeight = cmbPlayerCount.getHeight();
+        float fieldHeight = cbPlayerCount.getHeight();
         lblPlayers.setBounds(x, y, lblPlayers.getAutoSizeBounds().width + PADDING / 2, fieldHeight);
         x += lblPlayers.getWidth();
-        cmbPlayerCount.setBounds(x, y, Utils.AVG_FINGER_WIDTH, fieldHeight);
-        x += cmbPlayerCount.getWidth() + PADDING;
+        cbPlayerCount.setBounds(x, y, Utils.AVG_FINGER_WIDTH, fieldHeight);
+        x += cbPlayerCount.getWidth() + PADDING;
         lblVariants.setBounds(x, y, lblVariants.getAutoSizeBounds().width + PADDING / 2, fieldHeight);
         x += lblVariants.getWidth();
-        cmbVariants.setBounds(x, y, width - x - PADDING, fieldHeight);
+        cbVariants.setBounds(x, y, width - x - PADDING, fieldHeight);
 
-        y += cmbPlayerCount.getHeight() + PADDING;
+        y += cbPlayerCount.getHeight() + PADDING;
         playersScroll.setBounds(0, y, width, height - y);
     }
 
@@ -224,10 +230,10 @@ public class ConstructedScreen extends LaunchScreen {
     }
 
     public int getNumPlayers() {
-        return cmbPlayerCount.getSelectedItem();
+        return cbPlayerCount.getSelectedItem();
     }
     public void setNumPlayers(int numPlayers) {
-        cmbPlayerCount.setSelectedItem(numPlayers);
+        cbPlayerCount.setSelectedItem(numPlayers);
     }
 
     @Override
@@ -423,8 +429,8 @@ public class ConstructedScreen extends LaunchScreen {
         private final FToggleSwitch humanAiSwitch = new FToggleSwitch("Human", "AI");
 
         private boolean playerIsArchenemy = false;
-        private FComboBox<Object> teamComboBox = new FComboBox<Object>();
-        private FComboBox<Object> aeTeamComboBox = new FComboBox<Object>();
+        private FComboBox<Object> cbTeam = new FComboBox<Object>();
+        private FComboBox<Object> cbArchenemyTeam = new FComboBox<Object>();
 
         private final FLabel btnDeck           = new FLabel.ButtonBuilder().text("Deck: (None)").build();
         private final FLabel btnSchemeDeck     = new FLabel.ButtonBuilder().text("Scheme Deck: (None)").build();
@@ -469,10 +475,10 @@ public class ConstructedScreen extends LaunchScreen {
 
             add(newLabel("Team:"));
             populateTeamsComboBoxes();
-            teamComboBox.setChangedHandler(teamChangedHandler);
-            aeTeamComboBox.setChangedHandler(teamChangedHandler);
-            add(teamComboBox);
-            add(aeTeamComboBox);
+            cbTeam.setChangedHandler(teamChangedHandler);
+            cbArchenemyTeam.setChangedHandler(teamChangedHandler);
+            add(cbTeam);
+            add(cbArchenemyTeam);
 
             add(btnDeck);
             btnDeck.setCommand(new FEventHandler() {
@@ -549,6 +555,10 @@ public class ConstructedScreen extends LaunchScreen {
             lstPlanarDecks.setSelectedIndex(0);
 
             updateVanguardList();
+
+            //disable team combo boxes for now
+            cbTeam.setEnabled(false);
+            cbArchenemyTeam.setEnabled(false);
         }
 
         @Override
@@ -572,11 +582,11 @@ public class ConstructedScreen extends LaunchScreen {
             humanAiSwitch.setPosition(x, y);
             w = x - avatarSize - 3 * PADDING;
             x = avatarSize + 2 * PADDING;
-            if (aeTeamComboBox.isVisible()) {
-                aeTeamComboBox.setBounds(x, y, w, fieldHeight);
+            if (cbArchenemyTeam.isVisible()) {
+                cbArchenemyTeam.setBounds(x, y, w, fieldHeight);
             }
             else {
-                teamComboBox.setBounds(x, y, w, fieldHeight);
+                cbTeam.setBounds(x, y, w, fieldHeight);
             }
 
             y += dy;
@@ -652,29 +662,16 @@ public class ConstructedScreen extends LaunchScreen {
         private FEventHandler avatarCommand = new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {
-                setRandomAvatar();
+                AvatarSelector.show(getPlayerName(), avatarIndex, getUsedAvatars(), new Callback<Integer>() {
+                    @Override
+                    public void run(Integer result) {
+                        setAvatar(result);
 
-                //TODO: Support selecting avatar with option at top or bottom to select a random avatar
-                
-                /*final FLabel avatar = (FLabel)e.getSource();
-
-                final AvatarSelector aSel = new AvatarSelector(getPlayerName(), avatarIndex, getUsedAvatars());
-                for (final FLabel lbl : aSel.getSelectables()) {
-                    lbl.setCommand(new FEventHandler() {
-                        @Override
-                        public void handleEvent(FEvent e) {
-                            setAvatar(Integer.valueOf(lbl.getName().substring(11)));
-                            aSel.setVisible(false);
+                        if (index < 2) {
+                            updateAvatarPrefs();
                         }
-                    });
-                }
-                
-                aSel.setVisible(true);
-                aSel.dispose();*/
-
-                if (index < 2) {
-                    updateAvatarPrefs();
-                }
+                    }
+                });
             }
         };
 
@@ -688,9 +685,9 @@ public class ConstructedScreen extends LaunchScreen {
                     || (isArchenemyApplied && playerIsArchenemy);
             btnSchemeDeck.setVisible(archenemyVisiblity);
 
-            teamComboBox.setVisible(!isArchenemyApplied);
-            aeTeamComboBox.setVisible(isArchenemyApplied);
-            aeTeamComboBox.setEnabled(!(isArchenemyApplied && playerIsArchenemy));
+            cbTeam.setVisible(!isArchenemyApplied);
+            cbArchenemyTeam.setVisible(isArchenemyApplied);
+            cbArchenemyTeam.setEnabled(!(isArchenemyApplied && playerIsArchenemy));
 
             btnPlanarDeck.setVisible(appliedVariants.contains(GameType.Planechase));
             btnVanguardAvatar.setVisible(appliedVariants.contains(GameType.Vanguard));
@@ -705,16 +702,16 @@ public class ConstructedScreen extends LaunchScreen {
         }
 
         private void populateTeamsComboBoxes() {
-            aeTeamComboBox.addItem("Archenemy");
-            aeTeamComboBox.addItem("Heroes");
-            aeTeamComboBox.setSelectedIndex(archenemyTeams.get(index) - 1);
-            aeTeamComboBox.setEnabled(playerIsArchenemy);
+            cbArchenemyTeam.addItem("Archenemy");
+            cbArchenemyTeam.addItem("Heroes");
+            cbArchenemyTeam.setSelectedIndex(archenemyTeams.get(index) - 1);
+            cbArchenemyTeam.setEnabled(playerIsArchenemy);
 
             for (int i = 1; i <= MAX_PLAYERS; i++) {
-                teamComboBox.addItem("Team " + i);
+                cbTeam.addItem("Team " + i);
             }
-            teamComboBox.setSelectedIndex(teams.get(index) - 1);
-            teamComboBox.setEnabled(true);
+            cbTeam.setSelectedIndex(teams.get(index) - 1);
+            cbTeam.setEnabled(true);
         }
 
         private FEventHandler teamChangedHandler = new FEventHandler() {
@@ -732,7 +729,7 @@ public class ConstructedScreen extends LaunchScreen {
                         for (PlayerPanel pp : playerPanels) {
                             int i = pp.index;
                             archenemyTeams.set(i, i == lastArchenemy ? 1 : 2);
-                            pp.aeTeamComboBox.setSelectedIndex(i == lastArchenemy ? 0 : 1);
+                            pp.cbArchenemyTeam.setSelectedIndex(i == lastArchenemy ? 0 : 1);
                             pp.toggleIsPlayerArchenemy();
                         }
                     }
@@ -790,32 +787,19 @@ public class ConstructedScreen extends LaunchScreen {
             }
 
             txtPlayerName.setText(name);
-            txtPlayerName.setFontSize(14);
+            txtPlayerName.setFont(LABEL_FONT);
             txtPlayerName.setChangedHandler(nameChangedHandler);
         }
 
         private void createAvatar() {
             String[] currentPrefs = prefs.getPref(FPref.UI_AVATARS).split(",");
             if (index < currentPrefs.length) {
-                avatarIndex = Integer.parseInt(currentPrefs[index]);
-                avatarLabel.setIcon(new FTextureRegionImage(FSkin.getAvatars().get(avatarIndex)));
+                setAvatar(Integer.parseInt(currentPrefs[index]));
             }
             else {
-                setRandomAvatar();
+                setAvatar(AvatarSelector.getRandomAvatar(getUsedAvatars()));
             }
-
             avatarLabel.setCommand(avatarCommand);
-        }
-
-        //Applies a random avatar, avoiding avatars already used.
-        public void setRandomAvatar() {
-            int random = 0;
-
-            List<Integer> usedAvatars = getUsedAvatars();
-            do {
-                random = MyRandom.getRandom().nextInt(FSkin.getAvatars().size());
-            } while (usedAvatars.contains(random));
-            setAvatar(random);
         }
 
         public void setAvatar(int newAvatarIndex) {
@@ -853,7 +837,7 @@ public class ConstructedScreen extends LaunchScreen {
             private int selectedIndex;
 
             private DeckList() {
-                super(true, "");
+                super("");
                 list = new FList<Object>();
             }
 
@@ -890,7 +874,7 @@ public class ConstructedScreen extends LaunchScreen {
     }
 
     /** Updates the avatars from preferences on update. */
-    public void updatePlayersFromPrefs() {
+    private void updatePlayersFromPrefs() {
         ForgePreferences prefs = FModel.getPreferences();
 
         // Avatar
@@ -907,7 +891,7 @@ public class ConstructedScreen extends LaunchScreen {
 
     /** Adds a pre-styled FLabel component with the specified title. */
     private FLabel newLabel(String title) {
-        return new FLabel.Builder().text(title).fontSize(14).align(HAlignment.RIGHT).build();
+        return new FLabel.Builder().text(title).font(LABEL_FONT).align(HAlignment.RIGHT).build();
     }
 
     private List<Integer> getUsedAvatars() {
@@ -1003,7 +987,7 @@ public class ConstructedScreen extends LaunchScreen {
         private final FList<Variant> lstVariants = add(new FList<Variant>());
 
         private MultiVariantSelect() {
-            super(true, "Select Variants");
+            super("Select Variants");
 
             lstVariants.setListItemRenderer(new VariantRenderer());
             lstVariants.addItem(new Variant(GameType.Vanguard, "Each player has a special \"Avatar\" card that affects the game."));
@@ -1078,7 +1062,7 @@ public class ConstructedScreen extends LaunchScreen {
             public void drawValue(Graphics g, Variant value, FSkinFont font, FSkinColor color, boolean pressed, float x, float y, float w, float h) {
                 String text = value.gameType.toString();
                 float totalHeight = h;
-                h = font.getFont().getMultiLineBounds(text).height + 5;
+                h = font.getMultiLineBounds(text).height + 5;
 
                 g.drawText(text, font, color, x, y, w, h, false, HAlignment.LEFT, false);
                 value.draw(g, font, color, x, y, w, h);

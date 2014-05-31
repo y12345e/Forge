@@ -2,6 +2,7 @@ package forge.player;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -572,7 +573,7 @@ public class PlayerControllerHuman extends PlayerController {
     }
 
     @Override
-    public String vote(SpellAbility sa, String prompt, List<String> options) {
+    public Object vote(SpellAbility sa, String prompt, List<Object> options, ArrayListMultimap<Object, Player> votes) {
         return SGuiChoose.one(prompt, options);
     }
 
@@ -594,7 +595,7 @@ public class PlayerControllerHuman extends PlayerController {
     @Override
     public void declareAttackers(Player attacker, Combat combat) {
         // This input should not modify combat object itself, but should return user choice
-        InputAttack inpAttack = new InputAttack(attacker, player, combat);
+        InputAttack inpAttack = new InputAttack(attacker, combat);
         inpAttack.showAndWait();
     }
 
@@ -788,6 +789,9 @@ public class PlayerControllerHuman extends PlayerController {
         }
         switch(sa.getApi()) {
             case ChooseNumber:
+                if (sa.hasParam("SecretlyChoose")) {
+                    return value;
+                }
                 final boolean random = sa.hasParam("Random");
                 return String.format(random ? "Randomly chosen number for %s is %s" : "%s choses number: %s", mayBeYou(target), value);
             case FlipACoin:

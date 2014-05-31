@@ -1,9 +1,7 @@
 package forge.toolbox;
 
-import com.badlogic.gdx.graphics.Texture;
-
 import forge.Forge.Graphics;
-import forge.assets.ImageCache;
+import forge.card.CardRenderer;
 import forge.game.card.Card;
 import forge.util.Utils;
 
@@ -52,28 +50,51 @@ public class FCardPanel extends FDisplayObject {
         tappedAngle = tappedAngle0;
     }
 
-    @Override
-    public void draw(Graphics g) {
-        draw(g, 0, 0);
-    }
-    public void draw(Graphics g, float x, float y) {
-        if (card == null) { return; }
-
-        x += PADDING;
-        y += PADDING;
+    protected boolean renderedCardContains(float x, float y) {
+        float left = PADDING;
+        float top = PADDING;
         float w = getWidth() - 2 * PADDING;
         float h = getHeight() - 2 * PADDING;
         if (w == h) { //adjust width if needed to make room for tapping
             w = h / ASPECT_RATIO;
         }
 
-        Texture image = ImageCache.getImage(card);
+        if (tapped) { //rotate box if tapped
+            top += h - w;
+            float temp = w;
+            w = h;
+            h = temp;
+        }
+
+        return x >= left && x <= left + w && y >= top && y <= top + h;
+    }
+
+    protected float getPadding() {
+        return PADDING;
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        if (card == null) { return; }
+
+        float padding = getPadding();
+        float x = padding;
+        float y = padding;
+        float w = getWidth() - 2 * padding;
+        float h = getHeight() - 2 * padding;
+        if (w == h) { //adjust width if needed to make room for tapping
+            w = h / ASPECT_RATIO;
+        }
+
         if (tapped) {
             float edgeOffset = w / 2f;
-            g.drawRotatedImage(image, x, y, w, h, x + edgeOffset, y + h - edgeOffset, tappedAngle);
+            g.setRotateTransform(x + edgeOffset, y + h - edgeOffset, tappedAngle);
         }
-        else {
-            g.drawImage(image, x, y, w, h);
+
+        CardRenderer.drawCardWithOverlays(g, card, x, y, w, h);
+
+        if (tapped) {
+            g.clearTransform();
         }
     }
 }

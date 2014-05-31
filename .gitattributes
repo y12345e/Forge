@@ -214,7 +214,6 @@ forge-core/src/main/java/forge/item/PreconDeck.java -text
 forge-core/src/main/java/forge/item/SealedProduct.java -text
 forge-core/src/main/java/forge/item/TournamentPack.java -text
 forge-core/src/main/java/forge/item/package-info.java -text
-forge-core/src/main/java/forge/package-info.java -text
 forge-core/src/main/java/forge/util/Aggregates.java -text
 forge-core/src/main/java/forge/util/BinaryUtil.java -text
 forge-core/src/main/java/forge/util/BuildInfo.java -text
@@ -242,7 +241,6 @@ forge-core/src/main/java/forge/util/maps/HashMapOfLists.java -text
 forge-core/src/main/java/forge/util/maps/MapOfLists.java -text
 forge-core/src/main/java/forge/util/maps/MapToAmount.java -text
 forge-core/src/main/java/forge/util/maps/package-info.java -text
-forge-core/src/main/java/forge/util/package-info.java -text
 forge-core/src/main/java/forge/util/storage/IStorage.java -text
 forge-core/src/main/java/forge/util/storage/StorageBase.java -text
 forge-core/src/main/java/forge/util/storage/StorageImmediatelySerialized.java -text
@@ -632,6 +630,7 @@ forge-game/src/main/java/forge/game/trigger/TriggerTurnFaceUp.java svneol=native
 forge-game/src/main/java/forge/game/trigger/TriggerType.java -text
 forge-game/src/main/java/forge/game/trigger/TriggerUnequip.java svneol=native#text/plain
 forge-game/src/main/java/forge/game/trigger/TriggerUntaps.java svneol=native#text/plain
+forge-game/src/main/java/forge/game/trigger/TriggerVote.java -text
 forge-game/src/main/java/forge/game/trigger/TriggerWaiting.java -text
 forge-game/src/main/java/forge/game/trigger/WrappedAbility.java -text
 forge-game/src/main/java/forge/game/trigger/ZCTrigger.java svneol=native#text/plain
@@ -642,15 +641,16 @@ forge-game/src/main/java/forge/game/zone/PlayerZoneBattlefield.java svneol=nativ
 forge-game/src/main/java/forge/game/zone/Zone.java -text
 forge-game/src/main/java/forge/game/zone/ZoneType.java -text
 forge-game/src/main/java/forge/game/zone/package-info.java svneol=native#text/plain
-forge-game/src/main/java/forge/package-info.java -text
 forge-game/src/main/java/forge/util/Expressions.java -text
-forge-game/src/main/java/forge/util/package-info.java -text
 forge-gui-android/.classpath -text
 forge-gui-android/.project -text
 forge-gui-android/.settings/org.eclipse.core.resources.prefs -text
 forge-gui-android/.settings/org.eclipse.jdt.core.prefs -text
 forge-gui-android/.settings/org.eclipse.m2e.core.prefs -text
 forge-gui-android/AndroidManifest.xml -text
+forge-gui-android/assets/fallback_skin/bg_splash.png -text
+forge-gui-android/assets/fallback_skin/bg_texture.jpg -text
+forge-gui-android/assets/fallback_skin/font1.ttf -text
 forge-gui-android/ic_launcher-web.png -text
 forge-gui-android/libs/android-support-v4.jar -text
 forge-gui-android/libs/armeabi-v7a/libgdx-freetype.so -text
@@ -711,10 +711,6 @@ forge-gui-desktop/src/main/java/forge/deckchooser/DecksComboBoxEvent.java -text
 forge-gui-desktop/src/main/java/forge/deckchooser/FDeckChooser.java -text
 forge-gui-desktop/src/main/java/forge/deckchooser/FDeckViewer.java -text
 forge-gui-desktop/src/main/java/forge/deckchooser/IDecksComboBoxListener.java -text
-forge-gui-desktop/src/main/java/forge/download/GuiDownloadPicturesLQ.java -text
-forge-gui-desktop/src/main/java/forge/download/GuiDownloadPrices.java -text
-forge-gui-desktop/src/main/java/forge/download/GuiDownloadQuestImages.java -text
-forge-gui-desktop/src/main/java/forge/download/GuiDownloadSetPicturesLQ.java -text
 forge-gui-desktop/src/main/java/forge/download/GuiDownloader.java -text
 forge-gui-desktop/src/main/java/forge/download/package-info.java -text
 forge-gui-desktop/src/main/java/forge/error/BugReportDialog.java -text
@@ -1077,6 +1073,7 @@ forge-gui-mobile-dev/.project -text
 forge-gui-mobile-dev/.settings/org.eclipse.jdt.core.prefs -text
 forge-gui-mobile-dev/.settings/org.eclipse.m2e.core.prefs -text
 forge-gui-mobile-dev/libs/gdx-backend-lwjgl-natives.jar -text
+forge-gui-mobile-dev/libs/gdx-backend-lwjgl-sources.jar -text
 forge-gui-mobile-dev/libs/gdx-backend-lwjgl.jar -text
 forge-gui-mobile-dev/libs/gdx-freetype-natives.jar -text
 forge-gui-mobile-dev/libs/gdx-natives.jar -text
@@ -1092,8 +1089,11 @@ forge-gui-mobile/libs/gdx.jar -text
 forge-gui-mobile/pom.xml -text
 forge-gui-mobile/src/forge/Forge.java -text
 forge-gui-mobile/src/forge/GuiMobile.java -text
+forge-gui-mobile/src/forge/assets/AssetsDownloader.java -text
+forge-gui-mobile/src/forge/assets/BitmapFontWriter.java -text
 forge-gui-mobile/src/forge/assets/FImage.java -text
 forge-gui-mobile/src/forge/assets/FSkin.java -text
+forge-gui-mobile/src/forge/assets/FSkinBorder.java -text
 forge-gui-mobile/src/forge/assets/FSkinColor.java -text
 forge-gui-mobile/src/forge/assets/FSkinFont.java -text
 forge-gui-mobile/src/forge/assets/FSkinImage.java -text
@@ -1141,6 +1141,7 @@ forge-gui-mobile/src/forge/itemmanager/views/ItemView.java -text
 forge-gui-mobile/src/forge/menu/FCheckBoxMenuItem.java -text
 forge-gui-mobile/src/forge/menu/FDropDown.java -text
 forge-gui-mobile/src/forge/menu/FDropDownMenu.java -text
+forge-gui-mobile/src/forge/menu/FMagnifyView.java -text
 forge-gui-mobile/src/forge/menu/FMenuBar.java -text
 forge-gui-mobile/src/forge/menu/FMenuItem.java -text
 forge-gui-mobile/src/forge/menu/FMenuTab.java -text
@@ -1150,11 +1151,14 @@ forge-gui-mobile/src/forge/menu/FTooltip.java -text
 forge-gui-mobile/src/forge/screens/FScreen.java -text
 forge-gui-mobile/src/forge/screens/LaunchScreen.java -text
 forge-gui-mobile/src/forge/screens/SplashScreen.java -text
+forge-gui-mobile/src/forge/screens/TabPageScreen.java -text
+forge-gui-mobile/src/forge/screens/constructed/AvatarSelector.java -text
 forge-gui-mobile/src/forge/screens/constructed/ConstructedScreen.java -text
 forge-gui-mobile/src/forge/screens/draft/DraftScreen.java -text
 forge-gui-mobile/src/forge/screens/guantlet/GuantletScreen.java -text
 forge-gui-mobile/src/forge/screens/home/HomeScreen.java -text
 forge-gui-mobile/src/forge/screens/match/FControl.java -text
+forge-gui-mobile/src/forge/screens/match/MatchLoader.java -text
 forge-gui-mobile/src/forge/screens/match/MatchScreen.java -text
 forge-gui-mobile/src/forge/screens/match/views/VAssignDamage.java -text
 forge-gui-mobile/src/forge/screens/match/views/VAvatar.java -text
@@ -1178,6 +1182,10 @@ forge-gui-mobile/src/forge/screens/match/winlose/LimitedWinLose.java -text
 forge-gui-mobile/src/forge/screens/match/winlose/ViewWinLose.java -text
 forge-gui-mobile/src/forge/screens/quest/QuestScreen.java -text
 forge-gui-mobile/src/forge/screens/sealed/SealedScreen.java -text
+forge-gui-mobile/src/forge/screens/settings/FilesPage.java -text
+forge-gui-mobile/src/forge/screens/settings/GuiDownloader.java -text
+forge-gui-mobile/src/forge/screens/settings/HelpPage.java -text
+forge-gui-mobile/src/forge/screens/settings/SettingsPage.java -text
 forge-gui-mobile/src/forge/screens/settings/SettingsScreen.java -text
 forge-gui-mobile/src/forge/toolbox/DualListBox.java -text
 forge-gui-mobile/src/forge/toolbox/FButton.java -text
@@ -4805,6 +4813,7 @@ forge-gui/res/cardsfolder/e/epiphany_storm.txt -text
 forge-gui/res/cardsfolder/e/epochrasite.txt -text
 forge-gui/res/cardsfolder/e/equal_treatment.txt -text
 forge-gui/res/cardsfolder/e/equilibrium.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/e/equipoise.txt -text
 forge-gui/res/cardsfolder/e/eradicate.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/e/erase.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/e/erayo_soratami_ascendant_erayos_essence.txt -text
@@ -5956,6 +5965,7 @@ forge-gui/res/cardsfolder/g/goblin_firestarter.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/g/goblin_flectomancer.txt -text
 forge-gui/res/cardsfolder/g/goblin_flotilla.txt -text
 forge-gui/res/cardsfolder/g/goblin_furrier.txt -text
+forge-gui/res/cardsfolder/g/goblin_game.txt -text
 forge-gui/res/cardsfolder/g/goblin_gardener.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/g/goblin_gaveleer.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/g/goblin_general.txt svneol=native#text/plain
@@ -6372,6 +6382,7 @@ forge-gui/res/cardsfolder/h/hakim_loreweaver.txt -text
 forge-gui/res/cardsfolder/h/halam_djinn.txt -text
 forge-gui/res/cardsfolder/h/halberdier.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/h/halcyon_glaze.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/h/halfdane.txt -text
 forge-gui/res/cardsfolder/h/halimar_depths.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/h/halimar_excavator.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/h/halimar_wavewatch.txt svneol=native#text/plain
@@ -7209,6 +7220,7 @@ forge-gui/res/cardsfolder/j/jedit_ojanen.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/j/jedit_ojanen_of_efrava.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/j/jedits_dragoons.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/j/jelenn_sphinx.txt -text
+forge-gui/res/cardsfolder/j/jeleva_nephalias_scourge.txt -text
 forge-gui/res/cardsfolder/j/jenara_asura_of_war.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/j/jerrard_of_the_closed_fist.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/j/jeska_warrior_adept.txt svneol=native#text/plain
@@ -7920,6 +7932,7 @@ forge-gui/res/cardsfolder/l/lightning_reaver.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/l/lightning_reflexes.txt -text
 forge-gui/res/cardsfolder/l/lightning_rift.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/l/lightning_serpent.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/l/lightning_storm.txt -text
 forge-gui/res/cardsfolder/l/lightning_strike.txt -text
 forge-gui/res/cardsfolder/l/lightning_surge.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/l/lightning_talons.txt svneol=native#text/plain
@@ -8269,6 +8282,7 @@ forge-gui/res/cardsfolder/m/mantis_engine.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/m/mantle_of_leadership.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/m/maralen_of_the_mornsong.txt -text
 forge-gui/res/cardsfolder/m/maralen_of_the_mornsong_avatar.txt -text
+forge-gui/res/cardsfolder/m/marath_will_of_the_wild.txt -text
 forge-gui/res/cardsfolder/m/marauding_knight.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/m/marauding_maulhorn.txt -text
 forge-gui/res/cardsfolder/m/maraxus.txt -text
@@ -8433,6 +8447,7 @@ forge-gui/res/cardsfolder/m/memory_lapse.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/m/memory_plunder.txt -text
 forge-gui/res/cardsfolder/m/memory_sluice.txt -text
 forge-gui/res/cardsfolder/m/memorys_journey.txt -text
+forge-gui/res/cardsfolder/m/menacing_ogre.txt -text
 forge-gui/res/cardsfolder/m/mending_hands.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/m/mending_touch.txt -text
 forge-gui/res/cardsfolder/m/meng_huo_barbarian_king.txt svneol=native#text/plain
@@ -9231,6 +9246,7 @@ forge-gui/res/cardsfolder/n/nivix_aerie_of_the_firemind.txt -text
 forge-gui/res/cardsfolder/n/nivix_cyclops.txt -text
 forge-gui/res/cardsfolder/n/nivix_guildmage.txt -text
 forge-gui/res/cardsfolder/n/nivmagus_elemental.txt -text
+forge-gui/res/cardsfolder/n/nix.txt -text
 forge-gui/res/cardsfolder/n/no_dachi.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/n/no_mercy.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/n/no_quarter.txt -text
@@ -10157,6 +10173,7 @@ forge-gui/res/cardsfolder/p/prophetic_bolt.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/p/prophetic_flamespeaker.txt -text
 forge-gui/res/cardsfolder/p/prophetic_prism.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/p/prosperity.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/p/prossh_skyraider_of_kher.txt -text
 forge-gui/res/cardsfolder/p/protean_hulk.txt -text
 forge-gui/res/cardsfolder/p/protean_hydra.txt -text
 forge-gui/res/cardsfolder/p/protect_serve.txt -text
@@ -10755,6 +10772,7 @@ forge-gui/res/cardsfolder/r/reverence.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/r/reverent_hunter.txt -text
 forge-gui/res/cardsfolder/r/reverent_mantra.txt -text
 forge-gui/res/cardsfolder/r/reverent_silence.txt -text
+forge-gui/res/cardsfolder/r/reversal_of_fortune.txt -text
 forge-gui/res/cardsfolder/r/reverse_damage.txt -text
 forge-gui/res/cardsfolder/r/reverse_polarity.txt -text
 forge-gui/res/cardsfolder/r/reverse_the_sands.txt -text
@@ -15287,6 +15305,7 @@ forge-gui/res/quest/duels/Boromir[!!-~]3.dck -text
 forge-gui/res/quest/duels/Boromir[!!-~]4.dck -text
 forge-gui/res/quest/duels/Bridge[!!-~]Troll[!!-~]3.dck -text
 forge-gui/res/quest/duels/Brother[!!-~]Voodoo[!!-~]2.dck -text
+forge-gui/res/quest/duels/Brother[!!-~]Voodoo[!!-~]3.dck -text
 forge-gui/res/quest/duels/Buffy[!!-~]1.dck -text
 forge-gui/res/quest/duels/Buffy[!!-~]2.dck -text
 forge-gui/res/quest/duels/Buffy[!!-~]3.dck -text
@@ -16327,7 +16346,11 @@ forge-gui/src/main/java/forge/deck/DeckgenUtil.java -text
 forge-gui/src/main/java/forge/deck/io/DeckHtmlSerializer.java -text
 forge-gui/src/main/java/forge/deck/io/DeckPreferences.java -text
 forge-gui/src/main/java/forge/deck/io/OldDeckParser.java -text
-forge-gui/src/main/java/forge/deck/io/package-info.java svneol=native#text/plain
+forge-gui/src/main/java/forge/download/GuiDownloadPicturesLQ.java -text
+forge-gui/src/main/java/forge/download/GuiDownloadPrices.java -text
+forge-gui/src/main/java/forge/download/GuiDownloadQuestImages.java -text
+forge-gui/src/main/java/forge/download/GuiDownloadService.java -text
+forge-gui/src/main/java/forge/download/GuiDownloadSetPicturesLQ.java -text
 forge-gui/src/main/java/forge/error/BugReporter.java -text
 forge-gui/src/main/java/forge/error/ExceptionHandler.java svneol=native#text/plain
 forge-gui/src/main/java/forge/error/package-info.java svneol=native#text/plain
@@ -16340,6 +16363,7 @@ forge-gui/src/main/java/forge/gauntlet/GauntletIO.java -text
 forge-gui/src/main/java/forge/interfaces/IButton.java -text
 forge-gui/src/main/java/forge/interfaces/IGuiBase.java -text
 forge-gui/src/main/java/forge/interfaces/IProgressBar.java -text
+forge-gui/src/main/java/forge/interfaces/ITextField.java -text
 forge-gui/src/main/java/forge/itemmanager/ColumnDef.java -text
 forge-gui/src/main/java/forge/itemmanager/GroupDef.java -text
 forge-gui/src/main/java/forge/itemmanager/IItemManager.java -text

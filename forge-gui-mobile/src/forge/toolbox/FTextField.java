@@ -9,12 +9,13 @@ import forge.Forge.KeyInputAdapter;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
 import forge.assets.FSkinColor.Colors;
+import forge.interfaces.ITextField;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.toolbox.FEvent.FEventType;
 import forge.util.Utils;
 
-public class FTextField extends FDisplayObject {
-    private static final int DEFAULT_FONT_SIZE = 14;
+public class FTextField extends FDisplayObject implements ITextField {
+    private static final FSkinFont DEFAULT_FONT = FSkinFont.get(14);
     private static final float BORDER_THICKNESS = Utils.scaleX(1);
     protected static final float PADDING = Utils.scaleX(5);
     protected static final FSkinColor FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
@@ -24,13 +25,10 @@ public class FTextField extends FDisplayObject {
     private FEventHandler changedHandler;
 
     public static float getDefaultHeight() {
-        return getDefaultHeight(DEFAULT_FONT_SIZE);
-    }
-    public static float getDefaultHeight(int fontSize) {
-        return getDefaultHeight(FSkinFont.get(fontSize));
+        return getDefaultHeight(DEFAULT_FONT);
     }
     public static float getDefaultHeight(FSkinFont font0) {
-        return font0.getFont().getCapHeight() * 3;
+        return font0.getCapHeight() * 3;
     }
 
     private String text, ghostText, textBeforeKeyInput;
@@ -45,7 +43,7 @@ public class FTextField extends FDisplayObject {
     public FTextField(String text0) {
         text = text0;
         ghostText = "";
-        setFontSize(DEFAULT_FONT_SIZE);
+        setFont(DEFAULT_FONT);
         alignment = HAlignment.LEFT;
     }
 
@@ -103,11 +101,11 @@ public class FTextField extends FDisplayObject {
         alignment = alignment0;
     }
 
-    public int getFontSize() {
-        return font.getSize();
+    public FSkinFont getFont() {
+        return font;
     }
-    public void setFontSize(int fontSize0) {
-        font = FSkinFont.get(fontSize0);
+    public void setFont(FSkinFont font0) {
+        font = font0;
         setHeight(getDefaultHeight(font));
     }
 
@@ -119,7 +117,7 @@ public class FTextField extends FDisplayObject {
     }
 
     public float getAutoSizeWidth() {
-        return PADDING + font.getFont().getBounds(text).width + getRightPadding();
+        return PADDING + font.getBounds(text).width + getRightPadding();
     }
     
     private int getCharIndexAtPoint(float x, float y) {
@@ -127,14 +125,14 @@ public class FTextField extends FDisplayObject {
         if (x < charLeft) {
             return 0;
         }
-        if (x >= charLeft + font.getFont().getBounds(text).width) {
+        if (x >= charLeft + font.getBounds(text).width) {
             return text.length();
         }
 
         //find closest character of press
         float charWidth;
         for (int i = 0; i < text.length(); i++) {
-            charWidth = font.getFont().getBounds(text.substring(i, i + 1)).width;
+            charWidth = font.getBounds(text.substring(i, i + 1)).width;
             if (x < charLeft + charWidth / 2) {
                 return i;
             }
@@ -296,7 +294,7 @@ public class FTextField extends FDisplayObject {
         if (isEditing) {
             float selLeft = PADDING;
             if (selStart > 0) {
-                selLeft += font.getFont().getBounds(text.substring(0, selStart)).width;
+                selLeft += font.getBounds(text.substring(0, selStart)).width;
             }
             float selTop = PADDING;
             float selHeight = h - 2 * PADDING;
@@ -305,7 +303,7 @@ public class FTextField extends FDisplayObject {
                 g.drawLine(BORDER_THICKNESS, FORE_COLOR, selLeft, selTop, selLeft, selTop + selHeight);
             }
             else if (selStart == 0 && selLength == text.length()) {
-                float selWidth = font.getFont().getBounds(text.substring(selStart, selStart + selLength)).width;
+                float selWidth = font.getBounds(text.substring(selStart, selStart + selLength)).width;
                 g.fillRect(SEL_COLOR, selLeft, selTop, selWidth, selHeight);
                 drawText(g, w, h); //draw text in front of selection background
             }
@@ -318,6 +316,10 @@ public class FTextField extends FDisplayObject {
     }
 
     private void drawText(Graphics g, float w, float h) {
+        float diff = h - font.getCapHeight();
+        if (diff > 0 && Math.round(diff) % 2 == 1) {
+            h++; //if odd difference between height and font height, increment height so text favors displaying closer to bottom
+        }
         if (!text.isEmpty()) {
             g.drawText(text, font, FORE_COLOR, PADDING, 0, w - PADDING - getRightPadding(), h, false, alignment, true);
         }
@@ -328,5 +330,10 @@ public class FTextField extends FDisplayObject {
 
     protected float getRightPadding() {
         return PADDING;
+    }
+
+    @Override
+    public boolean requestFocusInWindow() {
+        return false;
     }
 }

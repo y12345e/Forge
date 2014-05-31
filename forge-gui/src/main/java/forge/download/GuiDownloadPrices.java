@@ -22,14 +22,14 @@ import forge.properties.ForgeConstants;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("serial")
-public class GuiDownloadPrices extends GuiDownloader {
-    public GuiDownloadPrices() {
-        super();
+public class GuiDownloadPrices extends GuiDownloadService {
+    @Override
+    public String getTitle() {
+        return "Download Card Prices";
     }
 
     @Override
-    protected Map<String, String> getNeededImages() {
+    protected Map<String, String> getNeededFiles() {
         Map<String, String> result = new HashMap<String, String>();
         result.put(ForgeConstants.QUEST_CARD_PRICE_FILE, ForgeConstants.URL_PRICE_DOWNLOAD);
         return result;

@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import forge.Forge.Graphics;
-import forge.screens.FScreen;
-import forge.toolbox.FContainer;
+import forge.screens.FScreen.Header;
 
-public class FMenuBar extends FContainer {
+public class FMenuBar extends Header {
     private final List<FMenuTab> tabs = new ArrayList<FMenuTab>();
 
     public void addTab(String text0, FDropDown dropDown0) {
@@ -17,7 +16,7 @@ public class FMenuBar extends FContainer {
     }
 
     public float getPreferredHeight() {
-        return Math.round(FMenuTab.FONT.getFont().getLineHeight() * 1.5f + 2 * FMenuTab.PADDING);
+        return Math.round(FMenuTab.FONT.getLineHeight() * 1.5f + 2 * FMenuTab.PADDING);
     }
 
     public int getTabCount() {
@@ -53,6 +52,6 @@ public class FMenuBar extends FContainer {
     protected void drawBackground(Graphics g) {
         float w = getWidth();
         float h = getHeight();
-        g.fillRect(FScreen.HEADER_BACK_COLOR, 0, 0, w, h);
+        g.fillRect(BACK_COLOR, 0, 0, w, h);
     }
 }

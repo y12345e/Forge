@@ -29,14 +29,14 @@ import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
 
-@SuppressWarnings("serial")
-public class GuiDownloadPicturesLQ extends GuiDownloader {
-    public GuiDownloadPicturesLQ() {
-        super();
+public class GuiDownloadPicturesLQ extends GuiDownloadService {
+    @Override
+    public String getTitle() {
+        return "Download LQ Card Pictures";
     }
 
     @Override
-    protected final Map<String, String> getNeededImages() {
+    protected final Map<String, String> getNeededFiles() {
         Map<String, String> downloads = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 
         for (PaperCard c : FModel.getMagicDb().getCommonCards().getAllCards()) {

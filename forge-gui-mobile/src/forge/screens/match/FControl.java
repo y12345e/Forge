@@ -19,10 +19,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import forge.FThreads;
 import forge.Forge;
 import forge.GuiBase;
 import forge.LobbyPlayer;
+import forge.Forge.Graphics;
 import forge.ai.AiProfileUtil;
 import forge.ai.LobbyPlayerAi;
 import forge.card.CardCharacteristicName;
@@ -50,6 +50,7 @@ import forge.game.player.RegisteredPlayer;
 import forge.game.trigger.TriggerType;
 import forge.game.zone.Zone;
 import forge.game.zone.ZoneType;
+import forge.match.input.InputPlaybackControl;
 import forge.match.input.InputProxy;
 import forge.match.input.InputQueue;
 import forge.model.FModel;
@@ -58,16 +59,19 @@ import forge.properties.ForgePreferences;
 import forge.properties.ForgePreferences.FPref;
 import forge.quest.QuestController;
 import forge.screens.match.views.VAssignDamage;
+import forge.screens.match.views.VPrompt;
 import forge.screens.match.views.VCardDisplayArea.CardAreaPanel;
 import forge.screens.match.views.VPhaseIndicator;
 import forge.screens.match.views.VPhaseIndicator.PhaseLabel;
 import forge.screens.match.views.VPlayerPanel;
 import forge.toolbox.FCardPanel;
+import forge.toolbox.FDisplayObject;
 import forge.toolbox.FOptionPane;
 import forge.util.Callback;
 import forge.util.GuiDisplayUtil;
 import forge.util.MyRandom;
 import forge.util.NameGenerator;
+import forge.util.WaitCallback;
 
 public class FControl {
     private FControl() { } //don't allow creating instance
@@ -148,6 +152,21 @@ public class FControl {
         }
         if (!gameHasHumanPlayer) {
             game.subscribeToEvents(playbackControl);
+
+            //add special object that pauses game if screen touched
+            view.add(new FDisplayObject() {
+                @Override
+                public void draw(Graphics g) {
+                    //don't draw anything
+                }
+
+                @Override
+                public void buildTouchListeners(float screenX, float screenY, ArrayList<FDisplayObject> listeners) {
+                    if (screenY < view.getHeight() - VPrompt.HEIGHT) {
+                        pause();
+                    }
+                }
+            });
         }
 
         Forge.openScreen(view);
@@ -339,13 +358,12 @@ public class FControl {
         CCombat.SINGLETON_INSTANCE.update();*/
     }
 
-    @SuppressWarnings("unchecked")
     public static Map<Card, Integer> getDamageToAssign(final Card attacker, final List<Card> blockers, final int damage, final GameEntity defender, final boolean overrideOrder) {
         if (damage <= 0) {
             return new HashMap<Card, Integer>();
         }
 
-        // If the first blocker can absorb all of the damage, don't show the Assign Damage Frame
+        // If the first blocker can absorb all of the damage, don't show the Assign Damage dialog
         Card firstBlocker = blockers.get(0);
         if (!overrideOrder && !attacker.hasKeyword("Deathtouch") && firstBlocker.getLethalDamage() >= damage) {
             Map<Card, Integer> res = new HashMap<Card, Integer>();
@@ -353,14 +371,13 @@ public class FControl {
             return res;
         }
 
-        final Object[] result = { null }; // how else can I extract a value from EDT thread?
-        FThreads.invokeInEdtAndWait(new Runnable() {
+        return new WaitCallback<Map<Card, Integer>>() {
             @Override
             public void run() {
-                VAssignDamage v = new VAssignDamage(attacker, blockers, damage, defender, overrideOrder);
-                result[0] = v.getDamageMap();
-            }});
-        return (Map<Card, Integer>)result[0];
+                VAssignDamage v = new VAssignDamage(attacker, blockers, damage, defender, overrideOrder, this);
+                v.show();
+            }
+        }.invokeAndWait();
     }
 
     private static Set<Player> highlightedPlayers = new HashSet<Player>();
@@ -479,6 +496,13 @@ public class FControl {
 
         Forge.back();
         game = null;
+    }
+
+    public static void pause() {
+        //pause playback if needed
+        if (inputQueue != null && inputQueue.getInput() instanceof InputPlaybackControl) {
+            ((InputPlaybackControl)inputQueue.getInput()).pause();
+        }
     }
 
     private final static boolean LOG_UIEVENTS = false;

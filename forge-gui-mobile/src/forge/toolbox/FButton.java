@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 
+import forge.UiCommand;
 import forge.Forge.Graphics;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinColor.Colors;
@@ -18,7 +19,6 @@ import forge.util.Utils;
 
 public class FButton extends FDisplayObject implements IButton {
     private static final FSkinColor FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
-    private static final float DISABLED_COMPOSITE = 0.25f;
     private static final float PADDING = Utils.scaleX(10);
 
     private FSkinImage imgL, imgM, imgR;
@@ -65,8 +65,11 @@ public class FButton extends FDisplayObject implements IButton {
         text = text0;
     }
 
-    public void setFontSize(int fontSize0) {
-        font = FSkinFont.get(fontSize0);
+    public FSkinFont getFont() {
+        return font;
+    }
+    public void setFont(FSkinFont font0) {
+        font = font0;
     }
 
     @Override
@@ -124,8 +127,8 @@ public class FButton extends FDisplayObject implements IButton {
 
     public TextBounds getAutoSizeBounds() {
         TextBounds bounds = new TextBounds();
-        bounds.width = font.getFont().getBounds(text).width + 2 * PADDING;
-        bounds.height = 3 * font.getFont().getCapHeight();
+        bounds.width = font.getBounds(text).width + 2 * PADDING;
+        bounds.height = 3 * font.getCapHeight();
         return bounds;
     }
 
@@ -173,11 +176,6 @@ public class FButton extends FDisplayObject implements IButton {
         float cornerTextOffsetX = cornerButtonWidth / 2;
         float cornerTextOffsetY = (cornerButtonHeight - h) / 2;
 
-        boolean disabled = !isEnabled();
-        if (disabled) {
-            g.setAlphaComposite(DISABLED_COMPOSITE);
-        }
-
         //determine images to draw and text alignment based on which corner button is in (if any)
         switch (corner) {
         case None:
@@ -210,12 +208,12 @@ public class FButton extends FDisplayObject implements IButton {
             break;
         }
 
-        if (!StringUtils.isEmpty(text)) {
-            g.drawText(text, font, FORE_COLOR, x, y, w, h, false, HAlignment.CENTER, true);
-        }
-
-        if (disabled) {
-            g.resetAlphaComposite();
+        String displayText = text;
+        if (!StringUtils.isEmpty(displayText)) {
+            if (corner != Corner.None) {
+                displayText = displayText.replaceFirst(" ", "\n"); //allow second word to wrap if corner button
+            }
+            g.drawText(displayText, font, FORE_COLOR, x, y, w, h, false, HAlignment.CENTER, true);
         }
     }
 
@@ -236,6 +234,22 @@ public class FButton extends FDisplayObject implements IButton {
         case Keys.SPACE:
             return trigger(); //trigger button on Enter or Space
         }
+        return false;
+    }
+
+    //use FEventHandler one except when references as IButton
+    @Override
+    public void setCommand(final UiCommand command0) {
+        setCommand(new FEventHandler() {
+            @Override
+            public void handleEvent(FEvent e) {
+                command0.run();
+            }
+        });
+    }
+
+    @Override
+    public boolean requestFocusInWindow() {
         return false;
     }
 }

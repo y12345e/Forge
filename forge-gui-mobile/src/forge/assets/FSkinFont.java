@@ -3,54 +3,57 @@ package forge.assets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
+import com.badlogic.gdx.graphics.g2d.PixmapPacker;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
+import com.badlogic.gdx.utils.Array;
 
+import forge.FThreads;
 import forge.util.Utils;
 
 public class FSkinFont {
-    public static final int MIN_FONT_SIZE = Math.round(8 / Utils.MAX_RATIO);
+    private static final int MIN_FONT_SIZE = 8;
+    private static final int MAX_FONT_SIZE = 72;
 
     private static final String TTF_FILE = "font1.ttf";
     private static final Map<Integer, FSkinFont> fonts = new HashMap<Integer, FSkinFont>();
 
-    public static FSkinFont get(final int size0) {
-        FSkinFont skinFont = fonts.get(size0);
+    public static FSkinFont get(final int unscaledSize) {
+        return _get((int)Utils.scaleMax(unscaledSize));
+    }
+    public static FSkinFont _get(final int scaledSize) {
+        FSkinFont skinFont = fonts.get(scaledSize);
         if (skinFont == null) {
-            skinFont = new FSkinFont(size0);
-            fonts.put(size0, skinFont);
+            skinFont = new FSkinFont(scaledSize);
+            fonts.put(scaledSize, skinFont);
         }
         return skinFont;
     }
 
-    private final int size;
-    private BitmapFont font;
-
-    private FSkinFont(final int size0) {
-        size = size0;
-        updateFont();
+    public static FSkinFont forHeight(final float height) {
+        int size = MIN_FONT_SIZE + 1;
+        while (true) {
+            if (_get(size).getLineHeight() > height) {
+                return _get(size - 1);
+            }
+            size++;
+        }
     }
 
-    public int getSize() {
-        return size;
-    }
-
-    public BitmapFont getFont() {
-        return font;
-    }
-
-    private void updateFont() {
-        String dir = FSkin.getDir();
-
-        //generate .fnt and .png files from .ttf if needed
-        FileHandle ttfFile = Gdx.files.absolute(dir + TTF_FILE);
-        if (ttfFile.exists()) {
-            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(ttfFile);
-            font = generator.generateFont((int)Utils.scaleMax(size)); //scale font based on size
-            font.setUseIntegerPositions(true); //prevent parts of text getting cut off at times
-            generator.dispose();
+    //pre-load all supported font sizes
+    public static void preloadAll() {
+        for (int size = MIN_FONT_SIZE; size <= MAX_FONT_SIZE; size++) {
+            _get(size);
         }
     }
 
@@ -58,5 +61,160 @@ public class FSkinFont {
         for (FSkinFont skinFont : fonts.values()) {
             skinFont.updateFont();
         }
+    }
+
+    private final int fontSize;
+    private final float scale;
+    private BitmapFont font;
+
+    private FSkinFont(int fontSize0) {
+        if (fontSize0 > MAX_FONT_SIZE) {
+            scale = (float)fontSize0 / MAX_FONT_SIZE;
+        }
+        else if (fontSize0 < MIN_FONT_SIZE) {
+            scale = (float)fontSize0 / MIN_FONT_SIZE;
+        }
+        else {
+            scale = 1;
+        }
+        fontSize = fontSize0;
+        updateFont();
+    }
+
+    // Expose methods from font that updates scale as needed
+    public TextBounds getBounds(CharSequence str) {
+        updateScale(); //must update scale before measuring text
+        return font.getBounds(str);
+    }
+    public TextBounds getMultiLineBounds(CharSequence str) {
+        updateScale();
+        return font.getMultiLineBounds(str);
+    }
+    public TextBounds getWrappedBounds(CharSequence str, float wrapWidth) {
+        updateScale();
+        return font.getWrappedBounds(str, wrapWidth);
+    }
+    public float getAscent() {
+        updateScale();
+        return font.getAscent();
+    }
+    public float getCapHeight() {
+        updateScale();
+        return font.getCapHeight();
+    }
+    public float getLineHeight() {
+        updateScale();
+        return font.getLineHeight();
+    }
+
+    public void draw(SpriteBatch batch, String text, Color color, float x, float y, float w, boolean wrap, HAlignment horzAlignment) {
+        updateScale();
+        font.setColor(color);
+        if (wrap) {
+            font.drawWrapped(batch, text, x, y, w, horzAlignment);
+        }
+        else {
+            font.drawMultiLine(batch, text, x, y, w, horzAlignment);
+        }
+    }
+
+    //update scale of font if needed
+    private void updateScale() {
+        if (font.getScaleX() != scale) {
+            font.setScale(scale);
+        }
+    }
+
+    public boolean canShrink() {
+        return fontSize > MIN_FONT_SIZE;
+    }
+
+    public FSkinFont shrink() {
+        return _get(fontSize - 1);
+    }
+
+    private void updateFont() {
+        if (scale != 1) { //re-use font inside range if possible
+            if (fontSize > MAX_FONT_SIZE) {
+                font = _get(MAX_FONT_SIZE).font;
+            }
+            else {
+                font = _get(MIN_FONT_SIZE).font;
+            }
+            return;
+        }
+
+        String fontName = "f" + fontSize;
+        FileHandle fontFile = FSkin.getFontFile(fontName + ".fnt");
+        if (fontFile != null && fontFile.exists()) {
+            final BitmapFontData data = new BitmapFontData(fontFile, false);
+            FThreads.invokeInEdtNowOrLater(new Runnable() {
+                @Override
+                public void run() { //font must be initialized on UI thread
+                    font = new BitmapFont(data, (TextureRegion)null, true);
+                }
+            });
+            return;
+        }
+        else {
+            generateFont(FSkin.getSkinFile(TTF_FILE), fontName, fontSize);
+        }
+    }
+
+    private void generateFont(final FileHandle ttfFile, final String fontName, final int fontSize) {
+        if (!ttfFile.exists()) { return; }
+
+        final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(ttfFile);
+
+        //approximate optimal page size
+        int pageSize;
+        if (fontSize >= 28) {
+            pageSize = 256;
+        }
+        else {
+            pageSize = 128;
+        }
+
+        //only generate images for characters that could be used by Forge
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&*";
+
+        final PixmapPacker packer = new PixmapPacker(pageSize, pageSize, Pixmap.Format.RGBA8888, 2, false);
+        final FreeTypeFontGenerator.FreeTypeBitmapFontData fontData = generator.generateData(fontSize, chars, false, packer);
+        final Array<PixmapPacker.Page> pages = packer.getPages();
+
+        //finish generating font on UI thread
+        FThreads.invokeInEdtNowOrLater(new Runnable() {
+            @Override
+            public void run() {
+                TextureRegion[] textureRegions = new TextureRegion[pages.size];
+                for (int i = 0; i < pages.size; i++) {
+                    PixmapPacker.Page p = pages.get(i);
+                    Texture texture = new Texture(new PixmapTextureData(p.getPixmap(), p.getPixmap().getFormat(), false, false)) {
+                        @Override
+                        public void dispose() {
+                            super.dispose();
+                            getTextureData().consumePixmap().dispose();
+                        }
+                    };
+                    texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                    textureRegions[i] = new TextureRegion(texture);
+                }
+
+                font = new BitmapFont(fontData, textureRegions, true);
+
+                //create .fnt and .png files for font
+                FileHandle pixmapDir = FSkin.getFontDir();
+                if (pixmapDir != null) {
+                    FileHandle fontFile = FSkin.getFontFile(fontName + ".fnt");
+                    BitmapFontWriter.setOutputFormat(BitmapFontWriter.OutputFormat.Text);
+    
+                    String[] pageRefs = BitmapFontWriter.writePixmaps(packer.getPages(), pixmapDir, fontName);
+                    BitmapFontWriter.writeFont(font.getData(), pageRefs, fontFile, new BitmapFontWriter.FontInfo(fontName, fontSize), 1, 1);
+                }
+
+                generator.dispose();
+                packer.dispose();
+            }
+        });
     }
 }

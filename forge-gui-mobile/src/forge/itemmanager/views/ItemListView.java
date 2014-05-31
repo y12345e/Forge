@@ -31,7 +31,6 @@ import forge.itemmanager.ItemManager;
 import forge.itemmanager.ItemManagerConfig;
 import forge.itemmanager.ItemManagerModel;
 import forge.toolbox.FCheckBox;
-import forge.toolbox.FDisplayObject;
 import forge.toolbox.FEvent;
 import forge.toolbox.FEvent.FEventHandler;
 import forge.toolbox.FList;
@@ -66,12 +65,11 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
         listModel = new ItemListModel(model0);
         setAllowMultipleSelections(false);
         getPnlOptions().setVisible(false); //hide options panel by default
+        getScroller().add(list);
     }
 
     @Override
     public void setup(ItemManagerConfig config, Map<ColumnDef, ItemColumn> colOverrides) {
-        final Iterable<T> selectedItemsBefore = getSelectedItems();
-
         //ensure cols ordered properly
         final List<ItemColumn> cols = new LinkedList<ItemColumn>();
         for (ItemColumnConfig colConfig : config.getCols().values()) {
@@ -93,7 +91,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
 
         if (config.getShowUniqueCardsOption()) {
             final FCheckBox chkBox = new FCheckBox("Unique Cards Only", itemManager.getWantUnique());
-            chkBox.setFontSize(list.getFontSize());
+            chkBox.setFont(list.getFont());
             chkBox.setCommand(new FEventHandler() {
                 @Override
                 public void handleEvent(FEvent e) {
@@ -119,7 +117,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
 
             final FCheckBox chkBox = new FCheckBox(StringUtils.isEmpty(col.getShortName()) ?
                     col.getLongName() : col.getShortName(), col.isVisible());
-            chkBox.setFontSize(list.getFontSize());
+            chkBox.setFont(list.getFont());
             chkBox.setCommand(new FEventHandler() {
                 @Override
                 public void handleEvent(FEvent e) {
@@ -153,12 +151,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
         }
 
         listModel.setup();
-        refresh(selectedItemsBefore, 0, 0);
-    }
-
-    @Override
-    public FDisplayObject getComponent() {
-        return list;
+        refresh(null, 0, 0);
     }
 
     @Override
@@ -244,12 +237,18 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
     }
 
     @Override
-    protected void onResize() {
+    protected void onResize(float visibleWidth, float visibleHeight) {
+        list.setSize(visibleWidth, visibleHeight);
     }
 
     @Override
     protected void onRefresh() {
         list.setListData(model.getOrderedList());
+    }
+
+    @Override
+    protected float getScrollHeight() {
+        return getScroller().getHeight();
     }
 
     @Override
@@ -277,7 +276,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
 
                 @Override
                 public boolean tap(Entry<T, Integer> value, float x, float y, int count) {
-                    int index = list.getIndexOf(value);
+                    Integer index = list.getIndexOf(value);
                     if (allowMultipleSelections) {
                         if (selectedIndices.contains(index)) {
                             selectedIndices.remove(index);
@@ -304,7 +303,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
                     renderer.drawValue(g, value, font, foreColor, pressed, x + 1, y, w - 2, h); //x + 1 and w - 2 to account for left and right borders
                 }
             });
-            setFontSize(14);
+            setFont(FSkinFont.get(14));
         }
 
         public Iterable<ItemColumn> getCells() {

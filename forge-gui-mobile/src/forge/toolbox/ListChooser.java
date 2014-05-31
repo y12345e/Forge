@@ -26,7 +26,6 @@ import forge.Forge.Graphics;
 import forge.assets.FSkin;
 import forge.assets.FSkinColor;
 import forge.assets.FSkinFont;
-import forge.assets.ImageCache;
 import forge.assets.TextRenderer;
 import forge.assets.FSkinColor.Colors;
 import forge.card.CardRenderer;
@@ -98,7 +97,7 @@ public class ListChooser<T> extends FContainer {
         maxChoices = maxChoices0;
         if (list.size() > 25) { //only show search field if more than 25 items
             txtSearch = add(new FTextField());
-            txtSearch.setFontSize(12);
+            txtSearch.setFont(FSkinFont.get(12));
             txtSearch.setGhostText("Search");
             txtSearch.setChangedHandler(new FEventHandler() {
                 @Override
@@ -217,15 +216,15 @@ public class ListChooser<T> extends FContainer {
     }
 
     private abstract class ItemRenderer {
-        public abstract int getDefaultFontSize();
+        public abstract FSkinFont getDefaultFont();
         public abstract float getItemHeight();
         public abstract boolean tap(T value, float x, float y, int count);
         public abstract void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h);
     }
     private class DefaultItemRenderer extends ItemRenderer {
         @Override
-        public int getDefaultFontSize() {
-            return 12;
+        public FSkinFont getDefaultFont() {
+            return FSkinFont.get(12);
         }
 
         @Override
@@ -246,8 +245,8 @@ public class ListChooser<T> extends FContainer {
     //special renderer for cards
     private class PaperCardItemRenderer extends ItemRenderer {
         @Override
-        public int getDefaultFontSize() {
-            return 14;
+        public FSkinFont getDefaultFont() {
+            return FSkinFont.get(14);
         }
 
         @Override
@@ -268,8 +267,8 @@ public class ListChooser<T> extends FContainer {
     //special renderer for cards
     private class CardItemRenderer extends ItemRenderer {
         @Override
-        public int getDefaultFontSize() {
-            return 14;
+        public FSkinFont getDefaultFont() {
+            return FSkinFont.get(14);
         }
 
         @Override
@@ -292,8 +291,8 @@ public class ListChooser<T> extends FContainer {
         private final TextRenderer textRenderer = new TextRenderer(true);
 
         @Override
-        public int getDefaultFontSize() {
-            return 14;
+        public FSkinFont getDefaultFont() {
+            return FSkinFont.get(14);
         }
 
         @Override
@@ -313,17 +312,18 @@ public class ListChooser<T> extends FContainer {
         @Override
         public void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
             SpellAbility spellAbility = (SpellAbility)value;
-            g.drawImage(ImageCache.getImage(spellAbility.getHostCard()), x, y, VStack.CARD_WIDTH, VStack.CARD_HEIGHT);
+            CardRenderer.drawCardWithOverlays(g, spellAbility.getHostCard(), x, y, VStack.CARD_WIDTH, VStack.CARD_HEIGHT);
+
             float dx = VStack.CARD_WIDTH + FList.PADDING;
             x += dx;
             w -= dx;
-            textRenderer.drawText(g, spellAbility.toString(), font, foreColor, x, y, w, h, true, HAlignment.LEFT, true);
+            textRenderer.drawText(g, spellAbility.toString(), font, foreColor, x, y, w, h, y, h, true, HAlignment.LEFT, true);
         }
     }
     private class PlayerItemRenderer extends ItemRenderer {
         @Override
-        public int getDefaultFontSize() {
-            return 18;
+        public FSkinFont getDefaultFont() {
+            return FSkinFont.get(18);
         }
 
         @Override
@@ -407,7 +407,7 @@ public class ListChooser<T> extends FContainer {
                     renderer.drawValue(g, value, font, foreColor, pressed, x, y, w, h);
                 }
             });
-            setFontSize(renderer.getDefaultFontSize());
+            setFont(renderer.getDefaultFont());
         }
 
         @Override

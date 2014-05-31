@@ -4653,7 +4653,6 @@ public class Card extends GameEntity implements Comparable<Card> {
         return res;
     }
 
-
     /**
      * <p>
      * addHiddenExtrinsicKeyword.

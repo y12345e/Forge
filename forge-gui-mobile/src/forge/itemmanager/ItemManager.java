@@ -22,6 +22,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import forge.assets.FSkinFont;
 import forge.assets.FSkinImage;
 import forge.item.InventoryItem;
 import forge.itemmanager.filters.ItemFilter;
@@ -61,6 +62,7 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
     private FEventHandler selectionChangedHandler, itemActivateHandler;
     private final Class<T> genericType;
     private ItemManagerConfig config;
+    private String caption, ratio;
 
     private final ItemFilter<? extends T> mainSearchFilter;
 
@@ -70,12 +72,7 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
 
     private final FLabel lblCaption = new FLabel.Builder()
         .align(HAlignment.LEFT)
-        .fontSize(12)
-        .build();
-
-    private final FLabel lblRatio = new FLabel.Builder()
-        .align(HAlignment.LEFT)
-        .fontSize(12)
+        .font(FSkinFont.get(12))
         .build();
 
     private static final FSkinImage VIEW_OPTIONS_ICON = FSkinImage.SETTINGS;
@@ -121,7 +118,6 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
         add(mainSearchFilter.getPanel());
         add(btnFilters);
         add(lblCaption);
-        add(lblRatio);
         for (ItemView<T> view : views) {
             add(view.getButton());
             view.getButton().setSelected(view == currentView);
@@ -243,7 +239,7 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
 
         final int backupIndexToSelect = currentView.getSelectedIndex();
         final Iterable<T> itemsToSelect; //only retain selected items if not single selection of first item
-        if (backupIndexToSelect > 0 || getSelectionCount() > 1) {
+        if (backupIndexToSelect > 0 || currentView.getSelectionCount() > 1) {
             itemsToSelect = currentView.getSelectedItems();
         }
         else {
@@ -283,22 +279,11 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
         helper.newLine(ItemFilter.PADDING);
         float fieldHeight = mainSearchFilter.getMainComponent().getHeight();
         helper.include(btnFilters, btnFilters.getAutoSizeBounds().width * 1.2f, fieldHeight);
-        float captionWidth = lblCaption.getAutoSizeBounds().width;
-        float ratioWidth = lblRatio.getAutoSizeBounds().width;
         float viewButtonWidth = fieldHeight;
-        float viewButtonCount = views.size() + Utils.scaleX(1);
-        float availableCaptionWidth = helper.getParentWidth() - viewButtonWidth * viewButtonCount - ratioWidth - helper.getX() - (viewButtonCount + 1) * helper.getGapX();
-        if (captionWidth > availableCaptionWidth) { //truncate caption if not enough room for it
-            captionWidth = availableCaptionWidth;
-        }
-        helper.offset(0, Utils.scaleY(1)); //shift caption downward
-        helper.include(lblCaption, captionWidth, fieldHeight);
-        helper.offset(-helper.getGapX(), 0);
-        helper.fillLine(lblRatio, fieldHeight, (viewButtonWidth + helper.getGapX()) * viewButtonCount - viewButtonCount + 1); //leave room for view buttons
-        helper.offset(0, Utils.scaleY(1)); //shift buttons upward
+        float viewButtonCount = views.size() + 1;
+        helper.fillLine(lblCaption, fieldHeight, (viewButtonWidth + helper.getGapX()) * viewButtonCount); //leave room for view buttons
         for (ItemView<T> view : views) {
             helper.include(view.getButton(), viewButtonWidth, fieldHeight);
-            helper.offset(Utils.scaleX(-1), 0);
         }
         helper.include(btnViewOptions, viewButtonWidth, fieldHeight);
         helper.newLine(Utils.scaleY(2));
@@ -326,7 +311,7 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
      * @return caption to display before ratio
      */
     public String getCaption() {
-        return lblCaption.getText();
+        return caption;
     }
 
     /**
@@ -335,8 +320,13 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
      * 
      * @param caption - caption to display before ratio
      */
-    public void setCaption(String caption) {
-        lblCaption.setText(caption);
+    public void setCaption(String caption0) {
+        caption = caption0;
+        updateCaptionLabel();
+    }
+
+    private void updateCaptionLabel() {
+        lblCaption.setText(caption + " " + ratio);
     }
 
     /**
@@ -916,7 +906,8 @@ public abstract class ItemManager<T extends InventoryItem> extends FContainer im
         else {
             total = pool.countAll();
         }
-        lblRatio.setText("(" + getFilteredItems().countAll() + " / " + total + ")");
+        ratio = "(" + getFilteredItems().countAll() + " / " + total + ")";
+        updateCaptionLabel();
     }
 
     /**

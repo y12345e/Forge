@@ -256,16 +256,17 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
 
         final CardStackRow lands = collectAllLands();
         final CardStackRow tokens = collectAllTokens();
-        final CardStackRow creatures;
+        //final CardStackRow creaturesRegular = new CardStackRow(this.getCardPanels(), RowType.CreatureNonToken);
+        //final CardStackRow collectedCreatures = collectAllCreatures();
+        final CardStackRow creatures = new CardStackRow(this.getCardPanels(), RowType.CreatureNonToken);
         final CardStackRow others = new CardStackRow(this.getCardPanels(), RowType.Other);
         
-        final CardStackRow collectedCreatures = collectAllCreatures();
 
-        if (FModel.getPreferences().getPrefBoolean(FPref.UI_STACK_CREATURES) && !collectedCreatures.isEmpty()) {
+        /*if (FModel.getPreferences().getPrefBoolean(FPref.UI_STACK_CREATURES) && !collectedCreatures.isEmpty()) {
             creatures = collectedCreatures;
         } else {
-            creatures = new CardStackRow(this.getCardPanels(), RowType.CreatureNonToken);
-        }
+            creatures = creaturesRegular;
+        }*/
         
         // should find an appropriate width of card
         int maxCardWidth = this.getCardWidthMax();
@@ -816,6 +817,9 @@ public class PlayArea extends CardPanelContainer implements CardPanelMouseListen
 
         @Override
         public boolean add(final CardPanel panel) {
+            if (panel.getCard() == null) {
+                return false;
+            }
             final boolean appended = super.add(panel);
             for (final CardPanel attachedPanel : panel.getAttachedPanels()) {
                 this.add(attachedPanel);

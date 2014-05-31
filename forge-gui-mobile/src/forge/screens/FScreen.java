@@ -7,6 +7,7 @@ import forge.Forge;
 import forge.Forge.Graphics;
 import forge.assets.FImage;
 import forge.assets.FSkinColor;
+import forge.assets.FSkinFont;
 import forge.assets.FSkinColor.Colors;
 import forge.assets.FSkinTexture;
 import forge.toolbox.FContainer;
@@ -17,41 +18,27 @@ import forge.util.Utils;
 
 public abstract class FScreen extends FContainer {
     public static final FSkinColor TEXTURE_OVERLAY_COLOR = FSkinColor.get(Colors.CLR_THEME);
-    public static final FSkinColor HEADER_BTN_PRESSED_COLOR = TEXTURE_OVERLAY_COLOR.alphaColor(1f);
-    public static final FSkinColor HEADER_LINE_COLOR = HEADER_BTN_PRESSED_COLOR.stepColor(-40);
-    public static final FSkinColor HEADER_BACK_COLOR = HEADER_BTN_PRESSED_COLOR.stepColor(-80);
 
-    public static final float HEADER_HEIGHT = Math.round(Utils.AVG_FINGER_HEIGHT * 0.8f);
+    private final Header header;
 
-    private final FLabel btnBack, lblHeader;
-
-    protected FScreen(boolean showBackButton, String headerCaption) {
-        if (showBackButton) {
-            btnBack = add(new FLabel.Builder().icon(new BackIcon()).pressedColor(HEADER_BTN_PRESSED_COLOR).align(HAlignment.CENTER).command(new FEventHandler() {
-                @Override
-                public void handleEvent(FEvent e) {
-                    Forge.back();
-                }
-            }).build());
-        }
-        else {
-            btnBack = null; 
-        }
-        if (headerCaption != null) {
-            lblHeader = add(new FLabel.Builder().text(headerCaption).fontSize(16).align(HAlignment.CENTER).build());
-        }
-        else {
-            lblHeader = null;
+    protected FScreen(String headerCaption) {
+        this(headerCaption == null ? null : new DefaultHeader(headerCaption));
+    }
+    protected FScreen(Header header0) {
+        header = header0;
+        if (header != null) {
+            add(header);
         }
     }
 
-    public String getHeaderCaption() {
-        if (lblHeader == null) { return ""; }
-        return lblHeader.getText();
+    public Header getHeader() {
+        return header;
     }
+
     public void setHeaderCaption(String headerCaption) {
-        if (lblHeader == null) { return; }
-        lblHeader.setText(headerCaption);
+        if (header instanceof DefaultHeader) {
+            ((DefaultHeader)header).lblCaption.setText(headerCaption);
+        }
     }
 
     public void onActivate() {
@@ -76,16 +63,9 @@ public abstract class FScreen extends FContainer {
 
     @Override
     protected final void doLayout(float width, float height) {
-        float headerX = HEADER_HEIGHT;
-        float headerWidth = width - 2 * headerX;
-
-        if (btnBack != null) {
-            btnBack.setBounds(0, 0, HEADER_HEIGHT, HEADER_HEIGHT);
-        }
-        if (lblHeader != null) {
-            lblHeader.setBounds(headerX, 0, headerWidth, HEADER_HEIGHT);
-
-            doLayout(HEADER_HEIGHT, width, height);
+        if (header != null) {
+            header.setBounds(0, 0, width, header.getPreferredHeight());
+            doLayout(header.getHeight(), width, height);
         }
         else {
             doLayout(0, width, height);
@@ -100,30 +80,78 @@ public abstract class FScreen extends FContainer {
         float h = getHeight();
         g.drawImage(FSkinTexture.BG_TEXTURE, 0, 0, w, h);
         g.fillRect(TEXTURE_OVERLAY_COLOR, 0, 0, w, h);
+    }
 
-        if (lblHeader != null) { //draw custom background behind header label
-            g.fillRect(HEADER_BACK_COLOR, 0, 0, w, HEADER_HEIGHT);
-            g.drawLine(1, HEADER_LINE_COLOR, 0, HEADER_HEIGHT, w, HEADER_HEIGHT);
+    public static abstract class Header extends FContainer {
+        public static final FSkinColor BTN_PRESSED_COLOR = TEXTURE_OVERLAY_COLOR.alphaColor(1f);
+        public static final FSkinColor LINE_COLOR = BTN_PRESSED_COLOR.stepColor(-40);
+        public static final FSkinColor BACK_COLOR = BTN_PRESSED_COLOR.stepColor(-80);
+        public static final float LINE_THICKNESS = Utils.scaleY(1);
+
+        public abstract float getPreferredHeight();
+    }
+    private static class DefaultHeader extends Header {
+        private static final float HEIGHT = Math.round(Utils.AVG_FINGER_HEIGHT * 0.8f);
+        private static final FSkinFont FONT = FSkinFont.get(16);
+
+        private final FLabel btnBack, lblCaption;
+
+        public DefaultHeader(String headerCaption) {
+            btnBack = add(new FLabel.Builder().icon(new BackIcon(HEIGHT, HEIGHT)).pressedColor(BTN_PRESSED_COLOR).align(HAlignment.CENTER).command(new FEventHandler() {
+                @Override
+                public void handleEvent(FEvent e) {
+                    Forge.back();
+                }
+            }).build());
+            btnBack.setSize(HEIGHT, HEIGHT);
+            lblCaption = add(new FLabel.Builder().text(headerCaption).font(FONT).align(HAlignment.CENTER).build());
+        }
+
+        @Override
+        public float getPreferredHeight() {
+            return HEIGHT;
+        }
+
+        @Override
+        public void drawBackground(Graphics g) {
+            g.fillRect(BACK_COLOR, 0, 0, getWidth(), HEIGHT);
+        }
+
+        @Override
+        public void drawOverlay(Graphics g) {
+            float y = HEIGHT - LINE_THICKNESS / 2;
+            g.drawLine(LINE_THICKNESS, LINE_COLOR, 0, y, getWidth(), y);
+        }
+
+        @Override
+        protected void doLayout(float width, float height) {
+            lblCaption.setBounds(height, 0, width - 2 * height, height);
         }
     }
 
-    private static class BackIcon implements FImage {
+    protected static class BackIcon implements FImage {
         private static final float THICKNESS = Utils.scaleMax(3);
         private static final FSkinColor COLOR = FSkinColor.get(Colors.CLR_TEXT);
 
+        private final float width, height;
+        public BackIcon(float width0, float height0) {
+            width = width0;
+            height = height0;
+        }
+
         @Override
         public float getWidth() {
-            return HEADER_HEIGHT;
+            return width;
         }
 
         @Override
         public float getHeight() {
-            return HEADER_HEIGHT;
+            return height;
         }
 
         @Override
         public void draw(Graphics g, float x, float y, float w, float h) {
-            float xMid = x + w / 3; 
+            float xMid = x + w * 0.4f; 
             float yMid = y + h / 2;
             float offsetX = h / 8;
             float offsetY = w / 4;
