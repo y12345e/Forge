@@ -823,6 +823,8 @@ forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorDraf
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorLimited.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQuest.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQuestCardShop.java -text
+forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQuestDraftingProcess.java -text
+forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQuestLimited.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorVariant.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CProbabilities.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CStatistics.java -text
@@ -861,10 +863,13 @@ forge-gui-desktop/src/main/java/forge/screens/home/quest/CSubmenuChallenges.java
 forge-gui-desktop/src/main/java/forge/screens/home/quest/CSubmenuDuels.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/CSubmenuQuestData.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/CSubmenuQuestDecks.java -text
+forge-gui-desktop/src/main/java/forge/screens/home/quest/CSubmenuQuestDraft.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/CSubmenuQuestPrefs.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/DialogChooseSets.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/IVQuestStats.java -text
+forge-gui-desktop/src/main/java/forge/screens/home/quest/PnlDraftEvent.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/PnlEvent.java -text
+forge-gui-desktop/src/main/java/forge/screens/home/quest/QuestDraftUtils.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/QuestFileLister.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/QuestPreferencesHandler.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/SSubmenuQuestUtil.java -text
@@ -872,6 +877,7 @@ forge-gui-desktop/src/main/java/forge/screens/home/quest/VSubmenuChallenges.java
 forge-gui-desktop/src/main/java/forge/screens/home/quest/VSubmenuDuels.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/VSubmenuQuestData.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/VSubmenuQuestDecks.java -text
+forge-gui-desktop/src/main/java/forge/screens/home/quest/VSubmenuQuestDraft.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/VSubmenuQuestPrefs.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/ViewItem.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/quest/ViewStall.java -text
@@ -899,6 +905,7 @@ forge-gui-desktop/src/main/java/forge/screens/match/ControlWinLose.java -text
 forge-gui-desktop/src/main/java/forge/screens/match/GameLogPanel.java -text
 forge-gui-desktop/src/main/java/forge/screens/match/GauntletWinLose.java -text
 forge-gui-desktop/src/main/java/forge/screens/match/LimitedWinLose.java -text
+forge-gui-desktop/src/main/java/forge/screens/match/QuestDraftWinLose.java -text
 forge-gui-desktop/src/main/java/forge/screens/match/QuestWinLose.java -text
 forge-gui-desktop/src/main/java/forge/screens/match/QuestWinLoseCardViewer.java -text
 forge-gui-desktop/src/main/java/forge/screens/match/TargetingOverlay.java -text
@@ -1307,6 +1314,7 @@ forge-gui/res/cardsfolder/a/adamaro_first_to_desire.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/a/adaptive_automaton.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/a/adaptive_snapjaw.txt -text
 forge-gui/res/cardsfolder/a/adarkar_sentinel.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/a/adarkar_unicorn.txt -text
 forge-gui/res/cardsfolder/a/adarkar_valkyrie.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/a/adarkar_wastes.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/a/adarkar_windform.txt svneol=native#text/plain
@@ -2010,6 +2018,7 @@ forge-gui/res/cardsfolder/b/balduvian_barbarians.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/b/balduvian_bears.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/b/balduvian_conjurer.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/b/balduvian_dead.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/b/balduvian_fallen.txt -text
 forge-gui/res/cardsfolder/b/balduvian_frostwaker.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/b/balduvian_horde.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/b/balduvian_hydra.txt svneol=native#text/plain
@@ -12164,6 +12173,7 @@ forge-gui/res/cardsfolder/s/snow_devil.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/s/snow_fortress.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/s/snow_hound.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/s/snowblind.txt -text
+forge-gui/res/cardsfolder/s/snowfall.txt -text
 forge-gui/res/cardsfolder/s/snuff_out.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/s/soar.txt -text
 forge-gui/res/cardsfolder/s/soaring_hope.txt svneol=native#text/plain
@@ -12270,6 +12280,7 @@ forge-gui/res/cardsfolder/s/soul_ransom.txt -text
 forge-gui/res/cardsfolder/s/soul_reap.txt -text
 forge-gui/res/cardsfolder/s/soul_rend.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/s/soul_scourge.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/s/soul_sculptor.txt -text
 forge-gui/res/cardsfolder/s/soul_seizer_ghastly_haunting.txt -text
 forge-gui/res/cardsfolder/s/soul_shepherd.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/s/soul_shred.txt svneol=native#text/plain
@@ -16188,6 +16199,7 @@ forge-gui/res/skins/dark_ascension/bg_splash.png -text
 forge-gui/res/skins/dark_ascension/bg_texture.jpg -text
 forge-gui/res/skins/dark_ascension/font1.ttf -text
 forge-gui/res/skins/dark_ascension/sprite_icons.png -text
+forge-gui/res/skins/default/bg_draft_deck.png -text
 forge-gui/res/skins/default/bg_match.jpg -text
 forge-gui/res/skins/default/bg_splash.png -text
 forge-gui/res/skins/default/bg_texture.jpg -text
@@ -16439,10 +16451,12 @@ forge-gui/src/main/java/forge/properties/package-info.java svneol=native#text/pl
 forge-gui/src/main/java/forge/quest/BoosterUtils.java svneol=native#text/plain
 forge-gui/src/main/java/forge/quest/IQuestRewardCard.java -text
 forge-gui/src/main/java/forge/quest/QuestController.java -text
+forge-gui/src/main/java/forge/quest/QuestDeckGroupMap.java -text
 forge-gui/src/main/java/forge/quest/QuestDeckMap.java -text
 forge-gui/src/main/java/forge/quest/QuestEvent.java -text
 forge-gui/src/main/java/forge/quest/QuestEventChallenge.java svneol=native#text/plain
 forge-gui/src/main/java/forge/quest/QuestEventDifficulty.java -text
+forge-gui/src/main/java/forge/quest/QuestEventDraft.java -text
 forge-gui/src/main/java/forge/quest/QuestEventDuel.java svneol=native#text/plain
 forge-gui/src/main/java/forge/quest/QuestEventDuelManager.java -text
 forge-gui/src/main/java/forge/quest/QuestMode.java -text
@@ -16475,6 +16489,7 @@ forge-gui/src/main/java/forge/quest/data/GameFormatQuest.java -text
 forge-gui/src/main/java/forge/quest/data/QuestAchievements.java -text
 forge-gui/src/main/java/forge/quest/data/QuestAssets.java -text
 forge-gui/src/main/java/forge/quest/data/QuestData.java svneol=native#text/plain
+forge-gui/src/main/java/forge/quest/data/QuestEventDraftContainer.java -text
 forge-gui/src/main/java/forge/quest/data/QuestItemCondition.java -text
 forge-gui/src/main/java/forge/quest/data/QuestPreferences.java svneol=native#text/plain
 forge-gui/src/main/java/forge/quest/data/package-info.java svneol=native#text/plain

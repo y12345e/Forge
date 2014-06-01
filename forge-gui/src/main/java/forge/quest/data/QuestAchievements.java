@@ -1,10 +1,11 @@
 package forge.quest.data;
 
-import forge.model.FModel;
-import forge.quest.data.QuestPreferences.DifficultyPrefs;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import forge.model.FModel;
+import forge.quest.QuestEventDraft;
+import forge.quest.data.QuestPreferences.DifficultyPrefs;
 
 /** 
  * TODO: Write javadoc for this type.
@@ -18,12 +19,17 @@ public class QuestAchievements {
 
     private List<String> completedChallenges = new ArrayList<String>();
     private List<String> currentChallenges = new ArrayList<String>();
+    
+    private QuestEventDraftContainer drafts = new QuestEventDraftContainer();
+    private int currentDraft = -1;
+    private int draftTokensAvailable = 3;
+    private int winCountAtEndOfDraft = 0;
 
     private int win;
     private int winstreakBest = 0;
     private int winstreakCurrent = 0;
     private int lost;
-
+    
     // Difficulty - will store only index from now.
     private int difficulty;
 
@@ -33,6 +39,17 @@ public class QuestAchievements {
      */
     public QuestAchievements(int diff) {
         difficulty = diff;
+    }
+    
+    public void deleteDraft(QuestEventDraft draft) {
+        drafts.remove(draft);
+    }
+    
+    public void endCurrentTournament() {
+        drafts.remove(drafts.get(currentDraft));
+        currentDraft = -1;
+        winCountAtEndOfDraft = win;
+        FModel.getQuest().save();
     }
 
     /**
@@ -45,6 +62,13 @@ public class QuestAchievements {
     public void addWin() { // changes getRank()
         this.win++;
         this.winstreakCurrent++;
+        
+        //Every 5 wins, allow a tournament to be generated.
+        if ((win - winCountAtEndOfDraft) % 5 == 0) {
+            if (draftTokensAvailable < 3) {
+                draftTokensAvailable++;
+            }
+        }
 
         if (this.winstreakCurrent > this.winstreakBest) {
             this.winstreakBest = this.winstreakCurrent;
@@ -174,6 +198,53 @@ public class QuestAchievements {
      */
     public int getDifficulty() {
         return this.difficulty;
+    }
+
+    public QuestEventDraftContainer getDraftEvents() {
+        return drafts;
+    }
+    
+    public void generateNewTournaments() {
+        
+        if (drafts == null) {
+            drafts = new QuestEventDraftContainer();
+            draftTokensAvailable = 3;
+        }
+        
+        int draftsToGenerate = 3 - drafts.size();
+        if (draftsToGenerate > draftTokensAvailable) {
+            draftsToGenerate = draftTokensAvailable;
+        }
+
+        for (int i = 0; i < draftsToGenerate; i++) {
+            QuestEventDraft draft = QuestEventDraft.getRandomDraftOrNull(FModel.getQuest());
+            if (draft != null) {
+                drafts.add(draft);
+                draftTokensAvailable--;
+            }
+        }
+        
+        FModel.getQuest().save();
+        
+    }
+
+    public void addDraftToken() {
+        draftTokensAvailable++;
+    }
+    
+    public void setCurrentDraft(final QuestEventDraft draft) {
+        currentDraft = drafts.indexOf(draft);
+    }
+    
+    public QuestEventDraft getCurrentDraft() {
+        if (drafts.size() == 0) {
+            return null;
+        }
+        return drafts.get(currentDraft);
+    }
+    
+    public int getCurrentDraftIndex() {
+        return currentDraft;
     }
 
 }

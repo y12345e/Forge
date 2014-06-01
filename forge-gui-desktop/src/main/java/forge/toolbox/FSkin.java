@@ -479,7 +479,6 @@ public class FSkin {
             h0 = tempCoords[3];
             newW = (tempCoords.length == 6 ? tempCoords[4] : 0);
             newH = (tempCoords.length == 6 ? tempCoords[5] : 0);
-
             final BufferedImage img = FSkin.testPreferredSprite(s0);
             final BufferedImage bi0 = img.getSubimage(x0, y0, w0, h0);
 
@@ -935,7 +934,7 @@ public class FSkin {
     private static int currentSkinIndex;
     private static String preferredDir;
     private static String preferredName;
-    private static BufferedImage bimDefaultSprite, bimPreferredSprite, bimFoils,
+    private static BufferedImage bimDefaultSprite, bimPreferredSprite, bimFoils, bimQuestDraftDeck,
     bimOldFoils, bimDefaultAvatars, bimPreferredAvatars;
     private static int x0, y0, w0, h0, newW, newH, preferredW, preferredH;
     private static int[] tempCoords;
@@ -1058,7 +1057,7 @@ public class FSkin {
             if (FSkin.preferredName.isEmpty()) { FSkin.loadLight("default", onInit); }
         }
 
-        FView.SINGLETON_INSTANCE.setSplashProgessBarMessage("Processing image sprites: ", 5);
+        FView.SINGLETON_INSTANCE.setSplashProgessBarMessage("Processing image sprites: ", 6);
 
         // Grab and test various sprite files.
         final String defaultDir = ForgeConstants.DEFAULT_SKINS_DIR;
@@ -1068,6 +1067,7 @@ public class FSkin {
         final File f4 = new File(defaultDir + ForgeConstants.SPRITE_AVATARS_FILE);
         final File f5 = new File(preferredDir + ForgeConstants.SPRITE_AVATARS_FILE);
         final File f6 = new File(defaultDir + ForgeConstants.SPRITE_OLD_FOILS_FILE);
+        final File f7 = new File(defaultDir + ForgeConstants.DRAFT_DECK_IMG_FILE);
 
         try {
             int p = 0;
@@ -1080,6 +1080,8 @@ public class FSkin {
             bimOldFoils = f6.exists() ? ImageIO.read(f6) : ImageIO.read(f3);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimDefaultAvatars = ImageIO.read(f4);
+            FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
+            bimQuestDraftDeck = ImageIO.read(f7);
 
             if (f5.exists()) { bimPreferredAvatars = ImageIO.read(f5); }
 
@@ -1142,6 +1144,7 @@ public class FSkin {
         FSkin.bimOldFoils.flush();
         FSkin.bimPreferredSprite.flush();
         FSkin.bimDefaultAvatars.flush();
+        FSkin.bimQuestDraftDeck.flush();
 
         if (FSkin.bimPreferredAvatars != null) { FSkin.bimPreferredAvatars.flush(); }
 
@@ -1151,6 +1154,7 @@ public class FSkin {
         FSkin.bimPreferredSprite = null;
         FSkin.bimDefaultAvatars = null;
         FSkin.bimPreferredAvatars = null;
+        FSkin.bimQuestDraftDeck = null;
 
         //establish encoding symbols
         File dir = new File(ForgeConstants.CACHE_SYMBOLS_DIR);
@@ -1268,6 +1272,11 @@ public class FSkin {
         w0 = tempCoords[2];
         h0 = tempCoords[3];
 
+        if (s0.equals(FSkinProp.IMG_QUEST_DRAFT_DECK)) {
+            Color c = FSkin.getColorFromPixel(bimQuestDraftDeck.getRGB((x0 + w0 / 2), (y0 + h0 / 2)));
+            if (c.getAlpha() != 0) { return bimQuestDraftDeck; }
+        }
+        
         // Test if requested sub-image in inside bounds of preferred sprite.
         // (Height and width of preferred sprite were set in loadFontAndImages.)
         if (x0 > preferredW || x0 + w0 > preferredW
@@ -1279,7 +1288,7 @@ public class FSkin {
         // If any return true, image exists.
         int x = 0, y = 0;
         Color c;
-
+        
         // Center
         x = (x0 + w0 / 2);
         y = (y0 + h0 / 2);
