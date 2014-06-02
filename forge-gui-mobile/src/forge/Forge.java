@@ -47,7 +47,7 @@ import forge.util.FileUtil;
 import forge.util.Utils;
 
 public class Forge implements ApplicationListener {
-    public static final String CURRENT_VERSION = "1.5.19.006";
+    public static final String CURRENT_VERSION = "1.5.19.008";
 
     private static final ApplicationListener app = new Forge();
     private static Clipboard clipboard;
@@ -266,7 +266,7 @@ public class Forge implements ApplicationListener {
     }
 
     //log message to Forge.log file
-    public static void log(String message) {
+    public static void log(Object message) {
         System.out.println(message);
     }
 
