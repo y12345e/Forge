@@ -31,6 +31,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.EventBus;
 
@@ -66,6 +67,7 @@ import forge.util.Aggregates;
 public class Game {
     private final GameRules rules;
     private final List<Player> roIngamePlayers;
+    private final List<Player> roIngamePlayersReversed;
     private final List<Player> allPlayers;
     private final List<Player> ingamePlayers = new ArrayList<Player>();
 
@@ -85,6 +87,8 @@ public class Game {
     private final GameLog gameLog = new GameLog();
 
     private final Zone stackZone = new Zone(ZoneType.Stack, this);
+    
+    private Direction turnOrder = Direction.getDefaultDirection();
 
     private long timestamp = 0;
     public final GameAction action;
@@ -102,6 +106,7 @@ public class Game {
         List<Player> players = new ArrayList<Player>();
         allPlayers = Collections.unmodifiableList(players);
         roIngamePlayers = Collections.unmodifiableList(ingamePlayers);
+        roIngamePlayersReversed = Lists.reverse(roIngamePlayers); // reverse of unmodifiable list is also unmodifiable
 
         int highestTeam = -1;
         for (RegisteredPlayer psc : players0) {
@@ -146,13 +151,26 @@ public class Game {
 
 
     /**
+     * Gets the players who are still fighting to win, in turn order.
+     * 
+     * @return the players
+     */
+    public final List<Player> getPlayersInTurnOrder() {
+    	if (this.turnOrder.isDefaultDirection()) {
+    		return this.roIngamePlayers;
+    	}
+    	return this.roIngamePlayersReversed;
+    }
+    
+    /**
      * Gets the players who are still fighting to win.
      * 
      * @return the players
      */
     public final List<Player> getPlayers() {
-        return roIngamePlayers;
+    	return roIngamePlayers;
     }
+
     /**
      * Gets the players who participated in match (regardless of outcome).
      * <i>Use this in UI and after match calculations</i>
@@ -287,6 +305,23 @@ public class Game {
         });
         return list;
     }
+    
+    /**
+     * Get the turn order.
+     * @return the Direction in which the turn order of this Game currently
+     * proceeds.
+     */
+    public final Direction getTurnOrder() {
+    	return this.turnOrder;
+    }
+    
+    public final void reverseTurnOrder() {
+    	this.turnOrder = this.turnOrder.getOtherDirection();
+    }
+
+    public final void resetTurnOrder() {
+    	this.turnOrder = Direction.getDefaultDirection();
+    }
 
     /**
      * Create and return the next timestamp.
@@ -335,7 +370,7 @@ public class Game {
             p.setMindSlaveMaster(null); // for correct totals
         }
 
-        for (Player p : roIngamePlayers) {
+        for (Player p : getPlayers()) {
             p.onGameOver();
         }
 
@@ -487,9 +522,11 @@ public class Game {
     }
 
     /**
-     * TODO: Write javadoc for this method.
-     * @param playerTurn
-     * @return
+     * Get the player whose turn it is after a given player's turn, taking turn
+     * order into account.
+     * @param playerTurn a {@link Player}, or {@code null}.
+     * @return A {@link Player}, whose turn comes after the current player, or
+     * {@code null} if there are no players in the game.
      */
     public Player getNextPlayerAfter(final Player playerTurn) {
         int iPlayer = roIngamePlayers.indexOf(playerTurn);
@@ -498,20 +535,25 @@ public class Game {
             return null;
         }
 
+        final int shift = this.getTurnOrder().getShift();
+        final int totalNumPlayers = allPlayers.size();
         if (-1 == iPlayer) { // if playerTurn has just lost
             int iAlive;
             iPlayer = allPlayers.indexOf(playerTurn);
             do {
-                iPlayer = (iPlayer + 1) % allPlayers.size();
+                iPlayer = (iPlayer + shift) % totalNumPlayers;
+                if (iPlayer < 0) {
+                	iPlayer += totalNumPlayers;
+                }
                 iAlive = roIngamePlayers.indexOf(allPlayers.get(iPlayer));
             } while (iAlive < 0);
             iPlayer = iAlive;
         }
         else { // for the case noone has died
-            if (iPlayer == roIngamePlayers.size() - 1) {
-                iPlayer = -1;
-            }
-            iPlayer++;
+        	iPlayer = (iPlayer + shift) % totalNumPlayers;
+        	if (iPlayer < 0) {
+        		iPlayer += totalNumPlayers;
+        	}
         }
 
         return roIngamePlayers.get(iPlayer);

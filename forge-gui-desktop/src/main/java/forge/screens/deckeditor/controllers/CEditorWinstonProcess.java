@@ -17,52 +17,53 @@
  */
 package forge.screens.deckeditor.controllers;
 
-import java.util.Map.Entry;
-
-import forge.assets.FSkinProp;
+import forge.Singletons;
+import forge.UiCommand;
 import forge.card.MagicColor;
+import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deck.DeckGroup;
 import forge.deck.DeckSection;
-import forge.gui.framework.DragCell;
-import forge.gui.framework.FScreen;
-import forge.item.PaperCard;
-import forge.itemmanager.CardManager;
-import forge.itemmanager.ItemManagerConfig;
-import forge.limited.BoosterDraft;
-import forge.limited.IBoosterDraft;
 import forge.model.FModel;
-import forge.properties.ForgePreferences.FPref;
-import forge.quest.QuestEventDraft;
+import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.views.VAllDecks;
 import forge.screens.deckeditor.views.VCurrentDeck;
 import forge.screens.deckeditor.views.VDeckgen;
-import forge.screens.home.quest.CSubmenuQuestDraft;
-import forge.screens.home.quest.VSubmenuQuestDraft;
+import forge.gui.framework.DragCell;
+import forge.gui.framework.FScreen;
+import forge.screens.home.sanctioned.CSubmenuWinston;
 import forge.toolbox.FOptionPane;
-import forge.toolbox.FSkin;
+import forge.itemmanager.CardManager;
+import forge.itemmanager.ItemManagerConfig;
+import forge.item.PaperCard;
+import forge.limited.BoosterDraft;
+import forge.limited.IBoosterDraft;
+import forge.limited.WinstonDraft;
+import forge.properties.ForgePreferences.FPref;
 import forge.util.ItemPool;
 import forge.util.MyRandom;
 
+import java.util.Map.Entry;
+
 /**
  * Updates the deck editor UI as necessary draft selection mode.
- * 
+ *
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
- * 
+ *
  * @author Forge
  * @version $Id: CEditorDraftingProcess.java 24872 2014-02-17 07:35:47Z drdev $
  */
-public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGroup> {
-    
-    private CSubmenuQuestDraft testDraftQuest;
-    
-    public void setDraftQuest(CSubmenuQuestDraft testDraftQuest) {
-        this.testDraftQuest = testDraftQuest;
-    }
-    
+public class CEditorWinstonProcess extends ACEditorBase<PaperCard, DeckGroup> {
     private IBoosterDraft boosterDraft;
 
     private String ccAddLabel = "Add card";
+    private String ccAdd4Label = "Add card";
+    private Runnable ccAddCommand = null;
+    private Runnable ccAdd4Command = null;
+
+    private String ccTakeLabel = "Take pile";
+    private String ccPassLabel = "Pass pile";
+
     private DragCell allDecksParent = null;
     private DragCell deckGenParent = null;
     private boolean saved = false;
@@ -72,7 +73,7 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
     /**
      * Updates the deck editor UI as necessary draft selection mode.
      */
-    public CEditorQuestDraftingProcess() {
+    public CEditorWinstonProcess() {
         super(FScreen.DRAFTING_PROCESS);
 
         final CardManager catalogManager = new CardManager(false);
@@ -92,7 +93,7 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
 
     /**
      * Show gui.
-     * 
+     *
      * @param inBoosterDraft
      *            the in_booster draft
      */
@@ -105,22 +106,7 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
      */
     @Override
     protected void onAddItems(Iterable<Entry<PaperCard, Integer>> items, boolean toAlternate) {
-        if (toAlternate) { return; }
-
-        // can only draft one at a time, regardless of the requested quantity
-        PaperCard card = items.iterator().next().getKey();
-        this.getDeckManager().addItem(card, 1);
-
-        // get next booster pack
-        this.boosterDraft.setChoice(card);
-
-        if (this.boosterDraft.hasNextChoice()) {
-            this.showChoices(this.boosterDraft.nextChoice());
-        }
-        else {
-            this.boosterDraft.finishedDrafting();
-            this.saveDraft();
-        }
+        // This doesn't actually do anything, need to use buttons to interact
     }
 
     /* (non-Javadoc)
@@ -144,25 +130,37 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
      * <p>
      * showChoices.
      * </p>
-     * 
+     *
      * @param list
-     *            a {@link forge.CardList} object.
+     *            a {@link ItemPool<PaperCard>} object.
      */
     private void showChoices(final ItemPool<PaperCard> list) {
         int packNumber = ((BoosterDraft) boosterDraft).getCurrentBoosterIndex() + 1;
 
-        this.getCatalogManager().setCaption("Pack " + packNumber + " - Cards");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Remaining: ");
+        sb.append(((WinstonDraft)boosterDraft).getDeckSize());
+        sb.append("    AI Cards: ");
+        sb.append(((WinstonDraft)boosterDraft).getAIDraftSize());
+        sb.append("    Pile");
+        sb.append(" ");
+        sb.append(packNumber);
+        sb.append(" - Cards");
+
+        this.getCatalogManager().setCaption(sb.toString());
         this.getCatalogManager().setPool(list);
+
+        this.getDeckManager().refresh();
     } // showChoices()
 
     /**
      * <p>
      * getPlayersDeck.
      * </p>
-     * 
+     *
      * @return a {@link forge.deck.Deck} object.
      */
-    public Deck getPlayersDeck() {
+    private Deck getPlayersDeck() {
         final Deck deck = new Deck();
 
         // add sideboard to deck
@@ -180,6 +178,7 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
             int maxArtIndex = isZendikarSet ? minArtIndex + 3 : numArt;
 
             if (FModel.getPreferences().getPrefBoolean(FPref.UI_RANDOM_ART_IN_POOLS)) {
+
                 for (int i = minArtIndex; i <= maxArtIndex; i++) {
                     deck.get(DeckSection.Sideboard).add(landName, landSet, i, numArt > 1 ? landsCount : 30);
                 }
@@ -197,10 +196,33 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
      * </p>
      */
     private void saveDraft() {
-        
-        String s = "Tournament Deck";
+        String s = FOptionPane.showInputDialog("Save this draft as:", "Save Draft", FOptionPane.QUESTION_ICON);
+
+        // Cancel button will be null; OK will return string.
+        // Must check for null value first, then string length.
+        // Recurse, if either null or empty string.
+        if (s == null || s.length() == 0) {
+            saveDraft();
+            return;
+        }
+
+        // Check for overwrite case
+        for (DeckGroup d : FModel.getDecks().getWinston()) {
+            if (s.equalsIgnoreCase(d.getName())) {
+                if (!FOptionPane.showConfirmDialog(
+                        "There is already a deck named '" + s + "'. Overwrite?",
+                        "Overwrite Deck?", false)) {
+                    // If no overwrite, recurse.
+                    saveDraft();
+                    return;
+                }
+                break;
+            }
+        }
 
         saved = true;
+
+        // TODO For pile drafts, only one other draft deck is made
 
         // Construct computer's decks and save draft
         final Deck[] computer = this.boosterDraft.getDecks();
@@ -209,11 +231,14 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
         finishedDraft.setHumanDeck((Deck) this.getPlayersDeck().copyTo(s));
         finishedDraft.addAiDecks(computer);
 
-        CSubmenuQuestDraft.SINGLETON_INSTANCE.update();
+        FModel.getDecks().getWinston().add(finishedDraft);
+        CSubmenuWinston.SINGLETON_INSTANCE.update();
         FScreen.DRAFTING_PROCESS.close();
-        
-        testDraftQuest.setCompletedDraft(finishedDraft, s);
-        
+
+        //open draft pool in Draft Deck Editor right away
+        Singletons.getControl().setCurrentScreen(FScreen.DECK_EDITOR_DRAFT);
+        CDeckEditorUI.SINGLETON_INSTANCE.setEditorController(new CEditorLimited(FModel.getDecks().getWinston(), FScreen.DECK_EDITOR_DRAFT));
+        CDeckEditorUI.SINGLETON_INSTANCE.getCurrentEditorController().getDeckController().load(null, s);
     }
 
     //========== Overridden from ACEditorBase
@@ -255,28 +280,41 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
         ccAddLabel = this.getBtnAdd().getText();
 
         if (this.getDeckManager().getPool() == null) { //avoid showing next choice or resetting pool if just switching back to Draft screen
-            this.showChoices(this.boosterDraft.nextChoice());
             this.getDeckManager().setPool((Iterable<PaperCard>) null);
+            this.showChoices(this.boosterDraft.nextChoice());
         }
         else {
             this.showChoices(this.getCatalogManager().getPool());
         }
 
-        //Remove buttons
-        this.getBtnAdd().setVisible(false);
-        this.getBtnAdd4().setVisible(false);
         this.getBtnRemove().setVisible(false);
         this.getBtnRemove4().setVisible(false);
 
-        this.getBtnCycleSection().setVisible(false);
+        this.getBtnAdd().setText(ccTakeLabel);
+        this.getBtnAdd4().setText(ccPassLabel);
+        // Link the buttons to the appropriate functions
 
-        VCurrentDeck.SINGLETON_INSTANCE.getPnlHeader().setVisible(false);
+        this.ccAddCommand = this.getBtnAdd().getCommand();
+        this.ccAdd4Command = this.getBtnAdd4().getCommand();
+
+        this.getBtnAdd().setCommand(new UiCommand() {
+            @Override
+            public void run() {
+                CEditorWinstonProcess.this.takePile();
+            }
+        });
+        this.getBtnAdd4().setCommand(new UiCommand() {
+            @Override
+            public void run() {
+                CEditorWinstonProcess.this.passPile();
+            }
+        });
 
         deckGenParent = removeTab(VDeckgen.SINGLETON_INSTANCE);
         allDecksParent = removeTab(VAllDecks.SINGLETON_INSTANCE);
 
         // set catalog table to single-selection only mode
-        getCatalogManager().setAllowMultipleSelections(false);
+        //getCatalogManager().setAllowMultipleSelections(false);
     }
 
     /* (non-Javadoc)
@@ -286,18 +324,9 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
     public boolean canSwitchAway(boolean isClosing) {
         if (isClosing && !saved) {
             String userPrompt =
-                    "This will end the current draft and you will not be able to join this tournament again.\nYour credits will be refunded and the draft will be removed.\n\n" +
+                    "This will end the current draft and you will not be able to resume.\n\n" +
                             "Leave anyway?";
-            boolean leave = FOptionPane.showOptionDialog(userPrompt, "Leave Draft?", FSkin.getImage(FSkinProp.ICO_WARNING).scale(2.0), new String[] {"Leave", "Cancel"}, 1) == 0;
-            if (leave) {
-                QuestEventDraft draft = FModel.getQuest().getAchievements().getCurrentDraft();
-                FModel.getQuest().getAssets().addCredits(draft.getEntryFee());
-                FModel.getQuest().getAchievements().deleteDraft(draft);
-                FModel.getQuest().save();
-                CSubmenuQuestDraft.SINGLETON_INSTANCE.update();
-                VSubmenuQuestDraft.SINGLETON_INSTANCE.populate();
-            }
-            return leave;
+            return FOptionPane.showConfirmDialog(userPrompt, "Leave Draft?", "Leave", "Cancel", false);
         }
         return true;
     }
@@ -307,11 +336,13 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
      */
     @Override
     public void resetUIChanges() {
-        //Re-rename buttons
+        //Restore button names
         this.getBtnAdd().setText(ccAddLabel);
+        this.getBtnAdd4().setText(ccAdd4Label);
+        this.getBtnAdd().setCommand(this.ccAddCommand);
+        this.getBtnAdd4().setCommand(this.ccAdd4Command);
 
         //Re-add buttons
-        this.getBtnAdd4().setVisible(true);
         this.getBtnRemove().setVisible(true);
         this.getBtnRemove4().setVisible(true);
 
@@ -328,4 +359,36 @@ public class CEditorQuestDraftingProcess extends ACEditorBase<PaperCard, DeckGro
         // set catalog table back to free-selection mode
         getCatalogManager().setAllowMultipleSelections(true);
     }
+
+    private void takePile() {
+        CardPool pool = ((WinstonDraft)boosterDraft).takeActivePile(true);
+        // Add pool to deck
+        this.getDeckManager().getPool().addAll(pool);
+
+        // get next booster pack
+        if (this.boosterDraft.hasNextChoice()) {
+            CardPool newPool = this.boosterDraft.nextChoice();
+            if (newPool != null) {
+                this.showChoices(newPool);
+                return;
+            }
+        }
+        // If we get here, there's no choices left. Finish the draft and then save it
+        this.boosterDraft.finishedDrafting();
+        this.saveDraft();
+    }
+
+    private void passPile() {
+        CardPool pool = ((WinstonDraft)boosterDraft).passActivePile(true);
+
+        if (pool != null) {
+            // Passed the third pile, draw the top card of the deck
+            this.getDeckManager().getPool().addAll(pool);
+        }
+        CardPool newPool = this.boosterDraft.nextChoice();
+        if (newPool != null) {
+            this.showChoices(newPool);
+        }
+    }
 }
+

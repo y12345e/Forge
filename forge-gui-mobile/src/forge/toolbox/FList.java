@@ -70,6 +70,13 @@ public class FList<E> extends FScrollPane implements Iterable<E> {
         }
         revalidate();
     }
+    public void setListData(E[] items0) {
+        clear();
+        for (E item : items0) {
+            addItem(item);
+        }
+        revalidate();
+    }
 
     public boolean isEmpty() {
         return items.isEmpty();
@@ -135,7 +142,7 @@ public class FList<E> extends FScrollPane implements Iterable<E> {
         E item = getItemAt(index);
         if (item == null) { return false; }
 
-        return renderer.tap(item, x, y - getItemTop(index), count);
+        return renderer.tap(index, item, x, y - getItemTop(index), count);
     }
 
     private float getItemTop(int index) {
@@ -187,7 +194,7 @@ public class FList<E> extends FScrollPane implements Iterable<E> {
                     g.fillRect(fillColor, 0, y, w, itemHeight);
                 }
 
-                renderer.drawValue(g, items.get(i), font, FORE_COLOR, pressedIndex == i, PADDING, y + PADDING, valueWidth, valueHeight);
+                renderer.drawValue(g, i, items.get(i), font, FORE_COLOR, pressedIndex == i, PADDING, y + PADDING, valueWidth, valueHeight);
 
                 y += itemHeight;
 
@@ -214,8 +221,8 @@ public class FList<E> extends FScrollPane implements Iterable<E> {
 
     public static abstract class ListItemRenderer<V> {
         public abstract float getItemHeight();
-        public abstract boolean tap(V value, float x, float y, int count);
-        public abstract void drawValue(Graphics g, V value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h);
+        public abstract boolean tap(Integer index, V value, float x, float y, int count);
+        public abstract void drawValue(Graphics g, Integer index, V value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h);
     }
 
     public static class DefaultListItemRenderer<V> extends ListItemRenderer<V> {
@@ -225,13 +232,13 @@ public class FList<E> extends FScrollPane implements Iterable<E> {
         }
 
         @Override
-        public boolean tap(V value, float x, float y, int count) {
+        public boolean tap(Integer index, V value, float x, float y, int count) {
             return false;
         }
 
         @Override
-        public void drawValue(Graphics g, V value, FSkinFont font, FSkinColor color, boolean pressed, float x, float y, float w, float h) {
-            g.drawText(value.toString(), font, color, x, y, w, h, false, HAlignment.LEFT, true);
+        public void drawValue(Graphics g, Integer index, V value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+            g.drawText(value.toString(), font, foreColor, x, y, w, h, false, HAlignment.LEFT, true);
         }
     }
 

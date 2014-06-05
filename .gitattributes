@@ -259,6 +259,7 @@ forge-game/pom.xml -text
 forge-game/src/main/java/forge/GameCommand.java svneol=native#text/plain
 forge-game/src/main/java/forge/ImageKeys.java -text
 forge-game/src/main/java/forge/game/CardTraitBase.java -text
+forge-game/src/main/java/forge/game/Direction.java -text
 forge-game/src/main/java/forge/game/Game.java -text
 forge-game/src/main/java/forge/game/GameAction.java svneol=native#text/plain
 forge-game/src/main/java/forge/game/GameActionUtil.java svneol=native#text/plain
@@ -387,6 +388,7 @@ forge-game/src/main/java/forge/game/ability/effects/RepeatEffect.java -text
 forge-game/src/main/java/forge/game/ability/effects/RestartGameEffect.java -text
 forge-game/src/main/java/forge/game/ability/effects/RevealEffect.java -text
 forge-game/src/main/java/forge/game/ability/effects/RevealHandEffect.java -text
+forge-game/src/main/java/forge/game/ability/effects/ReverseTurnOrderEffect.java -text
 forge-game/src/main/java/forge/game/ability/effects/RollPlanarDiceEffect.java -text
 forge-game/src/main/java/forge/game/ability/effects/RunSVarAbilityEffect.java -text
 forge-game/src/main/java/forge/game/ability/effects/SacrificeAllEffect.java -text
@@ -827,6 +829,7 @@ forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQues
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQuestDraftingProcess.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorQuestLimited.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorVariant.java -text
+forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CEditorWinstonProcess.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CProbabilities.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/CStatistics.java -text
 forge-gui-desktop/src/main/java/forge/screens/deckeditor/controllers/DeckController.java -text
@@ -887,10 +890,12 @@ forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/AvatarSelector.jav
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/CSubmenuConstructed.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/CSubmenuDraft.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/CSubmenuSealed.java -text
+forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/CSubmenuWinston.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/ConstructedGameMenu.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/VSubmenuConstructed.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/VSubmenuDraft.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/VSubmenuSealed.java -text
+forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/VSubmenuWinston.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/sanctioned/package-info.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/settings/CSubmenuAvatars.java -text
 forge-gui-desktop/src/main/java/forge/screens/home/settings/CSubmenuDownloaders.java -text
@@ -1163,7 +1168,7 @@ forge-gui-mobile/src/forge/screens/TabPageScreen.java -text
 forge-gui-mobile/src/forge/screens/constructed/AvatarSelector.java -text
 forge-gui-mobile/src/forge/screens/constructed/ConstructedScreen.java -text
 forge-gui-mobile/src/forge/screens/draft/DraftScreen.java -text
-forge-gui-mobile/src/forge/screens/guantlet/GuantletScreen.java -text
+forge-gui-mobile/src/forge/screens/gauntlet/GauntletScreen.java -text
 forge-gui-mobile/src/forge/screens/home/HomeScreen.java -text
 forge-gui-mobile/src/forge/screens/match/FControl.java -text
 forge-gui-mobile/src/forge/screens/match/MatchLoader.java -text
@@ -6695,6 +6700,7 @@ forge-gui/res/cardsfolder/h/holistic_wisdom.txt -text
 forge-gui/res/cardsfolder/h/hollow_dogs.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/h/hollow_specter.txt -text
 forge-gui/res/cardsfolder/h/hollow_trees.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/h/hollow_warrior.txt -text
 forge-gui/res/cardsfolder/h/hollowborn_barghest.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/h/hollowhenge_beast.txt -text
 forge-gui/res/cardsfolder/h/hollowhenge_scavenger.txt -text
@@ -6879,6 +6885,7 @@ forge-gui/res/cardsfolder/i/icatian_skirmishers.txt -text
 forge-gui/res/cardsfolder/i/icatian_store.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/i/icatian_town.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/i/ice_cage.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/i/ice_cave.txt -text
 forge-gui/res/cardsfolder/i/ice_floe.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/i/ice_storm.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/i/iceberg.txt svneol=native#text/plain
@@ -13047,6 +13054,7 @@ forge-gui/res/cardsfolder/t/tablet_of_epityr.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/t/tablet_of_the_guilds.txt -text
 forge-gui/res/cardsfolder/t/tahngarth.txt -text
 forge-gui/res/cardsfolder/t/tahngarth_talruum_hero.txt svneol=native#text/plain
+forge-gui/res/cardsfolder/t/tahngarths_glare.txt -text
 forge-gui/res/cardsfolder/t/tahngarths_rage.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/t/taiga.txt svneol=native#text/plain
 forge-gui/res/cardsfolder/t/tainted_aether.txt svneol=native#text/plain
@@ -15292,6 +15300,7 @@ forge-gui/res/quest/duels/Apu[!!-~]Nahasapeemapetilon[!!-~]4.dck -text
 forge-gui/res/quest/duels/Aquaman[!!-~]1.dck -text
 forge-gui/res/quest/duels/Aquaman[!!-~]2.dck -text
 forge-gui/res/quest/duels/Aquaman[!!-~]3.dck -text
+forge-gui/res/quest/duels/Aqueduct[!!-~]3.dck -text
 forge-gui/res/quest/duels/Aragorn[!!-~]1.dck -text
 forge-gui/res/quest/duels/Aragorn[!!-~]2.dck -text
 forge-gui/res/quest/duels/Atomic[!!-~]Robo[!!-~]3.dck -text
@@ -16405,6 +16414,8 @@ forge-gui/src/main/java/forge/limited/LimitedPoolType.java -text
 forge-gui/src/main/java/forge/limited/ReadDraftRankings.java -text
 forge-gui/src/main/java/forge/limited/SealedCardPoolGenerator.java svneol=native#text/plain
 forge-gui/src/main/java/forge/limited/SealedDeckBuilder.java svneol=native#text/plain
+forge-gui/src/main/java/forge/limited/WinstonDraft.java -text
+forge-gui/src/main/java/forge/limited/WinstonDraftAI.java -text
 forge-gui/src/main/java/forge/limited/package-info.java svneol=native#text/plain
 forge-gui/src/main/java/forge/match/MatchConstants.java -text
 forge-gui/src/main/java/forge/match/input/ButtonUtil.java -text

@@ -45,6 +45,7 @@ import forge.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -136,12 +137,6 @@ public class ListChooser<T> extends FContainer {
             options = new String[] {"OK"};
         }
 
-        if (maxChoices == 1 || minChoices == -1) {
-            lstChoices.allowMultipleSelections = false;
-        }
-        else {
-            lstChoices.allowMultipleSelections = true;
-        }
         setHeight(Math.min(lstChoices.getListItemRenderer().getItemHeight() * list.size(), FOptionPane.getMaxDisplayObjHeight()));
 
         optionPane = new FOptionPane(null, title, null, this, options, 0, new Callback<Integer>() {
@@ -182,7 +177,7 @@ public class ListChooser<T> extends FContainer {
         called = true;
         lstChoices.selectedIndices.clear();
         if (item == null) {
-            if (maxChoices > 0) {
+            if (maxChoices == 1) { //select first item only if single-select
                 lstChoices.selectedIndices.add(0);
             }
         }
@@ -347,7 +342,6 @@ public class ListChooser<T> extends FContainer {
     }
 
     private class ChoiceList extends FList<T> {
-        private boolean allowMultipleSelections;
         private List<Integer> selectedIndices = new ArrayList<Integer>();
 
         private ChoiceList(Collection<T> items) {
@@ -372,38 +366,55 @@ public class ListChooser<T> extends FContainer {
                 renderer = new DefaultItemRenderer();
             }
             setListItemRenderer(new ListItemRenderer<T>() {
+                private Integer prevTapIndex = -1;
+
                 @Override
                 public float getItemHeight() {
                     return renderer.getItemHeight();
                 }
 
                 @Override
-                public boolean tap(T value, float x, float y, int count) {
-                    Integer index = ChoiceList.this.getIndexOf(value);
-                    if (allowMultipleSelections) {
+                public boolean tap(Integer index, T value, float x, float y, int count) {
+                    if (maxChoices > 1) {
                         if (selectedIndices.contains(index)) {
                             selectedIndices.remove(index);
+                            onSelectionChange();
                         }
-                        else {
+                        else if (selectedIndices.size() < maxChoices) {
                             selectedIndices.add(index);
+                            Collections.sort(selectedIndices); //ensure selected indices are sorted
+                            onSelectionChange();
                         }
                     }
-                    else {
+                    else if (maxChoices > 0 && !selectedIndices.contains(index)) {
                         selectedIndices.clear();
                         selectedIndices.add(index);
+                        onSelectionChange();
                     }
-                    onSelectionChange();
                     if (renderer.tap(value, x, y, count)) {
+                        prevTapIndex = index;
                         return true; //don't activate if renderer handles tap
                     }
-                    if (count == 2 && optionPane.isButtonEnabled(0)) {
+                    if (count == 2 && index == prevTapIndex && optionPane.isButtonEnabled(0)) {
                         optionPane.setResult(0);
                     }
+                    prevTapIndex = index;
                     return true;
                 }
 
                 @Override
-                public void drawValue(Graphics g, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+                public void drawValue(Graphics g, Integer index, T value, FSkinFont font, FSkinColor foreColor, boolean pressed, float x, float y, float w, float h) {
+                    if (maxChoices > 1) {
+                        if (pressed) { //if multi-select mode, draw SEL_COLOR when pressed
+                            g.fillRect(SEL_COLOR, x - FList.PADDING, y - FList.PADDING, w + 2 * FList.PADDING, h + 2 * FList.PADDING);
+                        }
+                        //draw checkbox, with it checked based on whether item is selected
+                        float checkBoxSize = h / 2;
+                        float padding = checkBoxSize / 2;
+                        w -= checkBoxSize + padding;
+                        FCheckBox.drawCheckBox(g, selectedIndices.contains(index), x + w, y + padding, checkBoxSize, checkBoxSize);
+                        w -= padding;
+                    }
                     renderer.drawValue(g, value, font, foreColor, pressed, x, y, w, h);
                 }
             });
@@ -422,8 +433,8 @@ public class ListChooser<T> extends FContainer {
 
         @Override
         protected FSkinColor getItemFillColor(int index) {
-            if (selectedIndices.contains(index)) {
-                return SEL_COLOR;
+            if (maxChoices == 1 && selectedIndices.contains(index)) {
+                return SEL_COLOR; //don't show SEL_COLOR if in multi-select mode
             }
             if (index % 2 == 1) {
                 return ALT_ITEM_COLOR;

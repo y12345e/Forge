@@ -22,8 +22,7 @@ public class QuestAchievements {
     
     private QuestEventDraftContainer drafts = new QuestEventDraftContainer();
     private int currentDraft = -1;
-    private int draftTokensAvailable = 3;
-    private int winCountAtEndOfDraft = 0;
+    private int draftTokensAvailable = 1;
 
     private int win;
     private int winstreakBest = 0;
@@ -47,13 +46,15 @@ public class QuestAchievements {
     }
     
     public void deleteDraft(QuestEventDraft draft) {
+        if (currentDraft == drafts.indexOf(draft)) {
+            currentDraft = -1;
+        }
         drafts.remove(draft);
     }
     
     public void endCurrentTournament(final int place) {
         drafts.remove(drafts.get(currentDraft));
         currentDraft = -1;
-        winCountAtEndOfDraft = win;
         addDraftFinish(place);
         FModel.getQuest().save();
     }
@@ -66,16 +67,20 @@ public class QuestAchievements {
      * Adds the win.
      */
     public void addWin() { // changes getRank()
+        
         this.win++;
         this.winstreakCurrent++;
         
-        //Every 5 wins, allow a tournament to be generated.
-        if ((win - winCountAtEndOfDraft) % 5 == 0) {
-            if (draftTokensAvailable < 3) {
-                draftTokensAvailable++;
+        for (QuestEventDraft draft : drafts) {
+            if (!(currentDraft != -1 && drafts.get(currentDraft) == draft)) {
+                draft.addWin();
             }
         }
-
+        
+        if (win % 5 == 0) {
+            draftTokensAvailable++;
+        }
+        
         if (this.winstreakCurrent > this.winstreakBest) {
             this.winstreakBest = this.winstreakCurrent;
         }
@@ -210,19 +215,27 @@ public class QuestAchievements {
         return drafts;
     }
     
-    public void generateNewTournaments() {
+    public void generateDrafts() {
         
         if (drafts == null) {
             drafts = new QuestEventDraftContainer();
-            draftTokensAvailable = 3;
+            draftTokensAvailable = 1;
         }
         
-        int draftsToGenerate = 3 - drafts.size();
-        if (draftsToGenerate > draftTokensAvailable) {
-            draftsToGenerate = draftTokensAvailable;
+        QuestEventDraft toRemove = null;
+        for (QuestEventDraft draft : drafts) {
+            if (draft.getAge() <= 0
+                    && !(currentDraft != -1 && drafts.get(currentDraft) == draft)) {
+                toRemove = draft;
+                break;
+            }
         }
-
-        for (int i = 0; i < draftsToGenerate; i++) {
+        
+        if (toRemove != null) {
+            drafts.remove(toRemove);
+        }
+        
+        for (int i = 0; i < draftTokensAvailable; i++) {
             QuestEventDraft draft = QuestEventDraft.getRandomDraftOrNull(FModel.getQuest());
             if (draft != null) {
                 drafts.add(draft);

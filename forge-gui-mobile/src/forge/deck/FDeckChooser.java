@@ -128,11 +128,12 @@ public class FDeckChooser extends FScreen {
     public DeckManager getLstDecks() { return lstDecks; }
 
     private void updateCustom() {
-        lstDecks.setAllowMultipleSelections(false);
+        lstDecks.setSelectionSupport(1, 1);
 
         lstDecks.setPool(DeckProxy.getAllConstructedDecks(FModel.getDecks().getConstructed()));
         lstDecks.setup(ItemManagerConfig.CONSTRUCTED_DECKS);
 
+        btnViewDeck.setEnabled(true);
         btnRandom.setText("Random Deck");
         btnRandom.setCommand(new FEventHandler() {
             @Override
@@ -189,7 +190,7 @@ public class FDeckChooser extends FScreen {
     }
 
     private void updateColors() {
-        lstDecks.setAllowMultipleSelections(true);
+        lstDecks.setSelectionSupport(1, 3); //TODO: Consider supporting more than 3 color random decks
 
         String[] colors = new String[] { "Random 1", "Random 2", "Random 3",
                 "White", "Blue", "Black", "Red", "Green" };
@@ -201,6 +202,7 @@ public class FDeckChooser extends FScreen {
         lstDecks.setPool(decks);
         lstDecks.setup(ItemManagerConfig.STRING_ONLY);
 
+        btnViewDeck.setEnabled(false);
         btnRandom.setText("Random Colors");
         btnRandom.setCommand(new FEventHandler() {
             @Override
@@ -214,11 +216,12 @@ public class FDeckChooser extends FScreen {
     }
 
     private void updateThemes() {
-        lstDecks.setAllowMultipleSelections(false);
+        lstDecks.setSelectionSupport(1, 1);
 
         lstDecks.setPool(DeckProxy.getAllThemeDecks());
         lstDecks.setup(ItemManagerConfig.STRING_ONLY);
 
+        btnViewDeck.setEnabled(false);
         btnRandom.setText("Random Deck");
         btnRandom.setCommand(new FEventHandler() {
             @Override
@@ -231,11 +234,12 @@ public class FDeckChooser extends FScreen {
     }
 
     private void updatePrecons() {
-        lstDecks.setAllowMultipleSelections(false);
+        lstDecks.setSelectionSupport(1, 1);
 
         lstDecks.setPool(DeckProxy.getAllPreconstructedDecks(QuestController.getPrecons()));
         lstDecks.setup(ItemManagerConfig.PRECON_DECKS);
 
+        btnViewDeck.setEnabled(true);
         btnRandom.setText("Random Deck");
         btnRandom.setCommand(new FEventHandler() {
             @Override
@@ -248,11 +252,12 @@ public class FDeckChooser extends FScreen {
     }
 
     private void updateQuestEvents() {
-        lstDecks.setAllowMultipleSelections(false);
+        lstDecks.setSelectionSupport(1, 1);
 
         lstDecks.setPool(DeckProxy.getAllQuestEventAndChallenges());
         lstDecks.setup(ItemManagerConfig.QUEST_EVENT_DECKS);
 
+        btnViewDeck.setEnabled(true);
         btnRandom.setText("Random Deck");
         btnRandom.setCommand(new FEventHandler() {
             @Override
