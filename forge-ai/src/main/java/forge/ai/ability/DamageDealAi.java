@@ -239,22 +239,33 @@ public class DamageDealAi extends DamageAiBase {
         final boolean divided = sa.hasParam("DividedAsYouChoose");
         final boolean oppTargetsChoice = sa.hasParam("TargetingPlayer");
 
-        if ("PowerDmg".equals(sa.getParam("AILogic"))) {
-        	if (tgt.canTgtCreatureAndPlayer() && this.shouldTgtP(ai, sa, dmg, noPrevention)){
-        		sa.resetTargets();
-        		sa.getTargets().add(ai.getOpponent());
-        	}
-    		return true;
-    	}
         // target loop
-        sa.resetTargets();
         TargetChoices tcs = sa.getTargets();
         Player enemy = ai.getOpponent();
         
+        if ("PowerDmg".equals(sa.getParam("AILogic"))) {
+            // check if it is better to target the player instead, the original target is already set in PumpAi.pumpTgtAI()
+            if (tgt.canTgtCreatureAndPlayer() && this.shouldTgtP(ai, sa, dmg, noPrevention)){
+                sa.resetTargets();
+                tcs.add(enemy);
+            }
+            return true;
+        }
+        
+        sa.resetTargets();
         if (tgt.getMaxTargets(source, sa) <= 0) {
             return false;
         }
 
+        if ("ChoiceBurn".equals(sa.getParam("AILogic"))) {
+            // do not waste burns on player if other choices are present
+            if (this.shouldTgtP(ai, sa, dmg, noPrevention)) {
+                tcs.add(enemy);
+                return true;
+            } else {
+                return false;
+            }
+        }
         if ("Polukranos".equals(sa.getParam("AILogic"))) {
             int dmgTaken = 0;
             List<Card> humCreatures = ai.getOpponent().getCreaturesInPlay();
@@ -360,7 +371,7 @@ public class DamageDealAi extends DamageAiBase {
                 final Card c = this.dealDamageChooseTgtC(ai, sa, dmg, noPrevention, enemy, mandatory);
                 if (c != null) {
                     //option to hold removal instead only applies for single targeted removal
-                    if (sa.isSpell() && tgt.getMaxTargets(sa.getHostCard(), sa) == 1 && !divided) {
+                    if (!sa.isTrigger() && tgt.getMaxTargets(sa.getHostCard(), sa) == 1 && !divided) {
                         if (!ComputerUtilCard.useRemovalNow(sa, c, dmg, ZoneType.Graveyard)) {
                             return false;
                         }

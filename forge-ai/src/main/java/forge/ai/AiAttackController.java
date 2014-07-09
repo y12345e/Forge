@@ -124,7 +124,7 @@ public class AiAttackController {
                 if (sa.getApi() == ApiType.Animate) {
                     if (ComputerUtilCost.canPayCost(sa, defender) 
                     		&& sa.getRestrictions().checkOtherRestrictions(c, sa, defender)) {
-                        Card animatedCopy = CardFactory.getCard(c.getPaperCard(), defender);
+                        Card animatedCopy = CardFactory.copyCard(c, true);
                         AnimateAi.becomeAnimated(animatedCopy, sa);
                         defenders.add(animatedCopy);
                     }
@@ -1084,43 +1084,44 @@ public class AiAttackController {
         if (choices.contains("artifacts")) {
             artifact = "artifacts";
         }
-        if (!choices.contains(color)) {
-            color = null;
-        }
-        for (Card c : oppList) {
-            if (!c.isArtifact()) {
-                artifact = null;
-            }
-            switch (color) {
-            case "black":
-                if (!c.isBlack()) {
-                    color = null;
-                }
-                break;
-            case "blue":
-                if (!c.isBlue()) {
-                    color = null;
-                }
-                break;
-            case "green":
-                if (!c.isGreen()) {
-                    color = null;
-                }
-                break;
-            case "red":
-                if (!c.isRed()) {
-                    color = null;
-                }
-                break;
-            case "white":
-                if (!c.isWhite()) {
-                    color = null;
-                }
-                break;
-            }
-            if (color == null && artifact == null) {
-                return null;
-            }
+        if (choices.contains(color)) {
+        	for (Card c : oppList) {
+        		if (!c.isArtifact()) {
+        			artifact = null;
+        		}
+        		switch (color) {
+        		case "black":
+        			if (!c.isBlack()) {
+        				color = null;
+        			}
+        			break;
+        		case "blue":
+        			if (!c.isBlue()) {
+        				color = null;
+        			}
+        			break;
+        		case "green":
+        			if (!c.isGreen()) {
+        				color = null;
+        			}
+        			break;
+        		case "red":
+        			if (!c.isRed()) {
+        				color = null;
+        			}
+        			break;
+        		case "white":
+        			if (!c.isWhite()) {
+        				color = null;
+        			}
+        			break;
+        		}
+        		if (color == null && artifact == null) {
+        			return null;
+        		}
+        	}
+        } else {
+        	color = null;
         }
         if (color != null) {
             return color;

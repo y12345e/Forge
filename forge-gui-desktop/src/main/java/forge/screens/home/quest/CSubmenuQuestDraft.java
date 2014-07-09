@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 
+import forge.GuiBase;
 import forge.Singletons;
 import forge.UiCommand;
 import forge.assets.FSkinProp;
@@ -47,6 +48,7 @@ import forge.screens.home.quest.VSubmenuQuestDraft.Mode;
 import forge.screens.home.sanctioned.CSubmenuDraft;
 import forge.toolbox.FOptionPane;
 import forge.toolbox.FSkin;
+import forge.toolbox.FSkin.SkinImage;
 import forge.toolbox.JXButtonPanel;
 import forge.util.storage.IStorage;
 
@@ -62,6 +64,8 @@ public enum CSubmenuQuestDraft implements ICDoc {
     
     private static final DecimalFormat NUMBER_FORMATTER = new DecimalFormat("#,###");
     
+    private boolean drafting = false;
+    
     @SuppressWarnings("serial")
     @Override
     public void initialize() {
@@ -72,6 +76,14 @@ public enum CSubmenuQuestDraft implements ICDoc {
         view.getBtnStartTournament().addActionListener(prepareDeckStart);
         view.getBtnStartMatch().addActionListener(nextMatchStart);
         
+        view.getBtnStartMatchSmall().setCommand(
+                new UiCommand() { @Override
+                    public void run() { CSubmenuQuestDraft.this.startNextMatch(); } });
+        
+        view.getBtnSpendToken().setCommand(
+                new UiCommand() { @Override
+                    public void run() { CSubmenuQuestDraft.this.spendToken(); } });
+        
         view.getBtnEditDeck().setCommand(
                 new UiCommand() { @Override
                     public void run() { CSubmenuQuestDraft.this.editDeck(); } });
@@ -81,6 +93,7 @@ public enum CSubmenuQuestDraft implements ICDoc {
                     public void run() { CSubmenuQuestDraft.this.endTournamentAndAwardPrizes(); } });
         
         QuestAchievements achievements = FModel.getQuest().getAchievements();
+        FModel.getQuest().getDraftDecks();
         
         if (achievements == null) {
             view.setMode(Mode.EMPTY);
@@ -211,7 +224,7 @@ public enum CSubmenuQuestDraft implements ICDoc {
             }
             
             if (draft.getPlayerPlacement() == 1) {
-                FOptionPane.showMessageDialog("For placing " + placement + ", another tournament will be immediately available!", "Bonus Tournament", FSkin.getImage(FSkinProp.ICO_QUEST_NOTES));
+                FOptionPane.showMessageDialog("For placing " + placement + ", you have been awarded a token!\nUse tokens to create new drafts to play.", "Bonus Token", FSkin.getImage(FSkinProp.ICO_QUEST_NOTES));
                 FModel.getQuest().getAchievements().addDraftToken();
             }
             
@@ -251,9 +264,8 @@ public enum CSubmenuQuestDraft implements ICDoc {
         FModel.getQuest().save();
         
         VSubmenuQuestDraft view = VSubmenuQuestDraft.SINGLETON_INSTANCE;
-        view.setMode(Mode.SELECT_TOURNAMENT);
-        view.populate();
         CSubmenuQuestDraft.SINGLETON_INSTANCE.update();
+        view.populate();
         
     }
     
@@ -274,7 +286,7 @@ public enum CSubmenuQuestDraft implements ICDoc {
     private final ActionListener nextMatchStart = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent event) {
-            QuestDraftUtils.startNextMatch();
+            CSubmenuQuestDraft.this.startNextMatch();
         }
     };
 
@@ -295,6 +307,22 @@ public enum CSubmenuQuestDraft implements ICDoc {
             }
         }
     };
+    
+    private void spendToken() {
+        
+        QuestAchievements achievements = FModel.getQuest().getAchievements();
+        
+        if (achievements != null) {
+            
+            achievements.spendDraftToken();
+            FModel.getQuest().save();
+            
+            update();
+            VSubmenuQuestDraft.SINGLETON_INSTANCE.populate();
+            
+        }
+        
+    }
     
     @Override
     public void update() {
@@ -354,7 +382,8 @@ public enum CSubmenuQuestDraft implements ICDoc {
 
         view.getLblCredits().setText("Available Credits: " + NUMBER_FORMATTER.format(FModel.getQuest().getAssets().getCredits()));
         
-        FModel.getQuest().getAchievements().generateDrafts();
+        QuestAchievements achievements = FModel.getQuest().getAchievements();
+        achievements.generateDrafts();
 
         view.getPnlTournaments().removeAll();
         JXButtonPanel grpPanel = new JXButtonPanel();
@@ -401,6 +430,9 @@ public enum CSubmenuQuestDraft implements ICDoc {
         view.getLblThird().setText("3rd Place: " + achievements.getWinsForPlace(3) + " time" + (achievements.getWinsForPlace(3) == 1 ? "" : "s"));        
         view.getLblFourth().setText("4th Place: " + achievements.getWinsForPlace(4) + " time" + (achievements.getWinsForPlace(4) == 1 ? "" : "s"));
         
+        view.getLblTokens().setText("Tokens: " + achievements.getDraftTokens());
+        view.getBtnSpendToken().setEnabled(achievements.getDraftTokens() > 0);
+        
     }
     
     private void updatePrepareDeck() {
@@ -417,17 +449,43 @@ public enum CSubmenuQuestDraft implements ICDoc {
         for (int i = 0; i < 15; i++) {
             
             String playerID = FModel.getQuest().getAchievements().getCurrentDraft().getStandings()[i];
+
+            int iconID = 0;
             
             if (playerID.equals(QuestEventDraft.HUMAN)) {
                 playerID = FModel.getPreferences().getPref(FPref.PLAYER_NAME);
+                if (FModel.getPreferences().getPref(FPref.UI_AVATARS).split(",").length > 0) {
+                    iconID = Integer.parseInt(FModel.getPreferences().getPref(FPref.UI_AVATARS).split(",")[0]);
+                }
             } else if (playerID.equals(QuestEventDraft.UNDETERMINED)) {
                 playerID = "Undetermined";
+                iconID = GuiBase.getInterface().getAvatarCount() - 1;
             } else {
+                iconID = FModel.getQuest().getAchievements().getCurrentDraft().getAIIcons()[Integer.parseInt(playerID) - 1];
                 playerID = FModel.getQuest().getAchievements().getCurrentDraft().getAINames()[Integer.parseInt(playerID) - 1];
             }
             
-            view.getLblsStandings()[i].setText(playerID);
+            boolean first = i % 2 == 0;
+            int box = i / 2;
             
+            SkinImage icon = FSkin.getAvatars().get(iconID);
+            
+            if (icon == null) {
+                icon = FSkin.getAvatars().get(0);
+            }
+            
+            if (first) {
+                view.getLblsMatchups()[box].setPlayerOne(playerID, icon);
+            } else {
+                view.getLblsMatchups()[box].setPlayerTwo(playerID, icon);
+            }
+            
+        }
+        
+        if (FModel.getQuest().getAchievements().getCurrentDraft().playerHasMatchesLeft()) {
+            view.getBtnLeaveTournament().setText("Leave Tournament");
+        } else {
+            view.getBtnLeaveTournament().setText("Collect Prizes");
         }
         
     }
@@ -452,6 +510,8 @@ public enum CSubmenuQuestDraft implements ICDoc {
         CDeckEditorUI.SINGLETON_INSTANCE.setEditorController(new CEditorQuestLimited(FModel.getQuest()));
         
         FModel.getQuest().save();
+        
+        drafting = false;
 
         VSubmenuQuestDraft.SINGLETON_INSTANCE.setMode(Mode.PREPARE_DECK);
         VSubmenuQuestDraft.SINGLETON_INSTANCE.populate();
@@ -467,6 +527,10 @@ public enum CSubmenuQuestDraft implements ICDoc {
     
     private void startDraft() {
         
+        if (drafting) {
+            return;
+        }
+        
         QuestEventDraft draftEvent = SSubmenuQuestUtil.getDraftEvent();
         
         long creditsAvailable = FModel.getQuest().getAssets().getCredits();
@@ -481,9 +545,9 @@ public enum CSubmenuQuestDraft implements ICDoc {
             return;
         }
         
-        FModel.getQuest().getAchievements().setCurrentDraft(draftEvent);
+        drafting = true;
         
-        //TODO What happens when the draft is quit early
+        FModel.getQuest().getAchievements().setCurrentDraft(draftEvent);
         
         FModel.getQuest().getAssets().subtractCredits(draftEvent.getEntryFee());
         
@@ -501,17 +565,11 @@ public enum CSubmenuQuestDraft implements ICDoc {
     
     private void startTournament() {
         
-        //TODO Refactor the deck getting to a single method
+        FModel.getQuest().save();
+        
         String message = GameType.QuestDraft.getDecksFormat().getDeckConformanceProblem(FModel.getQuest().getAssets().getDraftDeckStorage().get(QuestEventDraft.DECK_NAME).getHumanDeck());
         if (message != null && FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY)) {
-            //TODO Pref for allowing non-conformant decks
             FOptionPane.showMessageDialog(message, "Deck Invalid");
-            return;
-        }
-        
-        boolean okayToStart = FOptionPane.showOptionDialog("You will not be able to edit your deck once you start the tournament.\nAre you sure you wish to continue?", "Start Tournament?", FSkin.getImage(FSkinProp.ICO_INFORMATION).scale(2.0), new String[] { "Yes", "No" }, 1) == 0;
-        
-        if (!okayToStart) {
             return;
         }
         
@@ -521,6 +579,18 @@ public enum CSubmenuQuestDraft implements ICDoc {
         VSubmenuQuestDraft.SINGLETON_INSTANCE.populate();
         
         update();
+        
+    }
+    
+    private void startNextMatch() {
+
+        String message = GameType.QuestDraft.getDecksFormat().getDeckConformanceProblem(FModel.getQuest().getAssets().getDraftDeckStorage().get(QuestEventDraft.DECK_NAME).getHumanDeck());
+        if (message != null && FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY)) {
+            FOptionPane.showMessageDialog(message, "Deck Invalid");
+            return;
+        }
+        
+        QuestDraftUtils.startNextMatch();
         
     }
     

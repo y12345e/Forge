@@ -2,6 +2,7 @@ package forge.toolbox;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 
 import forge.Forge;
 import forge.Forge.Graphics;
@@ -32,10 +33,10 @@ public class FTextField extends FDisplayObject implements ITextField {
     }
 
     private String text, ghostText, textBeforeKeyInput;
-    protected FSkinFont font;
+    protected FSkinFont font, renderedFont;
     private HAlignment alignment;
     private int selStart, selLength;
-    private boolean isEditing;
+    private boolean isEditing, readOnly;
 
     public FTextField() {
         this("");
@@ -106,7 +107,15 @@ public class FTextField extends FDisplayObject implements ITextField {
     }
     public void setFont(FSkinFont font0) {
         font = font0;
+        renderedFont = font0;
         setHeight(getDefaultHeight(font));
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+    public void setReadOnly(boolean readOnly0) {
+        readOnly = readOnly0;
     }
 
     public FEventHandler getChangedHandler() {
@@ -119,20 +128,20 @@ public class FTextField extends FDisplayObject implements ITextField {
     public float getAutoSizeWidth() {
         return PADDING + font.getBounds(text).width + getRightPadding();
     }
-    
+
     private int getCharIndexAtPoint(float x, float y) {
-        float charLeft = PADDING;
+        float charLeft = getLeftPadding();
         if (x < charLeft) {
             return 0;
         }
-        if (x >= charLeft + font.getBounds(text).width) {
+        if (x >= charLeft + renderedFont.getBounds(text).width) {
             return text.length();
         }
 
         //find closest character of press
         float charWidth;
         for (int i = 0; i < text.length(); i++) {
-            charWidth = font.getBounds(text.substring(i, i + 1)).width;
+            charWidth = renderedFont.getBounds(text.substring(i, i + 1)).width;
             if (x < charLeft + charWidth / 2) {
                 return i;
             }
@@ -161,6 +170,7 @@ public class FTextField extends FDisplayObject implements ITextField {
     }
 
     public boolean startEdit() {
+        if (readOnly) { return false; }
         if (isEditing) { return true; } //do nothing if already editing
 
         selStart = 0; //select all before starting input
@@ -288,13 +298,31 @@ public class FTextField extends FDisplayObject implements ITextField {
     public void draw(Graphics g) {
         float w = getWidth();
         float h = getHeight();
-        g.fillRect(BACK_COLOR, 0, 0, w, h);
+        boolean drawBackground = !readOnly; //don't draw background or border if read-only
+
+        if (drawBackground) {
+            g.fillRect(BACK_COLOR, 0, 0, w, h);
+        }
+
+        //determine actual rendered font so selection logic is accurate
+        renderedFont = font;
+        float availableTextWidth = w - getLeftPadding() - getRightPadding();
+        TextBounds textBounds = renderedFont.getMultiLineBounds(text);
+        while (textBounds.width > availableTextWidth || textBounds.height > h) {
+            if (renderedFont.canShrink()) { //shrink font to fit if possible
+                renderedFont = renderedFont.shrink();
+                textBounds = renderedFont.getMultiLineBounds(text);
+            }
+            else {
+                break;
+            }
+        }
 
         //draw selection if key input is active
         if (isEditing) {
-            float selLeft = PADDING;
+            float selLeft = getLeftPadding();
             if (selStart > 0) {
-                selLeft += font.getBounds(text.substring(0, selStart)).width;
+                selLeft += renderedFont.getBounds(text.substring(0, selStart)).width;
             }
             float selTop = PADDING;
             float selHeight = h - 2 * PADDING;
@@ -303,7 +331,7 @@ public class FTextField extends FDisplayObject implements ITextField {
                 g.drawLine(BORDER_THICKNESS, FORE_COLOR, selLeft, selTop, selLeft, selTop + selHeight);
             }
             else if (selStart == 0 && selLength == text.length()) {
-                float selWidth = font.getBounds(text.substring(selStart, selStart + selLength)).width;
+                float selWidth = renderedFont.getBounds(text.substring(selStart, selStart + selLength)).width;
                 g.fillRect(SEL_COLOR, selLeft, selTop, selWidth, selHeight);
                 drawText(g, w, h); //draw text in front of selection background
             }
@@ -312,20 +340,26 @@ public class FTextField extends FDisplayObject implements ITextField {
             drawText(g, w, h);
         }
 
-        g.drawRect(BORDER_THICKNESS, FORE_COLOR, BORDER_THICKNESS, BORDER_THICKNESS, w - 2 * BORDER_THICKNESS, h - 2 * BORDER_THICKNESS); //allow smooth border to fully display within bounds
+        if (drawBackground) {
+            g.drawRect(BORDER_THICKNESS, FORE_COLOR, BORDER_THICKNESS, BORDER_THICKNESS, w - 2 * BORDER_THICKNESS, h - 2 * BORDER_THICKNESS); //allow smooth border to fully display within bounds
+        }
     }
 
     private void drawText(Graphics g, float w, float h) {
-        float diff = h - font.getCapHeight();
+        float diff = h - renderedFont.getCapHeight();
         if (diff > 0 && Math.round(diff) % 2 == 1) {
             h++; //if odd difference between height and font height, increment height so text favors displaying closer to bottom
         }
         if (!text.isEmpty()) {
-            g.drawText(text, font, FORE_COLOR, PADDING, 0, w - PADDING - getRightPadding(), h, false, alignment, true);
+            g.drawText(text, renderedFont, FORE_COLOR, getLeftPadding(), 0, w - getLeftPadding() - getRightPadding(), h, false, alignment, true);
         }
         else if (!ghostText.isEmpty()) {
-            g.drawText(ghostText, font, GHOST_TEXT_COLOR, PADDING, 0, w - PADDING - getRightPadding(), h, false, alignment, true);
+            g.drawText(ghostText, renderedFont, GHOST_TEXT_COLOR, getLeftPadding(), 0, w - getLeftPadding() - getRightPadding(), h, false, alignment, true);
         }
+    }
+
+    protected float getLeftPadding() {
+        return PADDING;
     }
 
     protected float getRightPadding() {

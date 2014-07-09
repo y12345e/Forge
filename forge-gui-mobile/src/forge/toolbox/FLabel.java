@@ -70,7 +70,8 @@ public class FLabel extends FDisplayObject implements IButton {
         }
     }
 
-    private static final FSkinColor DEFAULT_TEXT_COLOR = FSkinColor.get(Colors.CLR_TEXT);
+    public static final FSkinColor DEFAULT_TEXT_COLOR = FSkinColor.get(Colors.CLR_TEXT);
+    public static final FSkinColor INLINE_LABEL_COLOR = DEFAULT_TEXT_COLOR.alphaColor(0.7f);
     private static final FSkinColor clrMain = FSkinColor.get(Colors.CLR_INACTIVE);
     private static final FSkinColor d50 = clrMain.stepColor(-50);
     private static final FSkinColor d30 = clrMain.stepColor(-30);
@@ -132,6 +133,9 @@ public class FLabel extends FDisplayObject implements IButton {
         textColor = textColor0;
     }
 
+    public FSkinFont getFont() {
+        return font;
+    }
     public void setFont(FSkinFont font0) {
         font = font0;
     }
@@ -141,6 +145,13 @@ public class FLabel extends FDisplayObject implements IButton {
     }
     public void setIcon(final FImage icon0) {
         icon = icon0;
+    }
+
+    public Vector2 getInsets() {
+        return insets;
+    }
+    public void setInsets(Vector2 insets0) {
+        insets = insets0;
     }
 
     public void setCommand(final FEventHandler command0) {
@@ -202,7 +213,7 @@ public class FLabel extends FDisplayObject implements IButton {
         if (icon != null) {
             bounds.width += icon.getWidth() + insets.x;
         }
-        
+
         return bounds;
     }
 
@@ -252,7 +263,7 @@ public class FLabel extends FDisplayObject implements IButton {
         float x = insets.x;
         float y = insets.y;
         w -= 2 * x;
-        h -= 2 * x;
+        h -= 2 * y;
         if (pressed) { //while pressed, translate graphics so icon and text appear shifted down and to the right
             x += Utils.scaleX(1);
             y += Utils.scaleY(1);

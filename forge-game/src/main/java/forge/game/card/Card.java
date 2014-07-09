@@ -161,6 +161,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     private boolean suspendCast = false;
     private boolean suspend = false;
     private boolean tributed = false;
+    private boolean madness = false;
 
     private boolean phasedOut = false;
     private boolean directlyPhasedOut = true;
@@ -212,6 +213,7 @@ public class Card extends GameEntity implements Comparable<Card> {
     private int chosenNumber;
     private Player chosenPlayer;
     private List<Card> chosenCard = new ArrayList<Card>();
+    private Direction chosenDirection = null;
 
     private Card cloneOrigin = null;
     private final List<Card> clones = new ArrayList<Card>();
@@ -471,6 +473,10 @@ public class Card extends GameEntity implements Comparable<Card> {
 
     public final boolean isSplitCard() {
         return characteristicsMap.containsKey(CardCharacteristicName.LeftSplit);
+    }
+    
+    public final boolean isLicid() {
+    	return characteristicsMap.containsKey(CardCharacteristicName.Licid);
     }
 
     /**
@@ -1730,6 +1736,14 @@ public class Card extends GameEntity implements Comparable<Card> {
         this.chosenCard = c;
     }
 
+    public Direction getChosenDirection() {
+        return chosenDirection;
+    }
+
+    public void setChosenDirection(Direction chosenDirection) {
+        this.chosenDirection = chosenDirection;
+    }
+
     // used for cards like Meddling Mage...
     /**
      * <p>
@@ -1900,6 +1914,12 @@ public class Card extends GameEntity implements Comparable<Card> {
         if (this.chosenPlayer != null) {
             sb.append("\r\n[Chosen player: ");
             sb.append(this.getChosenPlayer());
+            sb.append("]\r\n");
+        }
+
+        if (this.chosenDirection != null) {
+            sb.append("\r\n[Chosen direction: ");
+            sb.append(this.getChosenDirection());
             sb.append("]\r\n");
         }
 
@@ -5457,7 +5477,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                     if (o instanceof Player) {
                         if (!p.equals(o)) {
                             return false;
-                          }
+                        }
                     }
                 }
             }
@@ -5466,7 +5486,7 @@ public class Card extends GameEntity implements Comparable<Card> {
                 if (o instanceof Player) {
                     if (!p.equals(o)) {
                         return false;
-                      }
+                    }
                 }
             }
         } else if (property.startsWith("nonRememberedPlayerCtrl")) {
@@ -5760,6 +5780,10 @@ public class Card extends GameEntity implements Comparable<Card> {
             }
         } else if (property.startsWith("notTributed")) {
             if (this.tributed) {
+                return false;
+            }
+        } else if (property.startsWith("madness")) {
+            if (!this.madness) {
                 return false;
             }
         } else if (property.contains("Paired")) {
@@ -6188,6 +6212,24 @@ public class Card extends GameEntity implements Comparable<Card> {
             List<Card> list = CardUtil.getThisTurnEntered(destination,
                     origin, "Card", source);
             if (!list.contains(this)) {
+                return false;
+            }
+        } else if (property.startsWith("ControlledByPlayerInTheDirection")) {
+            final String restrictions = property.split("ControlledByPlayerInTheDirection_")[1];
+            final String[] res = restrictions.split("_");
+            final Direction direction = Direction.valueOf(res[0]);
+            Player p = null;
+            if (res.length > 1) {
+                for (Player pl : game.getPlayers()) {
+                    if (pl.isValid(res[1], sourceController, source)) {
+                        p = pl;
+                        break;
+                    }
+                }
+            } else {
+                p = sourceController;
+            }
+            if (p == null || !this.getController().equals(game.getNextPlayerAfter(p, direction))) {
                 return false;
             }
         } else if (property.startsWith("sharesTypeWith")) {
@@ -7831,6 +7873,15 @@ public class Card extends GameEntity implements Comparable<Card> {
      */
     public final void setTributed(final boolean b) {
         this.tributed = b;
+    }
+
+    // Madness
+    public boolean isMadness() {
+        return madness;
+    }
+
+    public void setMadness(boolean madness) {
+        this.madness = madness;
     }
 
     /**

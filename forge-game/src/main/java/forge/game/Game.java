@@ -529,15 +529,27 @@ public class Game {
      * {@code null} if there are no players in the game.
      */
     public Player getNextPlayerAfter(final Player playerTurn) {
+        return getNextPlayerAfter(playerTurn, this.turnOrder);
+    }
+
+    /**
+     * Get the player whose turn it is after a given player's turn, taking turn
+     * order into account.
+     * @param playerTurn a {@link Player}, or {@code null}.
+     * @param turnOrder a {@link Direction}
+     * @return A {@link Player}, whose turn comes after the current player, or
+     * {@code null} if there are no players in the game.
+     */
+    public Player getNextPlayerAfter(final Player playerTurn, final Direction turnOrder) {
         int iPlayer = roIngamePlayers.indexOf(playerTurn);
 
         if (roIngamePlayers.isEmpty()) {
             return null;
         }
 
-        final int shift = this.getTurnOrder().getShift();
-        final int totalNumPlayers = allPlayers.size();
+        final int shift = turnOrder.getShift();
         if (-1 == iPlayer) { // if playerTurn has just lost
+        	final int totalNumPlayers = allPlayers.size();
             int iAlive;
             iPlayer = allPlayers.indexOf(playerTurn);
             do {
@@ -549,10 +561,11 @@ public class Game {
             } while (iAlive < 0);
             iPlayer = iAlive;
         }
-        else { // for the case noone has died
-        	iPlayer = (iPlayer + shift) % totalNumPlayers;
+        else { // for the case playerTurn hasn't died
+        	final int numPlayersInGame = roIngamePlayers.size();
+        	iPlayer = (iPlayer + shift) % numPlayersInGame;
         	if (iPlayer < 0) {
-        		iPlayer += totalNumPlayers;
+        		iPlayer += numPlayersInGame;
         	}
         }
 

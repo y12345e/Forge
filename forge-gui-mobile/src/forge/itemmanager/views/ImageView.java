@@ -44,7 +44,6 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
     private static final float PILE_SPACING_Y = 0.1f;
     private static final FSkinFont LABEL_FONT = FSkinFont.get(12);
     private static final FSkinColor GROUP_HEADER_FORE_COLOR = FSkinColor.get(Colors.CLR_TEXT);
-    private static final FSkinColor OPTION_LABEL_COLOR = GROUP_HEADER_FORE_COLOR.alphaColor(0.7f);
     private static final FSkinColor GROUP_HEADER_LINE_COLOR = GROUP_HEADER_FORE_COLOR.alphaColor(0.5f);
     private static final FSkinFont GROUP_HEADER_FONT = LABEL_FONT;
     private static final float GROUP_HEADER_HEIGHT = Utils.scaleY(19);
@@ -137,9 +136,9 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
         }
     }
     private final ExpandCollapseButton btnExpandCollapseAll = new ExpandCollapseButton();
-    private final FLabel lblGroupBy = new FLabel.Builder().text("Groups:").font(LABEL_FONT).textColor(OPTION_LABEL_COLOR).build();
+    private final FLabel lblGroupBy = new FLabel.Builder().text("Groups:").font(LABEL_FONT).textColor(FLabel.INLINE_LABEL_COLOR).build();
     private final FComboBox<Object> cbGroupByOptions = new FComboBox<Object>();
-    private final FLabel lblPileBy = new FLabel.Builder().text("Piles:").font(LABEL_FONT).textColor(OPTION_LABEL_COLOR).build();
+    private final FLabel lblPileBy = new FLabel.Builder().text("Piles:").font(LABEL_FONT).textColor(FLabel.INLINE_LABEL_COLOR).build();
     private final FComboBox<Object> cbPileByOptions = new FComboBox<Object>();
 
     public ImageView(ItemManager<T> itemManager0, ItemManagerModel<T> model0) {
@@ -435,7 +434,10 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
 
         float gap = (MAX_COLUMN_COUNT - columnCount) / 2 + Utils.scaleX(2); //more items per row == less gap between them
         float itemWidth = (groupWidth + gap) / columnCount - gap;
-        itemWidth *= (1 - 0.2f / columnCount); //make smaller so part of the next card is visible so it's obvious if scrolling is needed
+        if (pileBy != null) {
+            //if showing piles, make smaller so part of the next card is visible so it's obvious if scrolling is needed
+            itemWidth *= (1 - 0.2f / columnCount);
+        }
         float itemHeight = itemWidth * FCardPanel.ASPECT_RATIO;
         float dx = itemWidth + gap;
         float dy = pileBy == null ? itemHeight + gap : itemHeight * PILE_SPACING_Y;

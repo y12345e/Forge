@@ -23,7 +23,7 @@ import forge.toolbox.FGroupList;
 import forge.toolbox.FList;
 import forge.util.Utils;
 
-public class SettingsPage extends TabPage {
+public class SettingsPage extends TabPage<SettingsScreen> {
     private final FGroupList<Setting> lstSettings = add(new FGroupList<Setting>());
 
     public SettingsPage() {
@@ -157,7 +157,7 @@ public class SettingsPage extends TabPage {
                 5);
         lstSettings.addItem(new BooleanSetting(FPref.UI_OVERLAY_CARD_POWER,
                 "Show Card P/T Overlays",
-                "Show power/tougness/loyalty overlays for cards, otherwise they're hidden."),
+                "Show power/toughness/loyalty overlays for cards, otherwise they're hidden."),
                 5);
         lstSettings.addItem(new BooleanSetting(FPref.UI_OVERLAY_CARD_ID,
                 "Show Card ID Overlays",

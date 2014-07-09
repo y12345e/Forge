@@ -5,15 +5,19 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import forge.FThreads;
 import forge.GuiBase;
 import forge.Singletons;
 import forge.deck.DeckGroup;
 import forge.game.Game;
+import forge.game.GameRules;
 import forge.game.GameType;
+import forge.game.Match;
 import forge.game.player.RegisteredPlayer;
 import forge.gui.SOverlayUtils;
 import forge.gui.framework.FScreen;
 import forge.model.FModel;
+import forge.properties.ForgePreferences.FPref;
 import forge.quest.QuestEventDraft;
 
 public class QuestDraftUtils {
@@ -21,6 +25,7 @@ public class QuestDraftUtils {
     private static List<DraftMatchup> matchups = new ArrayList<DraftMatchup>();
     
     public static boolean matchInProgress = false;
+    public static boolean aiMatchInProgress = false;
     private static boolean waitForUserInput = false;
     
     public static void continueMatch(Game lastGame) {
@@ -40,6 +45,10 @@ public class QuestDraftUtils {
     }
 
     public static void startNextMatch() {
+        
+        if (matchups.size() > 0) {
+            return;
+        }
         
         matchups.clear();
         
@@ -148,6 +157,9 @@ public class QuestDraftUtils {
     public static void update() {
         
         if (matchups.isEmpty()) {
+            if (!matchInProgress) {
+                aiMatchInProgress = false;
+            }
             return;
         }
         
@@ -176,11 +188,26 @@ public class QuestDraftUtils {
         if (!nextMatch.hasHumanPlayer) {
             GuiBase.getInterface().disableOverlay();
             waitForUserInput = false;
+            aiMatchInProgress = true;
         } else {
             waitForUserInput = true;
+            aiMatchInProgress = false;
         }
         
-        GuiBase.getInterface().startMatch(GameType.QuestDraft, nextMatch.matchStarter);
+        GameRules rules = new GameRules(GameType.QuestDraft);
+        rules.setPlayForAnte(false);
+        rules.setMatchAnteRarity(false);
+        rules.setGamesPerMatch(3);
+        rules.setManaBurn(FModel.getPreferences().getPrefBoolean(FPref.UI_MANABURN));
+        rules.canCloneUseTargetsImage = FModel.getPreferences().getPrefBoolean(FPref.UI_CLONE_MODE_SOURCE);
+        
+        final Match match = new Match(rules, nextMatch.matchStarter);
+        FThreads.invokeInEdtLater(new Runnable(){
+            @Override
+            public void run() {
+                Singletons.getControl().startGameWithUi(match);
+            }
+        });
         
     }
     

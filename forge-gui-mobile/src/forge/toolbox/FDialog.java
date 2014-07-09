@@ -1,6 +1,7 @@
 package forge.toolbox;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
+import com.badlogic.gdx.math.Rectangle;
 
 import forge.Forge.Graphics;
 import forge.assets.FSkinColor;
@@ -65,6 +66,16 @@ public abstract class FDialog extends FOverlay {
 
     protected abstract float layoutAndGetHeight(float width, float maxHeight);
 
+    private boolean isPointWithinDialog(float x, float y) {
+        Rectangle bounds = new Rectangle(lblTitlebar.getLeft(), lblTitlebar.getTop(), lblTitlebar.getWidth(), totalHeight);
+        return bounds.contains(x, y);
+    }
+
+    @Override
+    public boolean longPress(float x, float y) {
+        return !isPointWithinDialog(x, y); //don't handle long press by default if pressed inside dialog
+    }
+
     @Override
     protected void drawBackground(Graphics g) {
         super.drawBackground(g);
@@ -78,14 +89,6 @@ public abstract class FDialog extends FOverlay {
 
         //draw custom background behind titlebar
         g.fillRect(TITLE_BACK_COLOR, x, y, w, TITLE_HEIGHT);
-    }
-
-    @Override
-    protected void drawOverlay(Graphics g) {
-        float x = lblTitlebar.getLeft();
-        float y = lblTitlebar.getTop();
-        float w = lblTitlebar.getWidth();
-        float h = totalHeight;
 
         //draw border around dialog
         g.drawRect(1, BORDER_COLOR, x, y, w, h);

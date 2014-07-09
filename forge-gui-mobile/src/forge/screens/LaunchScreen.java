@@ -7,16 +7,13 @@ import java.util.Set;
 
 import com.badlogic.gdx.Input.Keys;
 
-import forge.FThreads;
 import forge.screens.FScreen;
 import forge.screens.match.FControl;
-import forge.screens.match.MatchLoader;
 import forge.Forge.Graphics;
 import forge.assets.FSkinImage;
 import forge.game.GameType;
 import forge.game.player.RegisteredPlayer;
 import forge.toolbox.FDisplayObject;
-import forge.util.ThreadUtil;
 import forge.util.Utils;
 
 public abstract class LaunchScreen extends FScreen {
@@ -24,7 +21,7 @@ public abstract class LaunchScreen extends FScreen {
     private static final float IMAGE_WIDTH = FSkinImage.BTN_START_UP.getWidth() * IMAGE_HEIGHT / FSkinImage.BTN_START_UP.getHeight();
     private static final float PADDING = IMAGE_HEIGHT * 0.025f;
 
-    private final StartButton btnStart;
+    protected final StartButton btnStart;
     private boolean creatingMatch;
 
     public LaunchScreen(String headerCaption) {
@@ -51,34 +48,26 @@ public abstract class LaunchScreen extends FScreen {
         if (creatingMatch) { return; }
         creatingMatch = true; //ensure user doesn't create multiple matches by tapping multiple times
 
-        final MatchLoader loader = new MatchLoader();
-        loader.show(); //show loading overlay then delay starting game so UI can respond
-        ThreadUtil.invokeInGameThread(new Runnable() {
+        LoadingOverlay.show("Loading new game...", new Runnable() {
             @Override
             public void run() {
-                FThreads.invokeInEdtLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        LaunchParams launchParams = new LaunchParams();
-                        if (buildLaunchParams(launchParams)) {
-                            if (launchParams.gameType == null) {
-                                throw new RuntimeException("Must set launchParams.gameType");
-                            }
-                            if (launchParams.players.isEmpty()) {
-                                throw new RuntimeException("Must add at least one player to launchParams.players");
-                            }
-
-                            FControl.startMatch(launchParams.gameType, launchParams.appliedVariants, launchParams.players);
-                        }
-                        loader.hide();
-                        creatingMatch = false;
+                LaunchParams launchParams = new LaunchParams();
+                if (buildLaunchParams(launchParams)) {
+                    if (launchParams.gameType == null) {
+                        throw new RuntimeException("Must set launchParams.gameType");
                     }
-                });
+                    if (launchParams.players.isEmpty()) {
+                        throw new RuntimeException("Must add at least one player to launchParams.players");
+                    }
+
+                    FControl.startMatch(launchParams.gameType, launchParams.appliedVariants, launchParams.players);
+                }
+                creatingMatch = false;
             }
         });
     }
 
-    private class StartButton extends FDisplayObject {
+    protected class StartButton extends FDisplayObject {
         private boolean pressed;
 
         /**

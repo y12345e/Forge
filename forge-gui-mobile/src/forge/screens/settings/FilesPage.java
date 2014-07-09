@@ -1,5 +1,7 @@
 package forge.screens.settings;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 
 import forge.Forge.Graphics;
@@ -11,11 +13,16 @@ import forge.download.GuiDownloadPrices;
 import forge.download.GuiDownloadQuestImages;
 import forge.download.GuiDownloadService;
 import forge.download.GuiDownloadSetPicturesLQ;
+import forge.properties.ForgeProfileProperties;
 import forge.screens.TabPageScreen.TabPage;
+import forge.toolbox.FFileChooser;
+import forge.toolbox.FFileChooser.ChoiceType;
 import forge.toolbox.FGroupList;
 import forge.toolbox.FList;
+import forge.toolbox.FOptionPane;
+import forge.util.Callback;
 
-public class FilesPage extends TabPage {
+public class FilesPage extends TabPage<SettingsScreen> {
     private final FGroupList<FilesItem> lstItems = add(new FGroupList<FilesItem>());
 
     protected FilesPage() {
@@ -24,8 +31,9 @@ public class FilesPage extends TabPage {
         lstItems.setListItemRenderer(new FilesItemRenderer());
 
         lstItems.addGroup("Content Downloaders");
+        lstItems.addGroup("Storage Locations");
         //lstItems.addGroup("Data Import");
-        
+
         //content downloaders
         lstItems.addItem(new ContentDownloader("Download LQ Card Pictures",
                 "Download default card picture for each card.") {
@@ -55,6 +63,30 @@ public class FilesPage extends TabPage {
                 return new GuiDownloadPrices();
             }
         }, 0);
+
+        //storage locations
+        lstItems.addItem(new StorageOption("Data Location (e.g. Settings, Decks, Quests)", ForgeProfileProperties.getUserDir()) {
+            @Override
+            protected void onDirectoryChanged(String newDir) {
+                ForgeProfileProperties.setUserDir(newDir);
+            }
+        }, 1);
+        final StorageOption cardPicsOption = new StorageOption("Card Pics Location", ForgeProfileProperties.getCardPicsDir()) {
+            @Override
+            protected void onDirectoryChanged(String newDir) {
+                ForgeProfileProperties.setCardPicsDir(newDir);
+            }
+        };
+        lstItems.addItem(new StorageOption("Image Cache Location", ForgeProfileProperties.getCacheDir()) {
+            @Override
+            protected void onDirectoryChanged(String newDir) {
+                ForgeProfileProperties.setCacheDir(newDir);
+
+                //ensure card pics option is updated if needed
+                cardPicsOption.updateDir(ForgeProfileProperties.getCardPicsDir());
+            }
+        }, 1);
+        lstItems.addItem(cardPicsOption, 1);
     }
 
     @Override
@@ -113,5 +145,29 @@ public class FilesPage extends TabPage {
             new GuiDownloader(createService());
         }
         protected abstract GuiDownloadService createService();
+    }
+
+    private abstract class StorageOption extends FilesItem {
+        public StorageOption(String name0, String dir0) {
+            super(name0, dir0);
+        }
+
+        private void updateDir(String dir0) {
+            description = dir0;
+        }
+
+        @Override
+        public void select() {
+            FFileChooser.show("Select " + label, ChoiceType.GetDirectory, description, new Callback<String>() {
+                @Override
+                public void run(String result) {
+                    if (StringUtils.isEmpty(result) || description.equals(result)) { return; }
+                    updateDir(result);
+                    onDirectoryChanged(result);
+                    FOptionPane.showMessageDialog("You'll need to restart Forge for this change to take effect. Be sure to move any necessary files to the new location before you do.", "Restart Required", FOptionPane.INFORMATION_ICON);
+                }
+            });
+        }
+        protected abstract void onDirectoryChanged(String newDir);
     }
 }

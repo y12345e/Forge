@@ -63,7 +63,7 @@ public class AnimateAi extends SpellAbilityAi {
         if (!game.getStack().isEmpty()) {
             SpellAbility topStack = game.getStack().peekAbility();
             if (topStack.getApi() == ApiType.Sacrifice) {
-                final String valid = topStack.getParam("SacValid");
+                final String valid = topStack.getParamOrDefault("SacValid", "Card.Self");
                 String num = topStack.getParam("Amount");
                 num = (num == null) ? "1" : num;
                 final int nToSac = AbilityUtils.calculateAmount(topStack.getHostCard(), num, topStack);
@@ -72,7 +72,7 @@ public class AnimateAi extends SpellAbilityAi {
                 list = CardLists.filter(list, CardPredicates.canBeSacrificedBy(topStack));
                 ComputerUtilCard.sortByEvaluateCreature(list);
                 if (!list.isEmpty() && list.size() == nToSac && ComputerUtilCost.canPayCost(sa, aiPlayer)) {
-                    Card animatedCopy = CardFactory.getCard(source.getPaperCard(), aiPlayer);
+                    Card animatedCopy = CardFactory.copyCard(source, true);
                     becomeAnimated(animatedCopy, sa);
                     list.add(animatedCopy);
                     list = CardLists.getValidCards(list, valid.split(","), aiPlayer.getOpponent(), topStack.getHostCard());
