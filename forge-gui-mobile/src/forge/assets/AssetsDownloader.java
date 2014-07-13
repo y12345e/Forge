@@ -53,9 +53,11 @@ public class AssetsDownloader {
                 Gdx.app.exit(); //can't continue if this fails
             }
         }
-        else if (Forge.CURRENT_VERSION.equals(FileUtil.readFileToString(versionFile)) && FSkin.getFontDir() != null) {
+        else if (Forge.CURRENT_VERSION.equals(FileUtil.readFileToString(versionFile)) && FSkin.getSkinDir() != null) {
             return; //if version matches what had been previously saved and FSkin isn't requesting assets download, no need to download assets
         }
+
+        FSkinFont.deleteCachedFiles(); //delete cached font files in case skin .ttf files change
 
         downloadAssets(splashScreen.getProgressBar());
 
@@ -63,6 +65,7 @@ public class AssetsDownloader {
         FThreads.invokeInEdtAndWait(new Runnable() {
             @Override
             public void run() {
+                FSkinFont.updateAll(); //update all fonts used by splash screen
                 FSkin.loadLight(FSkin.getName(), splashScreen);
             }
         });

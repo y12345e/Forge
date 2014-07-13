@@ -14,12 +14,14 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import forge.FThreads;
 import forge.assets.FSkinImage.SourceFile;
 import forge.card.CardFaceSymbols;
 import forge.model.FModel;
 import forge.properties.ForgeConstants;
 import forge.properties.ForgePreferences;
 import forge.properties.ForgePreferences.FPref;
+import forge.screens.LoadingOverlay;
 import forge.screens.SplashScreen;
 import forge.toolbox.FProgressBar;
 
@@ -29,7 +31,6 @@ public class FSkin {
 
     private static ArrayList<String> allSkins;
     private static FileHandle preferredDir;
-    private static FileHandle preferredFontDir;
     private static String preferredName;
     private static boolean loaded = false;
 
@@ -43,8 +44,35 @@ public class FSkin {
 
         //load skin
         loaded = false; //reset this temporarily until end of loadFull()
-        loadLight(skinName, null);
-        loadFull(null);
+
+        final LoadingOverlay loader = new LoadingOverlay("Loading new theme...");
+        loader.show(); //show loading overlay then delay running remaining logic so UI can respond
+        FThreads.invokeInBackgroundThread(new Runnable() {
+            @Override
+            public void run() {
+                FThreads.invokeInEdtLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLight(skinName, null);
+                        loadFull(null);
+                        loader.setCaption("Loading fonts...");
+                        FThreads.invokeInBackgroundThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                FSkinFont.deleteCachedFiles(); //delete cached font files so font can be update for new skin
+                                FSkinFont.updateAll();
+                                FThreads.invokeInEdtLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        loader.hide();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 
     /*
@@ -63,7 +91,6 @@ public class FSkin {
         if (!dir.exists() || !dir.isDirectory()) {
             //if skins directory doesn't exist, point to internal assets/skin directory instead for the sake of the splash screen
             preferredDir = Gdx.files.internal("fallback_skin");
-            preferredFontDir = null;
         }
         else {
             if (splashScreen != null) {
@@ -79,9 +106,8 @@ public class FSkin {
 
             // Non-default (preferred) skin name and dir.
             preferredDir = Gdx.files.absolute(ForgeConstants.SKINS_DIR + preferredName);
-            preferredFontDir = Gdx.files.absolute(ForgeConstants.CACHE_DIR + "fonts/" + preferredName);
-            if (!preferredFontDir.exists() || !preferredFontDir.isDirectory()) {
-                preferredFontDir.mkdirs();
+            if (!preferredDir.exists() || !preferredDir.isDirectory()) {
+                preferredDir.mkdirs();
             }
         }
 
@@ -225,11 +251,6 @@ public class FSkin {
             e.printStackTrace();
         }
 
-        // Update fonts if needed
-        if (splashScreen == null) {
-            FSkinFont.updateAll();
-        }
-
         // Run through enums and load their coords.
         FSkinColor.updateAll();
 
@@ -264,18 +285,8 @@ public class FSkin {
         return Gdx.files.absolute(ForgeConstants.DEFAULT_SKINS_DIR + filename);
     }
 
-    /**
-     * Gets a FileHandle for the directory where fonts should be cached
-     */
-    public static FileHandle getFontDir() {
-        return preferredFontDir;
-    }
-
-    /**
-     * Gets a FileHandle for a file within the directory where fonts should be cached
-     */
-    public static FileHandle getFontFile(String filename) {
-        return preferredFontDir != null ? preferredFontDir.child(filename) : null;
+    public static FileHandle getSkinDir() {
+        return preferredDir;
     }
 
     /**
