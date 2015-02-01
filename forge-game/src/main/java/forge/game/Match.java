@@ -304,8 +304,7 @@ public class Match {
                 }
                 if (outcome.anteResult.containsKey(fromGame)) {
                     outcome.anteResult.get(fromGame).addWon(gainedPaperOwnership);
-                }
-                else {
+                } else {
                     outcome.anteResult.put(fromGame, GameOutcome.AnteResult.won(gainedPaperOwnership));
                 }
             }
@@ -332,8 +331,7 @@ public class Match {
 
             if (outcome.anteResult.containsKey(fromGame)) {
                 outcome.anteResult.get(fromGame).addLost(personalLosses);
-            }
-            else {
+            } else {
                 outcome.anteResult.put(fromGame, GameOutcome.AnteResult.lost(personalLosses));
             }
         }
@@ -343,8 +341,7 @@ public class Match {
             Player fromGame = lastGame.getRegisteredPlayers().get(iWinner);
             if (outcome.anteResult.containsKey(fromGame)) {
                 outcome.anteResult.get(fromGame).addWon(losses);
-            }
-            else {
+            } else {
                 outcome.anteResult.put(fromGame, GameOutcome.AnteResult.won(losses));
             }
 

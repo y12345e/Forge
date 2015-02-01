@@ -32,9 +32,6 @@ import forge.game.combat.Combat;
 import forge.game.combat.CombatUtil;
 import forge.game.cost.Cost;
 import forge.game.event.*;
-import forge.game.io.GameStateDeserializer;
-import forge.game.io.GameStateSerializer;
-import forge.game.io.IGameStateObject;
 import forge.game.player.Player;
 import forge.game.player.PlayerController.BinaryChoiceType;
 import forge.game.player.PlayerController.ManaPaymentPurpose;
@@ -45,7 +42,6 @@ import forge.game.zone.ZoneType;
 import forge.util.CollectionSuppliers;
 import forge.util.maps.HashMapOfLists;
 import forge.util.maps.MapOfLists;
-
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.*;
@@ -59,7 +55,7 @@ import java.util.*;
  * @author Forge
  * @version $Id: PhaseHandler.java 13001 2012-01-08 12:25:25Z Sloth $
  */
-public class PhaseHandler implements java.io.Serializable, IGameStateObject {
+public class PhaseHandler implements java.io.Serializable {
 
     /** Constant <code>serialVersionUID=5207222278370963197L</code>. */
     private static final long serialVersionUID = 5207222278370963197L;
@@ -1144,19 +1140,5 @@ public class PhaseHandler implements java.io.Serializable, IGameStateObject {
 
     public void endCombat() {
         combat = null;
-    }
-
-
-    @Override
-    public void loadState(GameStateDeserializer gsd) {
-        // TODO Auto-generated method stub
-        
-    }
-
-
-    @Override
-    public void saveState(GameStateSerializer gss) {
-        // TODO Auto-generated method stub
-        
     }
 }

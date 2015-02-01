@@ -18,9 +18,6 @@
 package forge.game;
 
 import forge.LobbyPlayer;
-import forge.game.io.GameStateDeserializer;
-import forge.game.io.GameStateSerializer;
-import forge.game.io.IGameStateObject;
 import forge.game.player.Player;
 import forge.game.player.PlayerOutcome;
 import forge.game.player.PlayerStatistics;
@@ -43,7 +40,8 @@ import java.util.Map.Entry;
 // This class might be divided in two parts: the very summary (immutable with
 // only getters) and
 // GameObserver class - who should be notified of any considerable ingame event
-public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStatistics>>, IGameStateObject  {
+public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStatistics>>  {
+
     public static class AnteResult {
         public final List<PaperCard> lostCards;
         public final List<PaperCard> wonCards;
@@ -53,8 +51,7 @@ public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStati
             if (won) {
                 this.wonCards = cards;
                 this.lostCards = new ArrayList<>();
-            }
-            else {
+            } else {
                 this.lostCards = cards;
                 this.wonCards = new ArrayList<>();
             }
@@ -79,20 +76,6 @@ public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStati
     public final Map<Player, AnteResult> anteResult = new TreeMap<>();
     private GameEndReason winCondition;
 
-    @Override
-    public void loadState(GameStateDeserializer gsd) {
-        lastTurnNumber = gsd.readInt();
-        lifeDelta = gsd.readInt();
-        winCondition = GameEndReason.valueOf(gsd.readString());
-    }
-
-    @Override
-    public void saveState(GameStateSerializer gss) {
-        gss.write(lastTurnNumber);
-        gss.write(lifeDelta);
-        gss.write(winCondition.name());
-    }
-
     public GameOutcome(GameEndReason reason, final Iterable<Player> list) {
         winCondition = reason;
         players = list;
@@ -101,21 +84,22 @@ public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStati
         }
         calculateLifeDelta();
     }
-
+    
     private void calculateLifeDelta() {
+        
         int opponentsHealth = 0;
         int winnersHealth = 0;
         
         for (Player p : players) {
             if (p == this.getWinningPlayer()) {
                 winnersHealth = p.getLife();
-            }
-            else {
+            } else {
                 opponentsHealth += p.getLife();
             }
         }
         
         lifeDelta = Math.max(0, winnersHealth -= opponentsHealth);
+        
     }
 
     public boolean isDraw() {
@@ -126,6 +110,7 @@ public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStati
         }
         return true;
     }
+
 
     public boolean isWinner(final LobbyPlayer who) {
         for (Pair<LobbyPlayer, PlayerStatistics> pv : playerRating)
@@ -249,4 +234,5 @@ public final class GameOutcome implements Iterable<Pair<LobbyPlayer, PlayerStati
     public List<Player> getPlayers() {
         return (List<Player>)players;
     }
+
 }

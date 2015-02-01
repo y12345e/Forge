@@ -216,7 +216,9 @@ public enum ItemManagerConfig {
             for (int i = 0; i < configs.getLength(); i++) {
                 try { //capture enum parse errors without losing other preferences
                     final Element el = (Element)configs.item(i);
-                    final ItemManagerConfig config = Enum.valueOf(ItemManagerConfig.class, el.getAttribute("name"));
+                    final String eltName = el.getAttribute("name");
+                    //System.out.println(eltName);
+                    final ItemManagerConfig config = Enum.valueOf(ItemManagerConfig.class, eltName);
                     if (el.hasAttribute("uniqueCardsOnly")) {
                         config.uniqueCardsOnly.value = Boolean.parseBoolean(el.getAttribute("uniqueCardsOnly"));
                     }

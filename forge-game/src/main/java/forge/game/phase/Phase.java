@@ -18,17 +18,12 @@
 package forge.game.phase;
 
 import com.google.common.collect.Lists;
-
 import forge.GameCommand;
-import forge.game.io.GameStateDeserializer;
-import forge.game.io.GameStateSerializer;
-import forge.game.io.IGameStateObject;
 import forge.game.player.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 
 /**
@@ -39,7 +34,7 @@ import java.util.Map.Entry;
  * @author Forge
  * @version $Id$
  */
-public class Phase implements java.io.Serializable, IGameStateObject {
+public class Phase implements java.io.Serializable {
 
     private static final long serialVersionUID = 4665309652476851977L;
 
@@ -49,36 +44,8 @@ public class Phase implements java.io.Serializable, IGameStateObject {
         this.type = type;
     }
 
-    protected final ArrayList<GameCommand> at = new ArrayList<GameCommand>();
-    private final ArrayList<GameCommand> until = new ArrayList<GameCommand>();
-    private final HashMap<Player, ArrayList<GameCommand>> untilMap = new HashMap<Player, ArrayList<GameCommand>>();
-    private final HashMap<Player, ArrayList<GameCommand>> untilEndMap = new HashMap<Player, ArrayList<GameCommand>>();
-    private final HashMap<Player, ArrayList<GameCommand>> registerMap = new HashMap<Player, ArrayList<GameCommand>>();
-
-    @Override
-    public void loadState(GameStateDeserializer gsd) {
-        
-    }
-
-    @Override
-    public void saveState(GameStateSerializer gss) {
-        gss.write(type.name());
-        gss.serialize(at);
-        gss.serialize(until);
-        for (Entry<Player, ArrayList<GameCommand>> entry : untilMap.entrySet()) {
-            gss.write(entry.getKey());
-            gss.serialize(entry.getValue());
-        }
-        for (Entry<Player, ArrayList<GameCommand>> entry : untilEndMap.entrySet()) {
-            gss.write(entry.getKey());
-            gss.serialize(entry.getValue());
-        }
-        for (Entry<Player, ArrayList<GameCommand>> entry : registerMap.entrySet()) {
-            gss.write(entry.getKey());
-            gss.serialize(entry.getValue());
-        }
-    }
-
+    /** The at. */
+    protected final List<GameCommand> at = new ArrayList<GameCommand>();
     /**
      * <p>
      * Add a hardcoded trigger that will execute "at <phase>".
@@ -99,6 +66,9 @@ public class Phase implements java.io.Serializable, IGameStateObject {
     public void executeAt() {
         this.execute(this.at);
     }
+
+    /** The until. */
+    private final List<GameCommand> until = new ArrayList<GameCommand>();
 
     /**
      * <p>
@@ -121,6 +91,10 @@ public class Phase implements java.io.Serializable, IGameStateObject {
         this.execute(this.until);
     }
 
+    /** The until map. */
+    private final HashMap<Player, List<GameCommand>> untilMap = new HashMap<Player, List<GameCommand>>();
+    private final HashMap<Player, List<GameCommand>> untilEndMap = new HashMap<Player, List<GameCommand>>();
+    private final HashMap<Player, List<GameCommand>> registerMap = new HashMap<Player, List<GameCommand>>();
     /**
      * <p>
      * Add a Command that will terminate an effect with "until <Player's> next <phase>".
@@ -192,4 +166,5 @@ public class Phase implements java.io.Serializable, IGameStateObject {
             c.remove(0).run();
         }
     }
+
 } //end class Phase

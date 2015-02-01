@@ -32,19 +32,6 @@ public class VGameMenu extends FDropDownMenu {
                 });
             }
         }));
-        /*addItem(new FMenuItem("Save Game", FSkinImage.SAVE, new FEventHandler() {
-            @Override
-            public void handleEvent(FEvent e) {
-                GameStateSerializer.saveGameState(MatchUtil.getGame(), ForgeConstants.USER_GAMES_DIR + "GameSave.txt");
-                FOptionPane.showMessageDialog("Game saved successfully.", "Save Game", FOptionPane.INFORMATION_ICON);
-            }
-        }));
-        addItem(new FMenuItem("Load Game", FSkinImage.OPEN, new FEventHandler() {
-            @Override
-            public void handleEvent(FEvent e) {
-                GameStateDeserializer.loadGameState(MatchUtil.getGame(), ForgeConstants.USER_GAMES_DIR + "GameSave.txt");
-            }
-        }));*/
         addItem(new FMenuItem("Deck List", FSkinImage.DECKLIST, new FEventHandler() {
             @Override
             public void handleEvent(FEvent e) {

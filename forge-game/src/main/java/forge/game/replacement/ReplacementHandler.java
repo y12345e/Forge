@@ -23,14 +23,10 @@ import forge.game.GameLogEntryType;
 import forge.game.ability.AbilityFactory;
 import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
-import forge.game.io.GameStateDeserializer;
-import forge.game.io.GameStateSerializer;
-import forge.game.io.IGameStateObject;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
 import forge.game.zone.ZoneType;
 import forge.util.FileSection;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -39,7 +35,7 @@ import java.util.*;
  * TODO: Write javadoc for this type.
  * 
  */
-public class ReplacementHandler implements IGameStateObject {
+public class ReplacementHandler {
     private final Game game;
     /**
      * ReplacementHandler.
@@ -303,17 +299,5 @@ public class ReplacementHandler implements IGameStateObject {
                  c.getReplacementEffects().get(i).setTemporarilySuppressed(false);
              }
         }
-    }
-
-    @Override
-    public void loadState(GameStateDeserializer gsd) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void saveState(GameStateSerializer gss) {
-        // TODO Auto-generated method stub
-        
     }
 }

@@ -19,10 +19,6 @@
 package forge.game;
 
 import forge.game.event.IGameEventVisitor;
-import forge.game.io.GameStateDeserializer;
-import forge.game.io.GameStateSerializer;
-import forge.game.io.IGameStateObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -34,7 +30,7 @@ import java.util.Observable;
  * @author Forge
  * @version $Id: GameLog.java 12297 2011-11-28 19:56:47Z slapshot5 $
  */
-public class GameLog extends Observable implements IGameStateObject {
+public class GameLog extends Observable {
     private List<GameLogEntry> log = new ArrayList<GameLogEntry>();
 
     private GameLogFormatter formatter = new GameLogFormatter(this);
@@ -46,17 +42,8 @@ public class GameLog extends Observable implements IGameStateObject {
      * 6 - All Phase information
      */
 
-    @Override
-    public void loadState(GameStateDeserializer gsd) {
-        // TODO Auto-generated method stub
-        
-    }
 
-    @Override
-    public void saveState(GameStateSerializer gss) {
-        gss.writeList(log);
-    }
-
+    
     /**
      * Instantiates a new game log.
      */
@@ -111,4 +98,5 @@ public class GameLog extends Observable implements IGameStateObject {
     public IGameEventVisitor<?> getEventVisitor() {
         return formatter;
     }
+
 }
