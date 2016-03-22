@@ -1,13 +1,17 @@
 * text=auto !eol
 a/archangel_avacyn_avacyn_the_purifier.txt -text
 a/arlinn_kord_arlinn_embraced_by_the_moon.txt -text
+c/clip_wings.txt -text
 c/compelling_deterrence.txt -text
+c/crow_of_dark_tidings.txt -text
 d/drownyard_temple.txt -text
+d/duskwatch_recruiter_krallenhorde_howler.txt -text
 e/eerie_interlude.txt -text
 f/forsaken_sanctuary.txt -text
 f/foul_orchard.txt -text
 h/highland_lake.txt -text
 h/hound_of_the_farbogs.txt -text
+p/pieces_of_the_puzzle.txt -text
 p/pore_over_the_pages.txt -text
 s/stone_quarry.txt -text
 w/warped_landscape.txt -text
