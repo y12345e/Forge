@@ -1,8 +1,11 @@
 * text=auto !eol
 b/borrowed_malevolence.txt -text
+c/cemetery_recruitment.txt -text
+c/chilling_grasp.txt -text
 c/coax_from_the_blind_eternities.txt -text
 d/dawn_gryff.txt -text
 e/emrakul_the_promised_end.txt -text
+g/gnarlwood_dryad.txt -text
 l/long_road_home.txt -text
 t/thalia_heretic_cathar.txt -text
 t/thalias_lancers.txt -text
