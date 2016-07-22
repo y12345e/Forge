@@ -17,6 +17,7 @@ import forge.toolbox.FComboBox;
 import forge.toolbox.FComboBoxPanel;
 import forge.toolbox.FLabel;
 import forge.toolbox.FOptionPane;
+import forge.util.Localizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -176,6 +177,7 @@ public enum CSubmenuPreferences implements ICDoc {
         initializeAiProfilesComboBox();
         initializeColorIdentityCombobox();
         initializePlayerNameButton();
+        initializeSetLanguageComboBox();
     }
 
     /* (non-Javadoc)
@@ -311,7 +313,19 @@ public enum CSubmenuPreferences implements ICDoc {
         final String selectedItem = this.prefs.getPref(userSetting);
         panel.setComboBox(comboBox, selectedItem);
     }
-    
+
+    private void initializeSetLanguageComboBox() {
+        final String[] elems = new String[Localizer.getInstance().getLanguages().size()];
+        for (int i = 0; i < Localizer.getInstance().getLanguages().size(); i++) {
+            elems[i] = Localizer.getInstance().getLanguages().get(i).langaugeID;
+        }
+        final FPref userSetting = FPref.UI_LANGUAGE;
+        final FComboBoxPanel<String> panel = this.view.getSetLanguageComboBoxPanel();
+        final FComboBox<String> comboBox = createComboBox(elems, userSetting);
+        final String selectedItem = this.prefs.getPref(userSetting);
+        panel.setComboBox(comboBox, selectedItem);
+    }
+
     private <E> FComboBox<E> createComboBox(final E[] items, final ForgePreferences.FPref setting) {
         final FComboBox<E> comboBox = new FComboBox<>(items);
         addComboBoxListener(comboBox, setting);

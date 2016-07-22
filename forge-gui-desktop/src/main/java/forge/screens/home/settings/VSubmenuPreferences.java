@@ -92,6 +92,7 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FComboBoxPanel<CloseAction> cbpCloseAction = new FComboBoxPanel<>("Close Action:");
     private final FComboBoxPanel<String> cbpAiProfiles = new FComboBoxPanel<>("AI Personality:");
     private final FComboBoxPanel<String> cbpDisplayCurrentCardColors = new FComboBoxPanel<>("Show Detailed Card Color:");
+    private final FComboBoxPanel<String> cbpSetLanguage = new FComboBoxPanel<>("Language:");
 
     /**
      * Constructor.
@@ -123,6 +124,9 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(getPlayerNamePanel(), regularConstraints + ", h 26px!");
         pnlPrefs.add(new NoteLabel("Sets the name that you will be referred to by Forge during gameplay."), regularConstraints);
+
+        pnlPrefs.add(cbpSetLanguage, "w 80%!, gap 10% 0 0 10px, span 2 1");
+        pnlPrefs.add(new NoteLabel("Choose your Language."), regularConstraints);
 
         pnlPrefs.add(cbCompactMainMenu, regularConstraints);
         pnlPrefs.add(new NoteLabel("Enable for a space efficient sidebar that displays only one menu group at a time (RESTART REQUIRED)."), regularConstraints);
@@ -526,6 +530,8 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     public FComboBoxPanel<CloseAction> getCloseActionComboBoxPanel() {
         return cbpCloseAction;
     }
+
+    public FComboBoxPanel<String> getSetLanguageComboBoxPanel() { return cbpSetLanguage;}
 
     /** @return {@link javax.swing.JCheckBox} */
     public JCheckBox getCbEnforceDeckLegality() {

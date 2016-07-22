@@ -7,15 +7,19 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.*;
+import java.io.FileReader;
+import java.io.BufferedReader;
 
 public class Localizer {
 	
 	private static Localizer instance;
 
 	private List<LocalizationChangeObserver> observers = new ArrayList<>();
-	
-	private Locale locale;
-	private ResourceBundle resourceBundle;
+	private List<Language> languages = new ArrayList<>();
+
+	private Locale locale,localeDefault;
+	private ResourceBundle resourceBundle,resourceBundleDefault;
+
 
 	public static Localizer getInstance() {
 		if (instance == null) {
@@ -44,15 +48,20 @@ public class Localizer {
 		
 		if (formatter == null) {
 			System.err.println("INVALID PROPERTY: '" + key + "' -- Translation Needed?");
-			return "INVALID PROPERTY: '" + key + "' -- Translation Needed?";
+			try {
+				formatter = new MessageFormat(resourceBundleDefault.getString(key.toLowerCase()), localeDefault);
+			} catch (final IllegalArgumentException | MissingResourceException e) {
+				e.printStackTrace();
+			}
+			//return "INVALID PROPERTY: '" + key + "' -- Translation Needed?";
 		}
 		
 		formatter.setLocale(locale);
 		
 		String formattedMessage = "CHAR ENCODING ERROR";
 		try {
-			//Support non-English-standard characters
-			formattedMessage = new String(formatter.format(messageArguments).getBytes("ISO-8859-1"), "UTF-8");
+			//Support non-English-standard characters(ISO-8859-1)
+			formattedMessage = new String(formatter.format(messageArguments).getBytes("UTF-8"), "UTF-8");
 		} catch (final UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -67,11 +76,23 @@ public class Localizer {
 		
 		Locale oldLocale = locale;
 		locale = new Locale(splitLocale[0], splitLocale[1]);
+		localeDefault= new Locale("en", "US");
 		
 		//Don't reload the language if nothing changed
 		if (oldLocale == null || !oldLocale.equals(locale)) {
 
 			File file = new File(languagesDirectory);
+			for (File s : file.listFiles()) {
+				try {
+					BufferedReader reader = new BufferedReader(new FileReader(s));
+					String[] line;
+					line = reader.readLine().split("\\s=\\s");
+					line[0] = s.getName().split("\\.")[0];
+					languages.add(new Language(line[1], line[0]));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			URL[] urls = null;
 			
 			try {
@@ -84,6 +105,7 @@ public class Localizer {
 
 			try {
 				resourceBundle = ResourceBundle.getBundle(languageRegionID, new Locale(splitLocale[0], splitLocale[1]), loader);
+				resourceBundleDefault = ResourceBundle.getBundle("en-US", new Locale("en", "US"), loader);
 			} catch (NullPointerException | MissingResourceException e) {
 				//If the language can't be loaded, default to US English
 				resourceBundle = ResourceBundle.getBundle("en-US", new Locale("en", "US"), loader);
@@ -100,7 +122,7 @@ public class Localizer {
 	
 	public List<Language> getLanguages() {
 		//TODO List all languages by getting their files
-		return null;
+		return this.languages;
 	}
 	
 	public void registerObserver(LocalizationChangeObserver observer) {
@@ -115,7 +137,11 @@ public class Localizer {
 	
 	public static class Language {
 		public String languageName;
-		public String langaugeID; 
+		public String langaugeID;
+		public Language(String languageName, String langaugeID) {
+			this.languageName = languageName;
+			this.langaugeID = langaugeID;
+		}
 	} 
 	
 }

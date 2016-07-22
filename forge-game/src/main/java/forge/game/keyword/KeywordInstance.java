@@ -17,7 +17,7 @@ public abstract class KeywordInstance<T extends KeywordInstance<?>> {
         
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
-            m.appendReplacement(sb, Lang.nounWithNumeral(m.group(1), m.group(2)));
+            m.appendReplacement(sb, Lang.nounWithNumeral(Integer.parseInt(m.group(1)), m.group(2)));
         }
         m.appendTail(sb);
         return sb.toString();
